@@ -1,0 +1,10 @@
+export { default as ProductManagement } from './ProductManagement';
+export { default as ProductList } from './ProductList';
+export { default as AddProduct } from './AddProduct';
+export { default as EditProduct } from './EditProduct';
+export { default as CategoriesManagement } from './CategoriesManagement';
+export { default as InventoryManagement } from './InventoryManagement';
+export { default as ProductVariants } from './ProductVariants';
+export { default as SKUManagement } from './SKUManagement';
+export { default as BulkUpload } from './BulkUpload';
+export { default as ProductImageUpload } from './ProductImageUpload';
