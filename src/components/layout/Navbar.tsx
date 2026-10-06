@@ -5,7 +5,7 @@ import { useAppSelector } from '../../app/hooks';
 import { useLogoutMutation } from '../../service/authApi';
 import { useGetCartQuery } from '../../service/cartApi';
 import { useListCategoriesQuery, useListProductsQuery } from '../../service/productsApi';
-import { COLORS, FONTS } from '../../constant/style';
+import { FONTS } from '../../constant/style';
 import logo from '../../assets/logo.png';
 import { getGuestCart } from '../../utils/guestCart';
 

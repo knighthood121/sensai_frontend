@@ -47,7 +47,6 @@ export default function ShipmentManagementScreen({
   isError,
   error,
   isUpdating,
-  page,
   setPage,
   searchTerm,
   setSearchTerm,

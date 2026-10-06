@@ -1,7 +1,6 @@
 import { api } from './api';
 import { ENDPOINTS } from '../constant/urls';
 import type {
-  Coupon,
   CouponResponse,
   CouponListResponse,
   CouponMutationResponse,

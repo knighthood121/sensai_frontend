@@ -99,28 +99,6 @@ export default function OrderListScreen() {
     }
   };
 
-  const getStatusDotStyle = (status: OrderStatus) => {
-    switch (status) {
-      case 'DELIVERED':
-        return 'bg-emerald-500';
-      case 'CANCELLED':
-      case 'RETURNED':
-        return 'bg-rose-500';
-      case 'PENDING':
-        return 'bg-amber-500';
-      case 'CONFIRMED':
-      case 'PACKED':
-        return 'bg-indigo-500';
-      case 'SHIPPED':
-      case 'OUT_FOR_DELIVERY':
-        return 'bg-blue-500';
-      case 'RETURN_REQUESTED':
-        return 'bg-purple-500';
-      default:
-        return 'bg-gray-500';
-    }
-  };
-
   const getPaymentBadgeStyle = (paymentStatus: PaymentStatus) => {
     switch (paymentStatus) {
       case 'SUCCESS':

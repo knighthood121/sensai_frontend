@@ -4,7 +4,7 @@ import { COLORS, FONTS } from '../../../../constant/style';
 import Button from '../../../../components/common/Button';
 import Modal from '../../../../components/common/Modal';
 import { useGetAdminTicketsQuery, useUpdateTicketStatusMutation } from '../../../../service/adminTicketApi';
-import { Loader2, AlertCircle, Search, Filter, MessageSquare, X } from 'lucide-react';
+import { Loader2, AlertCircle, Search, Filter, MessageSquare } from 'lucide-react';
 import { useToast } from '../../../../components/common/Toast';
 import type { TicketStatus, TicketPriority, SupportTicket } from '../../../../types/Ticket.type';
 

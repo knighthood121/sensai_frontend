@@ -4,7 +4,6 @@ import Button from '../../../../components/common/Button';
 import {
   Loader2,
   AlertCircle,
-  Calendar,
   X,
   Package,
   Layers,
@@ -12,8 +11,7 @@ import {
   TrendingDown,
   FileClock,
   ArrowLeft,
-  ExternalLink,
-  ArrowRight
+  ExternalLink
 } from 'lucide-react';
 import type { InventoryAction } from '../../../../types/Inventory.type';
 
@@ -78,11 +76,6 @@ export default function InventoryManagementScreen({
   isVariantLogsLoading,
 }: InventoryManagementScreenProps) {
   const navigate = useNavigate();
-
-  const formatDate = (dateStr: string) => {
-    const options: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'short', day: 'numeric' };
-    return new Date(dateStr).toLocaleDateString(undefined, options);
-  };
 
   const formatDateTime = (dateStr: string) => {
     const options: Intl.DateTimeFormatOptions = {

@@ -1,4 +1,5 @@
 import React from 'react';
+import type { NavigateFunction } from 'react-router-dom';
 import { COLORS, FONTS } from '../../../../constant/style';
 import Button from '../../../../components/common/Button';
 import {
@@ -12,6 +13,7 @@ import {
   Tag
 } from 'lucide-react';
 import type { OrderStatus } from '../../../../types/order.type';
+import type { AdminOrderDetail } from '../../../../types/AdminOrder.type';
 
 const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   PENDING: ['CONFIRMED', 'CANCELLED'],
@@ -27,7 +29,7 @@ const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
 
 export interface OrderDetailsScreenProps {
   orderId: number | undefined;
-  order: any;
+  order: AdminOrderDetail | undefined;
   isLoading: boolean;
   isError: boolean;
   error: any;
@@ -45,7 +47,7 @@ export interface OrderDetailsScreenProps {
   getStatusBadgeStyle: (status: OrderStatus) => string;
   getStatusDotStyle: (status: OrderStatus) => string;
   handleStatusUpdate: (e: React.FormEvent) => Promise<void>;
-  navigate: (path: string | number) => void;
+  navigate: NavigateFunction;
 }
 
 export default function OrderDetailsScreen({

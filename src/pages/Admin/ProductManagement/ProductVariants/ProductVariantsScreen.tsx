@@ -39,7 +39,7 @@ export default function ProductVariantsScreen(props: VariantScreenProps) {
     isCreateOpen, onOpenCreate, onCloseCreate,
     createForm, onAddCreateRow, onRemoveCreateRow, onCreateFieldChange,
     onSubmitCreate, isCreating, createError,
-    isEditOpen, editingVariant, onOpenEdit, onCloseEdit,
+    isEditOpen, onOpenEdit, onCloseEdit,
     editForm, onEditFieldChange, onSubmitEdit, isUpdating, editError,
     isStockOpen, stockVariant, onOpenStock, onCloseStock,
     stockForm, onStockFieldChange, onSubmitStock, isAdjustingStock, stockError,
@@ -107,7 +107,6 @@ export default function ProductVariantsScreen(props: VariantScreenProps) {
               totalStock={stockSummary.totalStock}
               reserved={stockSummary.totalReservedStock}
               available={stockSummary.totalAvailableStock}
-              inStock={stockSummary.inStock}
             />
           ) : null}
 
@@ -496,8 +495,8 @@ function SelectedProductHeader({ product, onClear }: { product: any; onClear: ()
 }
 
 function StockSummaryCards({
-  totalStock, reserved, available, inStock,
-}: { totalStock: number; reserved: number; available: number; inStock: boolean }) {
+  totalStock, reserved, available,
+}: { totalStock: number; reserved: number; available: number }) {
   const cards = [
     {
       label: 'Total Stock',

@@ -19,7 +19,6 @@ import {
   Clock,
   MapPin,
   Truck,
-  Info,
   X,
   ChevronRight,
   ChevronDown,
@@ -29,12 +28,7 @@ import {
   Tag,
   Loader2,
   FileText,
-  Phone,
   Search,
-  MessageSquare,
-  Printer,
-  Calendar,
-  CheckCircle,
   ShoppingBag
 } from 'lucide-react';
 import type { OrderStatus } from '../../../types/order.type';
