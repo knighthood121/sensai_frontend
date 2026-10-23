@@ -1,16 +1,16 @@
 export const COLORS = {
-  primary: '#7C3AED',
-  primaryLight: '#EDE9FE',
-  primaryDark: '#5B21B6',
+  primary: '#DC2626',      // Sensai Japanese Crimson Red (from logo)
+  primaryLight: '#FEE2E2', // Soft red badge / tint
+  primaryDark: '#991B1B',  // Deep scarlet red
   background: '#FFFFFF',
-  surface: '#F7F7FA',
-  text: '#171717',
+  surface: '#F9FAFB',
+  text: '#111827',
   textLight: '#6B7280',
   border: '#E5E7EB',
-  dark: '#101114',
+  dark: '#111111',         // Sensai Japanese Jet Black (from logo)
 };
 
 export const FONTS = {
-  main: '"Inter", "Segoe UI", sans-serif',
-  heading: '"Inter", "Segoe UI", sans-serif',
+  main: '"Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  heading: '"Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
 };

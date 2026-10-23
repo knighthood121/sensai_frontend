@@ -33,7 +33,7 @@ export default function BulkUploadScreen() {
         <div className="p-6">
           {/* Upload area */}
           <div
-            className="border-2 border-dashed rounded-2xl p-12 text-center transition-colors hover:border-pink-300 cursor-pointer mb-6"
+            className="border-2 border-dashed rounded-2xl p-12 text-center transition-colors hover:border-red-300 cursor-pointer mb-6"
             style={{ borderColor: COLORS.border }}
           >
             <div

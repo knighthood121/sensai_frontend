@@ -78,7 +78,7 @@ export default function CategoriesManagementScreen({
         <Button
           variant="primary"
           size="md"
-          className="rounded-xl px-5 font-bold uppercase tracking-wider text-xs bg-pink-500 hover:bg-pink-400 border border-pink-400/50 py-3 shadow-[0_4px_12px_rgba(236,72,153,0.15)] cursor-pointer !bg-pink-500"
+          className="rounded-xl px-5 font-bold uppercase tracking-wider text-xs bg-red-600 hover:bg-red-700 border border-red-500/50 py-3 shadow-[0_4px_12px_rgba(220,38,38,0.15)] cursor-pointer !bg-red-600"
           onClick={() => handleOpenCategoryModal('create')}
         >
           + Add Category
@@ -87,7 +87,7 @@ export default function CategoriesManagementScreen({
 
       {isCategoriesLoading ? (
         <div className="flex items-center justify-center min-h-[300px]">
-          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-pink-500"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-red-600"></div>
         </div>
       ) : categories.length === 0 ? (
         <div className="text-center py-20 bg-white border rounded-[32px] border-dashed border-gray-150">
@@ -110,14 +110,14 @@ export default function CategoriesManagementScreen({
                     key={cat.id}
                     onClick={() => setActiveCategoryId(cat.id)}
                     className={`flex items-center justify-between px-6 py-5 cursor-pointer transition-all duration-300 border-l-4 ${isSelected
-                        ? 'bg-pink-500/5 border-pink-500'
+                        ? 'bg-red-600/5 border-red-600'
                         : 'border-transparent hover:bg-gray-50/60'
                       }`}
                     style={{ borderBottom: i < categories.length - 1 ? `1px solid ${COLORS.border}` : 'none' }}
                   >
                     <div className="flex items-center gap-4 flex-1 min-w-0">
                       <div
-                        className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 transition-transform ${isSelected ? 'bg-pink-500 text-white scale-105 shadow-md shadow-pink-500/20' : 'bg-pink-50 text-pink-500'
+                        className={`w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 transition-transform ${isSelected ? 'bg-red-600 text-white scale-105 shadow-md shadow-red-600/20' : 'bg-red-50 text-red-600'
                           }`}
                       >
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -142,7 +142,7 @@ export default function CategoriesManagementScreen({
                     <div className="flex items-center gap-2 shrink-0 ml-4" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => handleOpenCategoryModal('edit', cat)}
-                        className="p-1.5 hover:text-pink-500 text-gray-400 transition-colors cursor-pointer"
+                        className="p-1.5 hover:text-red-600 text-gray-400 transition-colors cursor-pointer"
                         title="Edit Category"
                       >
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -174,7 +174,7 @@ export default function CategoriesManagementScreen({
               {activeCategoryId && (
                 <button
                   onClick={() => handleOpenSubCategoryModal('create')}
-                  className="text-xs font-bold text-pink-500 hover:text-pink-600 hover:underline transition-all uppercase tracking-wider cursor-pointer"
+                  className="text-xs font-bold text-red-600 hover:text-red-700 hover:underline transition-all uppercase tracking-wider cursor-pointer"
                 >
                   + Add Subcategory
                 </button>
@@ -184,7 +184,7 @@ export default function CategoriesManagementScreen({
             {activeCategoryId ? (
               isSubCategoriesLoading ? (
                 <div className="flex items-center justify-center py-20 bg-white border border-gray-100 rounded-[32px] shadow-sm">
-                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-pink-500"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-red-600"></div>
                 </div>
               ) : subCategories.length === 0 ? (
                 <div className="text-center py-20 bg-white border border-gray-100 rounded-[32px] shadow-sm px-4">
@@ -206,7 +206,7 @@ export default function CategoriesManagementScreen({
                       style={{ borderBottom: i < subCategories.length - 1 ? `1px solid ${COLORS.border}` : 'none' }}
                     >
                       <div className="flex items-center gap-4 min-w-0">
-                        <span className="w-2 h-2 rounded-full bg-pink-500 shrink-0" />
+                        <span className="w-2 h-2 rounded-full bg-red-600 shrink-0" />
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
                             <p className="text-sm font-bold text-gray-900 truncate">{sub.name}</p>
@@ -224,7 +224,7 @@ export default function CategoriesManagementScreen({
                       <div className="flex items-center gap-2 shrink-0 ml-4">
                         <button
                           onClick={() => handleOpenSubCategoryModal('edit', sub)}
-                          className="p-1.5 hover:text-pink-500 text-gray-400 transition-colors cursor-pointer"
+                          className="p-1.5 hover:text-red-600 text-gray-400 transition-colors cursor-pointer"
                           title="Edit Subcategory"
                         >
                           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

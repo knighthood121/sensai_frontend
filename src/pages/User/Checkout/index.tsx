@@ -9,6 +9,7 @@ import { useCheckoutMutation } from '../../../service/checkoutApi';
 import { useVerifyPaymentMutation, useHandlePaymentFailureMutation } from '../../../service/paymentApi';
 import { useToast } from '../../../components/common/Toast';
 import { useAppSelector } from '../../../app/hooks';
+import { COLORS } from '../../../constant/style';
 
 export interface OrderItem {
   productId: number;
@@ -438,7 +439,7 @@ export default function Checkout() {
             contact: phone,
           },
           theme: {
-            color: '#EC4899',
+            color: COLORS.primary,
           },
           method: {
             upi: true,

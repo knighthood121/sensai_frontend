@@ -87,7 +87,7 @@ export default function OrderDetailsScreen({
   if (isLoading) {
     return (
       <div className="min-h-[50vh] flex flex-col items-center justify-center py-20" style={{ fontFamily: FONTS.main }}>
-        <Loader2 className="w-10 h-10 text-pink-500 animate-spin mb-4" />
+        <Loader2 className="w-10 h-10 text-red-600 animate-spin mb-4" />
         <p className="text-gray-400 font-bold uppercase tracking-wider text-xs">Loading order details...</p>
       </div>
     );
@@ -155,7 +155,7 @@ export default function OrderDetailsScreen({
                       setTargetStatus(status);
                       setShowStatusModal(true);
                     }}
-                    className="px-4 py-2.5 bg-pink-50 hover:bg-pink-100 text-pink-600 border border-pink-100 rounded-xl text-xs font-bold transition-colors uppercase tracking-wider cursor-pointer"
+                    className="px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-100 rounded-xl text-xs font-bold transition-colors uppercase tracking-wider cursor-pointer"
                   >
                     Transition to {status}
                   </button>
@@ -220,7 +220,7 @@ export default function OrderDetailsScreen({
               )}
               <div className="flex justify-between font-bold text-lg mt-4 pt-4 border-t text-gray-900" style={{ borderColor: COLORS.border }}>
                 <span>Grand Total</span>
-                <span className="text-pink-600">₹{order.totalAmount.toFixed(2)}</span>
+                <span className="text-red-600">₹{order.totalAmount.toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -229,15 +229,15 @@ export default function OrderDetailsScreen({
           {order.timelines && order.timelines.length > 0 && (
             <div className="bg-white rounded-2xl border p-6 shadow-sm" style={{ borderColor: COLORS.border }}>
               <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
-                <Clock size={18} className="text-pink-500" /> Order History Logs
+                <Clock size={18} className="text-red-600" /> Order History Logs
               </h2>
               <div className="relative border-l-2 border-gray-150 ml-3 space-y-6">
                 {order.timelines.map((log, index) => (
                   <div key={log.id} className="relative pl-6">
-                    <span className={`absolute -left-[7px] top-1.5 w-3 h-3 rounded-full border-2 bg-white ${index === 0 ? 'border-pink-500 scale-110 shadow-sm' : 'border-gray-300'
+                    <span className={`absolute -left-[7px] top-1.5 w-3 h-3 rounded-full border-2 bg-white ${index === 0 ? 'border-red-600 scale-110 shadow-sm' : 'border-gray-300'
                       }`} />
                     <div>
-                      <span className={`text-xs font-black uppercase tracking-wide ${index === 0 ? 'text-pink-600' : 'text-gray-900'}`}>
+                      <span className={`text-xs font-black uppercase tracking-wide ${index === 0 ? 'text-red-600' : 'text-gray-900'}`}>
                         {log.status}
                       </span>
                       <p className="text-[10px] text-gray-400 font-semibold mt-0.5">{formatDateTime(log.createdAt)}</p>
@@ -277,10 +277,10 @@ export default function OrderDetailsScreen({
           {/* Customer profile info */}
           <div className="bg-white rounded-2xl border p-6 shadow-sm" style={{ borderColor: COLORS.border }}>
             <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <User size={18} className="text-pink-500" /> Customer Overview
+              <User size={18} className="text-red-600" /> Customer Overview
             </h2>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-pink-50 text-pink-600 flex items-center justify-center font-black">
+              <div className="w-10 h-10 rounded-full bg-red-50 text-red-600 flex items-center justify-center font-black">
                 {order.customer?.name ? order.customer.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() : 'C'}
               </div>
               <div>
@@ -306,7 +306,7 @@ export default function OrderDetailsScreen({
           {order.address && (
             <div className="bg-white rounded-2xl border p-6 shadow-sm" style={{ borderColor: COLORS.border }}>
               <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-                <MapPin size={18} className="text-pink-500" /> Shipping Address
+                <MapPin size={18} className="text-red-600" /> Shipping Address
               </h2>
               <address className="text-sm text-gray-600 not-italic leading-relaxed">
                 <p className="font-extrabold text-gray-900 mb-1">{order.address.fullName}</p>
@@ -322,7 +322,7 @@ export default function OrderDetailsScreen({
           {/* Payment & fulfillment status details */}
           <div className="bg-white rounded-2xl border p-6 shadow-sm" style={{ borderColor: COLORS.border }}>
             <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
-              <CreditCard size={18} className="text-pink-500" /> Status Overview
+              <CreditCard size={18} className="text-red-600" /> Status Overview
             </h2>
             <div className="space-y-4">
               <div>
@@ -379,7 +379,7 @@ export default function OrderDetailsScreen({
               Update Order Status
             </h3>
             <p className="text-xs text-gray-400 font-semibold mb-6">
-              You are updating order status from <span className="font-bold text-pink-500">{order.status}</span> to <span className="font-bold text-pink-500">{targetStatus}</span>.
+              You are updating order status from <span className="font-bold text-red-600">{order.status}</span> to <span className="font-bold text-red-600">{targetStatus}</span>.
             </p>
 
             <form onSubmit={handleStatusUpdate} className="space-y-5">
@@ -394,7 +394,7 @@ export default function OrderDetailsScreen({
                   value={statusNotes}
                   onChange={(e) => setStatusNotes(e.target.value)}
                   placeholder="E.g., Shipped via DHL express package service..."
-                  className="w-full rounded-2xl border border-gray-250 p-4 text-sm font-semibold focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all resize-none"
+                  className="w-full rounded-2xl border border-gray-250 p-4 text-sm font-semibold focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all resize-none"
                   disabled={isUpdating}
                 />
               </div>
@@ -412,7 +412,7 @@ export default function OrderDetailsScreen({
                     value={trackingId}
                     onChange={(e) => setTrackingId(e.target.value)}
                     placeholder="E.g., DHL9876543210"
-                    className="w-full rounded-2xl border border-gray-250 px-4 py-3 text-sm font-semibold focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all"
+                    className="w-full rounded-2xl border border-gray-250 px-4 py-3 text-sm font-semibold focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 transition-all"
                     disabled={isUpdating}
                   />
                 </div>
@@ -434,7 +434,7 @@ export default function OrderDetailsScreen({
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3.5 rounded-full font-black uppercase tracking-wider text-xs bg-pink-500 hover:bg-pink-600 text-white shadow-md transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  className="flex-1 py-3.5 rounded-full font-black uppercase tracking-wider text-xs bg-red-600 hover:bg-red-700 text-white shadow-md transition-colors flex items-center justify-center gap-2 cursor-pointer"
                   disabled={isUpdating}
                 >
                   {isUpdating ? (

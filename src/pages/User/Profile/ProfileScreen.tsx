@@ -110,7 +110,7 @@ export default function ProfileScreen({
         <Navbar />
         <div className="flex-1 flex flex-col items-center justify-center py-24 px-4">
           <div className="bg-white rounded-[24px] p-8 max-w-md w-full text-center shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-            <Shield className="w-16 h-16 text-pink-500 mx-auto mb-6" />
+            <Shield className="w-16 h-16 text-red-600 mx-auto mb-6" />
             <h3 className="text-2xl font-black mb-3 tracking-tight">Access Denied</h3>
             <p className="text-gray-500 text-sm mb-8">Please log in to view and manage your profile details.</p>
             <Button onClick={() => navigate('/login')} fullWidth className="rounded-full py-3.5 font-bold uppercase tracking-wider text-xs">Go to Login</Button>
@@ -126,7 +126,7 @@ export default function ProfileScreen({
       <div className="min-h-screen flex flex-col bg-[#FAFAFC]" style={{ fontFamily: FONTS.main }}>
         <Navbar />
         <div className="flex-1 flex flex-col items-center justify-center py-20">
-          <Loader2 className="w-12 h-12 text-pink-500 animate-spin mb-4" />
+          <Loader2 className="w-12 h-12 text-red-600 animate-spin mb-4" />
           <p className="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Loading profile...</p>
         </div>
         <Footer />
@@ -157,8 +157,8 @@ export default function ProfileScreen({
   return (
     <div className="min-h-screen flex flex-col bg-[#FAFAFC] relative overflow-hidden" style={{ fontFamily: FONTS.main, color: COLORS.text }}>
       {/* Decorative ambient background blobs */}
-      <div className="absolute top-[-8%] left-[-5%] w-[500px] h-[500px] bg-gradient-to-tr from-pink-200/8 to-purple-200/8 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-gradient-to-br from-indigo-200/8 to-emerald-100/8 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-[-8%] left-[-5%] w-[500px] h-[500px] bg-gradient-to-tr from-red-200/8 to-rose-200/8 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-gradient-to-br from-red-100/10 to-stone-100/10 rounded-full blur-[140px] pointer-events-none" />
 
       <Navbar />
 
@@ -167,7 +167,7 @@ export default function ProfileScreen({
         {/* Breadcrumb Navigation & Title */}
         <div className="mb-10 sm:mb-14">
           <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-4">
-            <button onClick={() => navigate('/')} className="hover:text-pink-500 transition-colors cursor-pointer">Home</button>
+            <button onClick={() => navigate('/')} className="hover:text-red-600 transition-colors cursor-pointer">Home</button>
             <ChevronRight className="w-3 h-3" />
             <span className="text-gray-600">My Profile</span>
           </div>
@@ -188,7 +188,7 @@ export default function ProfileScreen({
             <div className="bg-white rounded-[24px] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.02)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 transition-all duration-300 border border-gray-100 flex flex-col items-center">
               {/* Profile Avatar */}
               <div 
-                className="w-24 h-24 rounded-full text-white flex items-center justify-center text-3xl font-black mb-5 shadow-lg shadow-pink-100/60 relative group overflow-hidden border-4 border-white"
+                className="w-24 h-24 rounded-full text-white flex items-center justify-center text-3xl font-black mb-5 shadow-lg shadow-red-100/60 relative group overflow-hidden border-4 border-white"
                 style={{ backgroundColor: COLORS.primary }}
               >
                 {userInitials}
@@ -213,7 +213,7 @@ export default function ProfileScreen({
               {/* Info Rows */}
               <div className="w-full mt-8 pt-6 border-t border-gray-100 space-y-4 text-xs font-semibold text-gray-500">
                 <div className="flex items-center gap-3.5 group">
-                  <div className="w-8 h-8 rounded-xl bg-pink-50 flex items-center justify-center text-pink-500 group-hover:scale-105 transition-transform">
+                  <div className="w-8 h-8 rounded-xl bg-red-50 flex items-center justify-center text-red-600 group-hover:scale-105 transition-transform">
                     <Mail size={14} />
                   </div>
                   <div className="min-w-0 flex-1">
@@ -224,7 +224,7 @@ export default function ProfileScreen({
 
                 {user.phone && (
                   <div className="flex items-center gap-3.5 group">
-                    <div className="w-8 h-8 rounded-xl bg-pink-50 flex items-center justify-center text-pink-500 group-hover:scale-105 transition-transform">
+                    <div className="w-8 h-8 rounded-xl bg-red-50 flex items-center justify-center text-red-600 group-hover:scale-105 transition-transform">
                       <Phone size={14} />
                     </div>
                     <div>
@@ -235,7 +235,7 @@ export default function ProfileScreen({
                 )}
 
                 <div className="flex items-center gap-3.5 group">
-                  <div className="w-8 h-8 rounded-xl bg-pink-50 flex items-center justify-center text-pink-500 group-hover:scale-105 transition-transform">
+                  <div className="w-8 h-8 rounded-xl bg-red-50 flex items-center justify-center text-red-600 group-hover:scale-105 transition-transform">
                     <Calendar size={14} />
                   </div>
                   <div>
@@ -250,14 +250,14 @@ export default function ProfileScreen({
 
             {/* Wallet Balance widget (Glassmorphism look) */}
             {user.customerProfile && (
-              <div className="bg-gradient-to-br from-[#7C3AED] to-[#4F46E5] rounded-[24px] p-8 text-white shadow-[0_12px_30px_rgba(79,70,229,0.2)] relative overflow-hidden group">
+              <div className="bg-gradient-to-br from-[#DC2626] to-[#991B1B] rounded-[24px] p-8 text-white shadow-[0_12px_30px_rgba(220,38,38,0.2)] relative overflow-hidden group">
                 {/* Accent glow vector */}
                 <div className="absolute -right-10 -bottom-10 opacity-20 transform scale-110 group-hover:scale-125 transition-transform duration-700">
                   <CreditCard className="w-48 h-48" />
                 </div>
                 <div className="flex justify-between items-start mb-8 relative z-10">
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-widest text-indigo-200">Wallet Account</p>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-red-100">Wallet Account</p>
                     <h3 className="text-4xl font-black mt-1.5 tracking-tight">
                       ₹{Number(user.customerProfile.walletBalance || 0).toFixed(2)}
                     </h3>
@@ -267,7 +267,7 @@ export default function ProfileScreen({
                   </div>
                 </div>
                 <div className="flex justify-between items-center text-xs font-bold pt-4 border-t border-white/10 relative z-10">
-                  <span className="text-indigo-150">Total Spent: ₹{Number(user.customerProfile.totalSpent || 0).toFixed(2)}</span>
+                  <span className="text-red-100">Total Spent: ₹{Number(user.customerProfile.totalSpent || 0).toFixed(2)}</span>
                   <span className="bg-white/20 px-3 py-1 rounded-full text-[8px] uppercase tracking-wider">Active Wallet</span>
                 </div>
               </div>
@@ -302,7 +302,7 @@ export default function ProfileScreen({
                     <span className="uppercase tracking-wider text-[9px] text-gray-400 font-extrabold block">Login Provider</span>
                     <span className="font-bold text-gray-800 text-sm mt-1 block uppercase">{user.provider}</span>
                   </div>
-                  <span className="bg-indigo-50 text-indigo-600 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider">
+                  <span className="bg-stone-100 text-stone-700 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wider">
                     Secured
                   </span>
                 </div>
@@ -318,7 +318,7 @@ export default function ProfileScreen({
                 </div>
                 <button
                   onClick={openAddModal}
-                  className="flex items-center justify-center gap-1.5 px-5 py-2.5 text-xs font-bold uppercase tracking-wider rounded-full bg-pink-500 hover:bg-pink-600 text-white shadow-md shadow-pink-100 active:scale-95 transition-all cursor-pointer"
+                  className="flex items-center justify-center gap-1.5 px-5 py-2.5 text-xs font-bold uppercase tracking-wider rounded-full bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-100 active:scale-95 transition-all cursor-pointer"
                 >
                   <Plus size={14} /> Add Address
                 </button>
@@ -326,18 +326,18 @@ export default function ProfileScreen({
 
               {isAddressLoading ? (
                 <div className="py-20 flex justify-center">
-                  <Loader2 className="w-10 h-10 text-pink-500 animate-spin" />
+                  <Loader2 className="w-10 h-10 text-red-600 animate-spin" />
                 </div>
               ) : addresses.length === 0 ? (
                 <div className="py-20 text-center border-2 border-dashed border-gray-100 rounded-3xl bg-gray-50/50">
-                  <div className="w-14 h-14 bg-pink-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <MapPin className="w-6 h-6 text-pink-500" />
+                  <div className="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <MapPin className="w-6 h-6 text-red-600" />
                   </div>
                   <p className="font-bold text-sm text-gray-700 mb-1">No saved addresses</p>
                   <p className="text-xs text-gray-400 mb-6 max-w-xs mx-auto">Create shipping targets to accelerate checkout speed.</p>
                   <button 
                     onClick={openAddModal}
-                    className="px-6 py-2 border border-pink-500 hover:bg-pink-50/50 hover:text-pink-600 rounded-full text-xs font-bold text-pink-500 transition-colors active:scale-95"
+                    className="px-6 py-2 border border-red-600 hover:bg-red-50/50 hover:text-red-700 rounded-full text-xs font-bold text-red-600 transition-colors active:scale-95"
                   >
                     Add Address
                   </button>
@@ -348,7 +348,7 @@ export default function ProfileScreen({
                     <div
                       key={address.id}
                       className={`relative rounded-[20px] p-6 transition-all duration-300 flex flex-col justify-between hover:shadow-[0_8px_25px_rgba(0,0,0,0.04)] hover:-translate-y-0.5 border bg-white ${
-                        address.isDefault ? 'border-pink-500/30 ring-1 ring-pink-500/10' : 'border-gray-100'
+                        address.isDefault ? 'border-red-600/30 ring-1 ring-red-600/10' : 'border-gray-100'
                       }`}
                     >
                       <div className="text-left">
@@ -368,7 +368,7 @@ export default function ProfileScreen({
                           ) : (
                             <button
                               onClick={() => handleSetDefaultAddress(address.id)}
-                              className="px-2.5 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider border border-gray-200 hover:border-pink-250 text-gray-500 hover:text-pink-650 bg-white transition-all cursor-pointer active:scale-95 hover:bg-pink-50/10 shrink-0"
+                              className="px-2.5 py-0.5 rounded-full text-[8px] font-bold uppercase tracking-wider border border-gray-200 hover:border-red-300 text-gray-500 hover:text-red-600 bg-white transition-all cursor-pointer active:scale-95 hover:bg-red-50/10 shrink-0"
                             >
                               Set Default
                             </button>
@@ -381,7 +381,7 @@ export default function ProfileScreen({
                           <p>{address.city}, {address.state} - {address.postalCode}</p>
                           <p>{address.country}</p>
                           <div className="flex items-center gap-1.5 mt-3 text-xs text-gray-400 font-bold">
-                            <Phone size={11} className="text-pink-400" />
+                            <Phone size={11} className="text-red-500" />
                             <span>{address.phone}</span>
                           </div>
                         </address>
@@ -391,7 +391,7 @@ export default function ProfileScreen({
                       <div className="flex justify-end gap-2 mt-6 pt-4 border-t border-gray-50">
                         <button
                           onClick={() => openEditModal(address)}
-                          className="p-2 text-gray-400 hover:text-pink-600 rounded-xl hover:bg-pink-50/50 border border-transparent hover:border-pink-100 transition-all cursor-pointer active:scale-90"
+                          className="p-2 text-gray-400 hover:text-red-600 rounded-xl hover:bg-red-50/50 border border-transparent hover:border-red-100 transition-all cursor-pointer active:scale-90"
                           title="Edit Address"
                         >
                           <Edit size={14} />
@@ -465,7 +465,7 @@ export default function ProfileScreen({
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     placeholder="E.g. Jane Doe"
-                    className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm font-semibold focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all bg-white"
+                    className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm font-semibold focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition-all bg-white"
                     disabled={isCreating || isUpdating}
                   />
                 </div>
@@ -482,7 +482,7 @@ export default function ProfileScreen({
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="E.g. +91 9876543210"
-                    className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm font-semibold focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all bg-white"
+                    className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm font-semibold focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition-all bg-white"
                     disabled={isCreating || isUpdating}
                   />
                 </div>
@@ -499,7 +499,7 @@ export default function ProfileScreen({
                     value={addressLine1}
                     onChange={(e) => setAddressLine1(e.target.value)}
                     placeholder="E.g. Flat No, Building Name, Street"
-                    className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm font-semibold focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all bg-white"
+                    className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm font-semibold focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition-all bg-white"
                     disabled={isCreating || isUpdating}
                   />
                 </div>
@@ -515,7 +515,7 @@ export default function ProfileScreen({
                     value={addressLine2}
                     onChange={(e) => setAddressLine2(e.target.value)}
                     placeholder="E.g. Landmark, Locality"
-                    className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm font-semibold focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all bg-white"
+                    className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm font-semibold focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition-all bg-white"
                     disabled={isCreating || isUpdating}
                   />
                 </div>
@@ -533,7 +533,7 @@ export default function ProfileScreen({
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
                       placeholder="E.g. Mumbai"
-                      className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm font-semibold focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all bg-white"
+                      className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm font-semibold focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition-all bg-white"
                       disabled={isCreating || isUpdating}
                     />
                   </div>
@@ -549,7 +549,7 @@ export default function ProfileScreen({
                       value={state}
                       onChange={(e) => setState(e.target.value)}
                       placeholder="E.g. Maharashtra"
-                      className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm font-semibold focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all bg-white"
+                      className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm font-semibold focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition-all bg-white"
                       disabled={isCreating || isUpdating}
                     />
                   </div>
@@ -568,7 +568,7 @@ export default function ProfileScreen({
                       value={postalCode}
                       onChange={(e) => setPostalCode(e.target.value)}
                       placeholder="E.g. 400001"
-                      className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm font-semibold focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all bg-white"
+                      className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm font-semibold focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition-all bg-white"
                       disabled={isCreating || isUpdating}
                     />
                   </div>
@@ -583,7 +583,7 @@ export default function ProfileScreen({
                       value={country}
                       onChange={(e) => setCountry(e.target.value)}
                       placeholder="E.g. India"
-                      className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm font-semibold focus:outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500 transition-all bg-white"
+                      className="w-full rounded-2xl border border-gray-200 px-4 py-3 text-sm font-semibold focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition-all bg-white"
                       disabled={isCreating || isUpdating}
                     />
                   </div>
@@ -596,7 +596,7 @@ export default function ProfileScreen({
                     type="checkbox"
                     checked={isDefault}
                     onChange={(e) => setIsDefault(e.target.checked)}
-                    className="w-4.5 h-4.5 text-pink-650 focus:ring-pink-500 border-gray-200 rounded cursor-pointer accent-pink-500"
+                    className="w-4.5 h-4.5 text-red-600 focus:ring-red-600 border-gray-200 rounded cursor-pointer accent-red-600"
                     disabled={isCreating || isUpdating || (editingAddress?.isDefault && addresses.length > 1)}
                   />
                   <label htmlFor="isDefault" className="text-xs font-bold text-gray-500 cursor-pointer">

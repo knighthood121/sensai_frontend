@@ -26,7 +26,7 @@ export default function PushNotificationScreen() {
           <h1 className="text-2xl font-bold" style={{ fontFamily: FONTS.heading }}>Push Notifications</h1>
           <p className="text-sm text-gray-500 mt-1">Send direct alerts and updates to customer devices.</p>
         </div>
-        <Button variant="primary" size="md" className="shadow-lg shadow-pink-500/30 hover:-translate-y-0.5 transition-transform">
+        <Button variant="primary" size="md" className="shadow-lg shadow-red-500/20 hover:-translate-y-0.5 transition-transform">
           + New Push
         </Button>
       </div>
@@ -38,15 +38,15 @@ export default function PushNotificationScreen() {
           <div className="space-y-4">
              <div>
                <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-               <input type="text" className="w-full px-4 py-2 rounded-xl border outline-none focus:ring-2 focus:ring-pink-100 focus:border-pink-500 transition-all" placeholder="Flash Sale Alert!" style={{ borderColor: COLORS.border }} />
+               <input type="text" className="w-full px-4 py-2 rounded-xl border outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500 transition-all" placeholder="Flash Sale Alert!" style={{ borderColor: COLORS.border }} />
              </div>
              <div>
                <label className="block text-sm font-medium text-gray-700 mb-1">Message Body</label>
-               <textarea rows={3} className="w-full px-4 py-2 rounded-xl border outline-none focus:ring-2 focus:ring-pink-100 focus:border-pink-500 transition-all" placeholder="Get 50% off on premium tees..." style={{ borderColor: COLORS.border }}></textarea>
+               <textarea rows={3} className="w-full px-4 py-2 rounded-xl border outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500 transition-all" placeholder="Get 50% off on premium tees..." style={{ borderColor: COLORS.border }}></textarea>
              </div>
              <div>
                <label className="block text-sm font-medium text-gray-700 mb-1">Target Audience</label>
-               <select className="w-full px-4 py-2 rounded-xl border outline-none focus:ring-2 focus:ring-pink-100 focus:border-pink-500 transition-all bg-white" style={{ borderColor: COLORS.border }}>
+               <select className="w-full px-4 py-2 rounded-xl border outline-none focus:ring-2 focus:ring-red-100 focus:border-red-500 transition-all bg-white" style={{ borderColor: COLORS.border }}>
                  <option>All Subscribers</option>
                  <option>Active Customers</option>
                  <option>Inactive Customers</option>
@@ -66,7 +66,7 @@ export default function PushNotificationScreen() {
                 {/* Notification Bubble */}
                 <div className="bg-white/80 backdrop-blur-md rounded-2xl p-4 shadow-sm border w-full animate-bounce" style={{ borderColor: COLORS.border }}>
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-5 h-5 rounded bg-pink-500"></div>
+                    <div className="w-5 h-5 rounded bg-red-600"></div>
                     <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Store App</span>
                     <span className="text-[10px] text-gray-400 ml-auto">now</span>
                   </div>

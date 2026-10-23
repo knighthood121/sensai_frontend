@@ -155,7 +155,7 @@ export default function ReviewsManagementScreen({
       {/* Main Content Area */}
       {isLoading ? (
         <div className="bg-white rounded-2xl border shadow-sm p-20 flex flex-col items-center justify-center" style={{ borderColor: COLORS.border }}>
-          <Loader2 className="w-10 h-10 text-pink-500 animate-spin mb-4" />
+          <Loader2 className="w-10 h-10 text-red-600 animate-spin mb-4" />
           <p className="text-gray-400 font-bold uppercase tracking-wider text-xs">Loading reviews list...</p>
         </div>
       ) : isError ? (
@@ -208,7 +208,7 @@ export default function ReviewsManagementScreen({
                           {rev.comment || <em className="text-gray-400">No review text comment.</em>}
                         </p>
                         {rev.images && rev.images.length > 0 && (
-                          <span className="text-[9px] font-bold text-pink-500 bg-pink-50 border border-pink-100/50 px-2 py-0.5 rounded mt-1 inline-block">
+                          <span className="text-[9px] font-bold text-red-600 bg-red-50 border border-red-100/50 px-2 py-0.5 rounded mt-1 inline-block">
                             +{rev.images.length} Photos
                           </span>
                         )}
@@ -241,7 +241,7 @@ export default function ReviewsManagementScreen({
                       <td className="px-6 py-4 text-right space-x-1.5 whitespace-nowrap">
                         <button
                           onClick={() => setSelectedReview(rev)}
-                          className="p-1.5 text-gray-400 hover:text-pink-500 hover:bg-gray-50 border border-transparent rounded-lg transition-colors cursor-pointer inline-block"
+                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-gray-50 border border-transparent rounded-lg transition-colors cursor-pointer inline-block"
                           title="View Details"
                         >
                           <Eye size={16} />
@@ -371,7 +371,7 @@ export default function ReviewsManagementScreen({
               {/* Review Text */}
               <div className="space-y-1">
                 <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest block">REVIEW COMMENT</span>
-                <blockquote className="bg-[#FCFBFA] border-l-2 border-pink-500 rounded-r-xl p-4 text-xs font-medium text-gray-700 italic leading-relaxed">
+                <blockquote className="bg-[#FCFBFA] border-l-2 border-red-600 rounded-r-xl p-4 text-xs font-medium text-gray-700 italic leading-relaxed">
                   "{selectedReview.comment || 'No text comment left.'}"
                 </blockquote>
               </div>

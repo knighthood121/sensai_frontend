@@ -201,7 +201,7 @@ export default function ShipmentManagementScreen({
               style={{ color: COLORS.textLight }}
             />
             <input
-              className="w-full pl-11 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-all focus:ring-4 focus:ring-pink-100 bg-white"
+              className="w-full pl-11 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-all focus:ring-4 focus:ring-red-100 bg-white"
               style={{ borderColor: COLORS.border }}
               placeholder="Search by order ID, customer, tracking..."
               value={searchTerm}
@@ -235,7 +235,7 @@ export default function ShipmentManagementScreen({
       {/* Table Content */}
       {isLoading ? (
         <div className="bg-white rounded-2xl border shadow-sm p-16 flex flex-col items-center justify-center" style={{ borderColor: COLORS.border }}>
-          <Loader2 className="w-10 h-10 text-pink-500 animate-spin mb-4" />
+          <Loader2 className="w-10 h-10 text-red-600 animate-spin mb-4" />
           <p className="text-gray-400 font-bold uppercase tracking-wider text-xs">Loading shipments...</p>
         </div>
       ) : isError ? (
@@ -267,7 +267,7 @@ export default function ShipmentManagementScreen({
                       {/* Order Info */}
                       <td className="px-5 py-4">
                         <p
-                          className="font-bold text-sm text-gray-900 group-hover:text-pink-600 transition-colors cursor-pointer hover:underline"
+                          className="font-bold text-sm text-gray-900 group-hover:text-red-600 transition-colors cursor-pointer hover:underline"
                           onClick={() => navigate('/admin/orders/details', { state: { orderId: order.id } })}
                         >
                           {order.orderNumber}
@@ -314,7 +314,7 @@ export default function ShipmentManagementScreen({
                             value={order.status}
                             onChange={(e) => handleQuickStatusChange(order.id, order.status, e.target.value as OrderStatus)}
                             disabled={isUpdating || !validTransitions[order.status] || validTransitions[order.status].length === 0}
-                            className={`appearance-none pl-3.5 pr-8 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider outline-none cursor-pointer border-0 transition-all hover:ring-2 focus:ring-2 focus:ring-pink-500/20 disabled:cursor-not-allowed disabled:opacity-80 ${getStatusBadgeStyle(order.status)}`}
+                            className={`appearance-none pl-3.5 pr-8 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider outline-none cursor-pointer border-0 transition-all hover:ring-2 focus:ring-2 focus:ring-red-500/20 disabled:cursor-not-allowed disabled:opacity-80 ${getStatusBadgeStyle(order.status)}`}
                           >
                             <option value={order.status}>{getStatusLabel(order.status)}</option>
                             {(validTransitions[order.status] || []).map((opt) => (
@@ -345,7 +345,7 @@ export default function ShipmentManagementScreen({
                           </button>
                           {order.status !== 'DELIVERED' && (
                             <button
-                              className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-500/20 cursor-pointer"
+                              className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-500/20 cursor-pointer"
                               onClick={() => openTrackingModal(order)}
                               title="Update Tracking"
                             >
@@ -360,7 +360,7 @@ export default function ShipmentManagementScreen({
                   <tr>
                     <td colSpan={7} className="px-5 py-16 text-center">
                       <div
-                        className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center text-pink-500"
+                        className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center text-red-600"
                         style={{ backgroundColor: COLORS.primary + '12' }}
                       >
                         <Truck size={28} />
@@ -517,7 +517,7 @@ export default function ShipmentManagementScreen({
             <div>
               <label className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-2">Tracking ID</label>
               <input
-                className="w-full px-4 py-2.5 rounded-xl border text-sm outline-none transition-all focus:ring-4 focus:ring-pink-100 bg-white font-mono"
+                className="w-full px-4 py-2.5 rounded-xl border text-sm outline-none transition-all focus:ring-4 focus:ring-red-100 bg-white font-mono"
                 style={{ borderColor: COLORS.border }}
                 placeholder="e.g. TRK987654321"
                 value={trackingId}

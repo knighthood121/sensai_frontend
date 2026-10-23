@@ -145,10 +145,10 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
 
       {/* Sidebar panel */}
       <div
-        className={`fixed top-0 left-0 h-full z-50 transform transition-all duration-300 ease-in-out flex flex-col bg-black/95 backdrop-blur-xl border-r border-violet-500/20 ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 ${isMinimized ? 'lg:w-[80px]' : 'lg:w-[260px]'}`}
+        className={`fixed top-0 left-0 h-full z-50 transform transition-all duration-300 ease-in-out flex flex-col bg-black/95 backdrop-blur-xl border-r border-red-500/20 ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 ${isMinimized ? 'lg:w-[80px]' : 'lg:w-[260px]'}`}
         style={{
           fontFamily: FONTS.main,
-          boxShadow: '4px 0 30px rgba(124,58,237,0.15)'
+          boxShadow: '4px 0 30px rgba(220,38,38,0.15)'
         }}
       >
         {/* Header */}
@@ -180,7 +180,7 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
             {/* Collapse/Expand Toggle Button (visible only on desktop) */}
             <button
               onClick={onToggleMinimize}
-              className="hidden lg:flex w-8 h-8 rounded-xl items-center justify-center hover:bg-white/10 transition-colors text-white/60 hover:text-violet-500"
+              className="hidden lg:flex w-8 h-8 rounded-xl items-center justify-center hover:bg-white/10 transition-colors text-white/60 hover:text-red-500"
               title={isMinimized ? "Expand Sidebar" : "Collapse Sidebar"}
             >
               {isMinimized ? (
@@ -200,7 +200,7 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
             {/* Mobile close button */}
             <button
               onClick={onClose}
-              className="lg:hidden w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors text-white/60 hover:text-violet-500"
+              className="lg:hidden w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors text-white/60 hover:text-red-500"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
@@ -214,7 +214,7 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
           {isAdminRoute ? (
             <>
               {isMinimized ? (
-                <hr className="border-violet-500/10 my-4" />
+                <hr className="border-red-500/10 my-4" />
               ) : (
                 <p className="text-[11px] font-bold uppercase tracking-wider px-4 mb-4 text-white/40">
                   Admin Menu
@@ -252,7 +252,7 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
                   return isMinimized ? (
                     <div key={link.path} className="relative group w-full">
                       {buttonContent}
-                      <span className="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#0a0a0a]/95 backdrop-blur-md text-white text-xs font-semibold rounded-lg border border-violet-500/20 shadow-[0_4px_12px_rgba(124,58,237,0.15)] opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none transition-all duration-200 z-50 whitespace-nowrap">
+                      <span className="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#0a0a0a]/95 backdrop-blur-md text-white text-xs font-semibold rounded-lg border border-red-500/20 shadow-[0_4px_12px_rgba(220,38,38,0.15)] opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none transition-all duration-200 z-50 whitespace-nowrap">
                         {link.label}
                       </span>
                     </div>
@@ -265,7 +265,7 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
           ) : (
             <>
               {isMinimized ? (
-                <hr className="border-violet-500/10 my-4" />
+                <hr className="border-red-500/10 my-4" />
               ) : (
                 <p className="text-[11px] font-bold uppercase tracking-wider px-4 mb-4 text-white/40">
                   Main Menu
@@ -284,7 +284,7 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
                           : 'w-full gap-3.5 px-4 py-3.5 font-semibold text-[15px]'
                       } text-white/60 hover:text-white hover:bg-white/5`}
                     >
-                      <span className={`flex items-center justify-center text-white/40 group-hover:text-violet-500 transition-colors duration-300 ${isMinimized ? 'mx-auto' : ''}`}>
+                      <span className={`flex items-center justify-center text-white/40 group-hover:text-red-500 transition-colors duration-300 ${isMinimized ? 'mx-auto' : ''}`}>
                         {link.icon}
                       </span>
                       {!isMinimized && link.label}
@@ -294,7 +294,7 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
                   return isMinimized ? (
                     <div key={link.label} className="relative group w-full">
                       {linkContent}
-                      <span className="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#0a0a0a]/95 backdrop-blur-md text-white text-xs font-semibold rounded-lg border border-violet-500/20 shadow-[0_4px_12px_rgba(124,58,237,0.15)] opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none transition-all duration-200 z-50 whitespace-nowrap">
+                      <span className="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#0a0a0a]/95 backdrop-blur-md text-white text-xs font-semibold rounded-lg border border-red-500/20 shadow-[0_4px_12px_rgba(220,38,38,0.15)] opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none transition-all duration-200 z-50 whitespace-nowrap">
                         {link.label}
                       </span>
                     </div>
@@ -308,13 +308,13 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
         </nav>
 
         {/* Footer */}
-        <div className={`flex-shrink-0 flex flex-col gap-2 transition-all duration-300 ${isMinimized ? 'p-2' : 'p-4'}`} style={{ borderTop: `1px solid rgba(124,58,237,0.2)` }}>
+        <div className={`flex-shrink-0 flex flex-col gap-2 transition-all duration-300 ${isMinimized ? 'p-2' : 'p-4'}`} style={{ borderTop: `1px solid rgba(220,38,38,0.2)` }}>
           {isAdminRoute ? (
             (() => {
               const storefrontButton = (
                 <button
                   onClick={() => handleNavigate('/')}
-                  className={`flex items-center justify-center rounded-xl font-semibold text-violet-400 hover:bg-violet-500/10 hover:text-violet-300 transition-all duration-300 ${
+                  className={`flex items-center justify-center rounded-xl font-semibold text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all duration-300 ${
                     isMinimized 
                       ? 'w-12 h-12 px-0 mx-auto' 
                       : 'w-full gap-2.5 px-4 py-3.5 text-[14px]'
@@ -350,13 +350,13 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
                 <>
                   <div className="relative group w-full">
                     {storefrontButton}
-                    <span className="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#0a0a0a]/95 backdrop-blur-md text-white text-xs font-semibold rounded-lg border border-violet-500/20 shadow-[0_4px_12px_rgba(124,58,237,0.15)] opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none transition-all duration-200 z-50 whitespace-nowrap">
+                    <span className="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#0a0a0a]/95 backdrop-blur-md text-white text-xs font-semibold rounded-lg border border-red-500/20 shadow-[0_4px_12px_rgba(220,38,38,0.2)] opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none transition-all duration-200 z-50 whitespace-nowrap">
                       View Storefront
                     </span>
                   </div>
                   <div className="relative group w-full">
                     {logoutButton}
-                    <span className="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#0a0a0a]/95 backdrop-blur-md text-white text-xs font-semibold rounded-lg border border-violet-500/20 shadow-[0_4px_12px_rgba(124,58,237,0.15)] opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none transition-all duration-200 z-50 whitespace-nowrap">
+                    <span className="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#0a0a0a]/95 backdrop-blur-md text-white text-xs font-semibold rounded-lg border border-red-500/20 shadow-[0_4px_12px_rgba(220,38,38,0.2)] opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none transition-all duration-200 z-50 whitespace-nowrap">
                       Logout
                     </span>
                   </div>
@@ -373,7 +373,7 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
               const loginButton = (
                 <button
                   onClick={() => handleNavigate('/login')}
-                  className={`flex items-center justify-center rounded-xl font-semibold text-white/60 hover:bg-white/5 hover:text-violet-500 transition-all duration-300 ${
+                  className={`flex items-center justify-center rounded-xl font-semibold text-white/60 hover:bg-white/5 hover:text-red-500 transition-all duration-300 ${
                     isMinimized 
                       ? 'w-12 h-12 px-0 mx-auto' 
                       : 'w-full gap-2.5 px-4 py-3.5 text-[14px]'
@@ -389,7 +389,7 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
               return isMinimized ? (
                 <div className="relative group w-full">
                   {loginButton}
-                  <span className="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#0a0a0a]/95 backdrop-blur-md text-white text-xs font-semibold rounded-lg border border-violet-500/20 shadow-[0_4px_12px_rgba(124,58,237,0.15)] opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none transition-all duration-200 z-50 whitespace-nowrap">
+                  <span className="absolute left-full ml-3 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-[#0a0a0a]/95 backdrop-blur-md text-white text-xs font-semibold rounded-lg border border-red-500/20 shadow-[0_4px_12px_rgba(220,38,38,0.2)] opacity-0 scale-95 group-hover:opacity-100 group-hover:scale-100 pointer-events-none transition-all duration-200 z-50 whitespace-nowrap">
                     Admin Login
                   </span>
                 </div>

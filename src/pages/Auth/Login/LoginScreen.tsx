@@ -170,7 +170,7 @@ export default function LoginScreen({ onBackClick, onSignupClick, onSubmit, onGo
               <button 
                 type="button" 
                 onClick={() => setShowPassword(!showPassword)}
-                className="hover:text-pink-500 transition-colors focus:outline-none"
+                className="hover:text-red-600 transition-colors focus:outline-none"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOffIcon /> : <EyeIcon />}
@@ -181,9 +181,9 @@ export default function LoginScreen({ onBackClick, onSignupClick, onSubmit, onGo
           <div className="flex items-center justify-between text-xs font-bold uppercase tracking-widest px-1">
             <label className="flex items-center gap-2 cursor-pointer group">
               <input type="checkbox" className="w-4 h-4 rounded border-2" style={{ accentColor: COLORS.primary }} />
-              <span className="text-gray-400 group-hover:text-pink-500 transition-colors">Remember me</span>
+              <span className="text-gray-400 group-hover:text-red-600 transition-colors">Remember me</span>
             </label>
-            <a href="#" className="hover:text-pink-500 transition-colors" style={{ color: COLORS.primary }}>
+            <a href="#" className="hover:text-red-600 transition-colors" style={{ color: COLORS.primary }}>
               Forgot?
             </a>
           </div>
@@ -212,7 +212,7 @@ export default function LoginScreen({ onBackClick, onSignupClick, onSubmit, onGo
           <button
             type="button"
             onClick={onSignupClick}
-            className="font-bold hover:text-pink-500 transition-colors focus:outline-none cursor-pointer"
+            className="font-bold hover:text-red-600 transition-colors focus:outline-none cursor-pointer"
             style={{ color: COLORS.primary }}
           >
             Sign up
@@ -223,7 +223,7 @@ export default function LoginScreen({ onBackClick, onSignupClick, onSubmit, onGo
       {/* Back to home floating button */}
       <button
         onClick={onBackClick}
-        className="absolute top-4 left-4 sm:top-6 sm:left-6 z-30 inline-flex items-center gap-1.5 px-4 py-2 border border-gray-150 bg-white/90 backdrop-blur-md hover:border-pink-200 hover:text-pink-500 hover:shadow-md rounded-full shadow-sm text-gray-500 transition-all duration-300 font-bold text-[10px] uppercase tracking-widest group cursor-pointer"
+        className="absolute top-4 left-4 sm:top-6 sm:left-6 z-30 inline-flex items-center gap-1.5 px-4 py-2 border border-gray-150 bg-white/90 backdrop-blur-md hover:border-red-200 hover:text-red-600 hover:shadow-md rounded-full shadow-sm text-gray-500 transition-all duration-300 font-bold text-[10px] uppercase tracking-widest group cursor-pointer"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

@@ -8,6 +8,7 @@ import { useAddToCartMutation, useGetCartQuery } from '../../../service/cartApi'
 import { useToast } from '../../../components/common/Toast';
 import LandingPageScreen from './LandingPageScreen';
 import { addGuestCartItem } from '../../../utils/guestCart';
+import { useBanners } from '../../../utils/bannerStorage';
 
 export interface LandingPageScreenProps {
   isAuthenticated: boolean;
@@ -58,6 +59,26 @@ export default function LandingPage() {
   const dbCategories = homeData?.data?.categories || [];
   const homeTrending = homeData?.data?.trendingProducts || [];
   const homeFeatured = homeData?.data?.featuredProducts || [];
+
+  // Active Hero Banners from Admin Banner Management / local cache
+  const { activeHeroBanners } = useBanners();
+
+  // Normalize database banners from /api/v1/home
+  const normalizedDbBanners = (dbBanners || []).filter((b: any) => b.isActive !== false).map((b: any) => ({
+    id: String(b.id),
+    title: b.title,
+    subtitle: b.description || '',
+    ctaText: b.description ? b.description.replace(/>/g, '').trim() : '',
+    ctaLink: b.linkUrl || '',
+    image: b.imageUrl,
+    imageUrl: b.imageUrl,
+    accentColor: '#1e73be',
+    location: 'Homepage Hero' as const,
+    status: (b.isActive ? 'Active' : 'Inactive') as 'Active' | 'Inactive',
+    order: b.displayOrder || 1,
+    createdAt: b.createdAt || '',
+    updatedAt: b.updatedAt || '',
+  }));
 
   const slidesCount = 2;
 
@@ -293,7 +314,7 @@ export default function LandingPage() {
       recommendedProducts={recommendedProducts}
       recentlyViewedProducts={recentlyViewedProducts}
       onLoginClick={handleLoginClick}
-      banners={dbBanners}
+      banners={normalizedDbBanners.length > 0 ? normalizedDbBanners : activeHeroBanners}
       categories={dbCategories}
     />
   );

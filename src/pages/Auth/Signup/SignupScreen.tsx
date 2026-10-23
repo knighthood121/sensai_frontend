@@ -63,10 +63,10 @@ export default function SignupScreen({ onBackClick, onSubmit, error, isLoading =
     >
       {/* Decorative blobs */}
       <div 
-        className="absolute w-96 h-96 rounded-full blur-3xl opacity-10 top-10 left-10 pointer-events-none bg-pink-300/20"
+        className="absolute w-96 h-96 rounded-full blur-3xl opacity-10 top-10 left-10 pointer-events-none bg-red-400/20"
       />
       <div 
-        className="absolute w-96 h-96 rounded-full blur-3xl opacity-10 bottom-10 right-10 pointer-events-none bg-pink-400/20"
+        className="absolute w-96 h-96 rounded-full blur-3xl opacity-10 bottom-10 right-10 pointer-events-none bg-red-600/20"
       />
 
       <div 
@@ -145,7 +145,7 @@ export default function SignupScreen({ onBackClick, onSubmit, error, isLoading =
                 <button 
                   type="button" 
                   onClick={() => setShowPassword(!showPassword)}
-                  className="hover:text-pink-500 transition-colors focus:outline-none cursor-pointer"
+                  className="hover:text-red-600 transition-colors focus:outline-none cursor-pointer"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOffIcon /> : <EyeIcon />}
@@ -186,7 +186,7 @@ export default function SignupScreen({ onBackClick, onSubmit, error, isLoading =
             fullWidth
             size="lg"
             disabled={!isFormValid || isLoading}
-            className="rounded-2xl font-black uppercase tracking-wider text-xs bg-pink-500 hover:bg-pink-400 border border-pink-400/50 py-4 shadow-[0_4px_12px_rgba(236,72,153,0.2)] hover:shadow-[0_8px_20px_rgba(236,72,153,0.3)] transition-all duration-300 active:scale-[0.98] cursor-pointer !bg-pink-500 text-white disabled:bg-gray-200 disabled:cursor-not-allowed"
+            className="rounded-2xl font-black uppercase tracking-wider text-xs bg-red-600 hover:bg-red-700 border border-red-500 py-4 shadow-[0_4px_12px_rgba(220,38,38,0.25)] hover:shadow-[0_8px_20px_rgba(220,38,38,0.35)] transition-all duration-300 active:scale-[0.98] cursor-pointer !bg-red-600 text-white disabled:bg-gray-200 disabled:cursor-not-allowed"
           >
             {isLoading ? 'Creating Account...' : 'Sign Up'}
           </Button>
@@ -196,7 +196,7 @@ export default function SignupScreen({ onBackClick, onSubmit, error, isLoading =
           Already have an account?{' '}
           <button 
             onClick={onBackClick}
-            className="font-bold hover:text-pink-500 transition-colors focus:outline-none cursor-pointer" 
+            className="font-bold hover:text-red-600 transition-colors focus:outline-none cursor-pointer" 
             style={{ color: COLORS.primary }}
           >
             Sign In
@@ -207,7 +207,7 @@ export default function SignupScreen({ onBackClick, onSubmit, error, isLoading =
       {/* Back to login floating button */}
       <button
         onClick={onBackClick}
-        className="absolute top-4 left-4 sm:top-6 sm:left-6 z-30 inline-flex items-center gap-1.5 px-4 py-2 border border-gray-150 bg-white/90 backdrop-blur-md hover:border-pink-200 hover:text-pink-500 hover:shadow-md rounded-full shadow-sm text-gray-500 transition-all duration-300 font-bold text-[10px] uppercase tracking-widest group cursor-pointer"
+        className="absolute top-4 left-4 sm:top-6 sm:left-6 z-30 inline-flex items-center gap-1.5 px-4 py-2 border border-gray-150 bg-white/90 backdrop-blur-md hover:border-red-200 hover:text-red-600 hover:shadow-md rounded-full shadow-sm text-gray-500 transition-all duration-300 font-bold text-[10px] uppercase tracking-widest group cursor-pointer"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

@@ -23,7 +23,7 @@ const navigate = useNavigate();
 
       {/* Header Section */}
       <div className="mb-6 relative">
-        <div className="absolute -inset-4 bg-gradient-to-r from-pink-500/5 to-rose-500/5 rounded-3xl blur-2xl -z-10" />
+        <div className="absolute -inset-4 bg-gradient-to-r from-red-500/5 to-rose-500/5 rounded-3xl blur-2xl -z-10" />
         <div className="flex items-center gap-3 mb-2">
           <div 
             className="w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center shadow-sm"

@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import InvoiceGenerationScreen from './InvoiceGenerationScreen';
+import { printInvoiceElement } from '../../../../components/common/TaxInvoice';
 import {
   useGetAdminOrdersQuery,
   useGetAdminOrderByIdQuery,
@@ -195,7 +196,7 @@ export default function InvoiceGeneration() {
   }, []);
 
   const handlePrintInvoice = useCallback(() => {
-    window.print();
+    printInvoiceElement('printable-tax-invoice');
   }, []);
 
   // Batch print handler

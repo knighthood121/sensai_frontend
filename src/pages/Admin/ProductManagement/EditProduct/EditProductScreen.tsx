@@ -66,7 +66,7 @@ export default function EditProductScreen({
     return (
       <div className="flex items-center justify-center min-h-[400px]" style={{ fontFamily: FONTS.main, color: COLORS.text }}>
         <div className="text-center">
-          <svg className="animate-spin h-8 w-8 text-pink-500 mx-auto mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin h-8 w-8 text-red-600 mx-auto mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
@@ -267,7 +267,7 @@ export default function EditProductScreen({
                       <img src={img.imageUrl} alt={img.altText || name} className="w-full h-full object-cover" />
                       
                       {img.isPrimary && (
-                        <span className="absolute top-1.5 left-1.5 bg-pink-500 text-white text-[8px] font-black uppercase px-1.5 py-0.5 rounded-md shadow-sm">
+                        <span className="absolute top-1.5 left-1.5 bg-red-600 text-white text-[8px] font-black uppercase px-1.5 py-0.5 rounded-md shadow-sm">
                           Primary
                         </span>
                       )}
@@ -302,7 +302,7 @@ export default function EditProductScreen({
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 cursor-pointer flex flex-col items-center justify-center ${
-                  isDragging ? 'bg-pink-50 border-pink-400 pointer-events-none' : 'hover:border-pink-300 bg-gray-50/50'
+                  isDragging ? 'bg-red-50 border-red-500 pointer-events-none' : 'hover:border-red-300 bg-gray-50/50'
                 }`}
                 style={{ 
                   borderColor: isDragging ? COLORS.primary : COLORS.border,

@@ -97,7 +97,7 @@ export default function CheckoutScreen({
       <div className="min-h-screen flex flex-col bg-[#FAFAFC]" style={{ fontFamily: FONTS.main }}>
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
         </div>
         <Footer />
       </div>
@@ -127,8 +127,8 @@ export default function CheckoutScreen({
     return (
       <div className="min-h-screen flex flex-col bg-[#FAFAFC] relative overflow-hidden" style={{ fontFamily: FONTS.main, color: COLORS.text }}>
         {/* Floating decorative blurred gradient blobs */}
-        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-gradient-to-tr from-pink-300/10 to-purple-300/10 rounded-full blur-[120px] pointer-events-none -z-10" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-gradient-to-br from-indigo-300/10 to-emerald-200/10 rounded-full blur-[140px] pointer-events-none -z-10" />
+        <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-gradient-to-tr from-red-300/10 to-rose-300/10 rounded-full blur-[120px] pointer-events-none -z-10" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-gradient-to-br from-red-200/10 to-stone-200/10 rounded-full blur-[140px] pointer-events-none -z-10" />
 
         <Navbar />
 
@@ -191,11 +191,11 @@ export default function CheckoutScreen({
                 navigator.clipboard.writeText(placedOrderDetails.orderId);
                 showToast('Order ID copied to clipboard!', 'success');
               }}
-              className="bg-white/80 hover:bg-white border border-gray-200/60 rounded-full px-5 py-2.5 inline-flex items-center gap-2 shadow-sm backdrop-blur-md transition-all duration-300 hover:border-pink-300 hover:shadow-md cursor-pointer group active:scale-95"
+              className="bg-white/80 hover:bg-white border border-gray-200/60 rounded-full px-5 py-2.5 inline-flex items-center gap-2 shadow-sm backdrop-blur-md transition-all duration-300 hover:border-red-300 hover:shadow-md cursor-pointer group active:scale-95"
             >
               <span className="text-gray-400 font-semibold text-xs uppercase tracking-wider">Order</span>
               <span className="text-gray-900 font-black text-sm">{placedOrderDetails.orderId}</span>
-              <Copy className="w-3.5 h-3.5 text-gray-400 group-hover:text-pink-500 transition-colors" />
+              <Copy className="w-3.5 h-3.5 text-gray-400 group-hover:text-red-600 transition-colors" />
             </button>
           </motion.div>
 
@@ -289,7 +289,7 @@ export default function CheckoutScreen({
                   {/* Delivery address */}
                   <div className="space-y-2">
                     <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-gray-400">
-                      <MapPin className="w-4 h-4 text-pink-500" />
+                      <MapPin className="w-4 h-4 text-red-600" />
                       <span>Delivery Address</span>
                     </div>
                     <div className="pl-6 text-sm text-gray-600">
@@ -307,11 +307,11 @@ export default function CheckoutScreen({
                   <div className="space-y-4">
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-gray-400">
-                        <CreditCard className="w-4 h-4 text-pink-500" />
+                        <CreditCard className="w-4 h-4 text-red-600" />
                         <span>Payment Method</span>
                       </div>
                       <div className="pl-6">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-pink-50 text-pink-600 border border-pink-100 uppercase tracking-wider">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-100 uppercase tracking-wider">
                           {placedOrderDetails.paymentMethod}
                         </span>
                       </div>
@@ -320,7 +320,7 @@ export default function CheckoutScreen({
                     {/* Estimated delivery */}
                     <div className="space-y-2">
                       <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-gray-400">
-                        <Truck className="w-4 h-4 text-pink-500" />
+                        <Truck className="w-4 h-4 text-red-600" />
                         <span>Arriving by</span>
                       </div>
                       <div className="pl-6 text-sm font-bold text-gray-900">
@@ -335,7 +335,7 @@ export default function CheckoutScreen({
                   <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-gray-400">
                     <span>Total Paid</span>
                   </div>
-                  <span className="text-2xl font-black text-pink-600">₹{placedOrderDetails.total.toFixed(2)}</span>
+                  <span className="text-2xl font-black text-red-600">₹{placedOrderDetails.total.toFixed(2)}</span>
                 </div>
               </motion.div>
 
@@ -356,7 +356,7 @@ export default function CheckoutScreen({
                       action: () => showToast("Starting Live Chat support...", "success")
                     },
                     {
-                      icon: <Mail className="w-5 h-5 text-pink-500 group-hover:scale-110 transition-transform" />,
+                      icon: <Mail className="w-5 h-5 text-red-600 group-hover:scale-110 transition-transform" />,
                       title: "Email Support",
                       desc: "support@sansei.com",
                       action: () => { window.location.href = "mailto:support@sansei.com"; }
@@ -371,7 +371,7 @@ export default function CheckoutScreen({
                     <div
                       key={idx}
                       onClick={item.action}
-                      className="bg-white hover:bg-gray-50/50 border border-gray-100 hover:border-pink-200/80 rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col items-start cursor-pointer group"
+                      className="bg-white hover:bg-gray-50/50 border border-gray-100 hover:border-red-200/80 rounded-2xl p-5 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 flex flex-col items-start cursor-pointer group"
                     >
                       <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center mb-3 group-hover:bg-white transition-colors">
                         {item.icon}
@@ -419,7 +419,7 @@ export default function CheckoutScreen({
                                 Color: {item.color}
                               </span>
                             )}
-                            <span className="text-[10px] text-pink-600 font-extrabold bg-pink-50/50 border border-pink-100 px-2 py-0.5 rounded-full uppercase">
+                            <span className="text-[10px] text-red-600 font-extrabold bg-red-50/50 border border-red-100 px-2 py-0.5 rounded-full uppercase">
                               Qty: {item.quantity}
                             </span>
                           </div>
@@ -466,7 +466,7 @@ export default function CheckoutScreen({
                   <div className="border-t border-gray-150 my-4" />
                   <div className="flex justify-between items-baseline text-base font-black text-gray-900">
                     <span>Total Paid</span>
-                    <span className="text-2xl text-pink-600">₹{placedOrderDetails.total.toFixed(2)}</span>
+                    <span className="text-2xl text-red-600">₹{placedOrderDetails.total.toFixed(2)}</span>
                   </div>
                 </div>
               </motion.div>
@@ -483,7 +483,7 @@ export default function CheckoutScreen({
             <button
               type="button"
               onClick={onTrackOrder}
-              className="flex-1 rounded-full px-8 py-4 font-black uppercase tracking-wider text-xs bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:from-pink-600 hover:to-rose-600 shadow-[0_8px_24px_rgba(236,72,153,0.3)] hover:shadow-[0_12px_30px_rgba(236,72,153,0.4)] transition-all duration-300 transform active:scale-95 hover:scale-[1.02] cursor-pointer"
+              className="flex-1 rounded-full px-8 py-4 font-black uppercase tracking-wider text-xs bg-gradient-to-r from-red-600 to-rose-600 text-white hover:from-red-700 hover:to-rose-700 shadow-[0_8px_24px_rgba(220,38,38,0.25)] hover:shadow-[0_12px_30px_rgba(220,38,38,0.35)] transition-all duration-300 transform active:scale-95 hover:scale-[1.02] cursor-pointer"
             >
               Track Order
             </button>
@@ -506,8 +506,8 @@ export default function CheckoutScreen({
   return (
     <div className="min-h-screen flex flex-col bg-[#FAFAFC] relative overflow-hidden" style={{ fontFamily: FONTS.main, color: COLORS.text }}>
       {/* Decorative background blobs */}
-      <div className="absolute top-[-8%] left-[-5%] w-[500px] h-[500px] bg-gradient-to-tr from-pink-200/8 to-purple-200/8 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-gradient-to-br from-indigo-200/8 to-emerald-100/8 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-[-8%] left-[-5%] w-[500px] h-[500px] bg-gradient-to-tr from-red-200/8 to-rose-200/8 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-gradient-to-br from-red-100/10 to-stone-100/10 rounded-full blur-[140px] pointer-events-none" />
 
       <Navbar />
 
@@ -516,9 +516,9 @@ export default function CheckoutScreen({
         {/* Breadcrumb Navigation & Title */}
         <div className="mb-10 sm:mb-14">
           <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-4">
-            <button type="button" onClick={() => navigate('/')} className="hover:text-pink-500 transition-colors cursor-pointer">Home</button>
+            <button type="button" onClick={() => navigate('/')} className="hover:text-red-600 transition-colors cursor-pointer">Home</button>
             <ChevronRight className="w-3 h-3" />
-            <button type="button" onClick={() => navigate('/cart')} className="hover:text-pink-500 transition-colors cursor-pointer">Cart</button>
+            <button type="button" onClick={() => navigate('/cart')} className="hover:text-red-600 transition-colors cursor-pointer">Cart</button>
             <ChevronRight className="w-3 h-3" />
             <span className="text-gray-600">Checkout</span>
           </div>
@@ -555,14 +555,14 @@ export default function CheckoutScreen({
                           key={addr.id}
                           onClick={() => setSelectedAddressId(addr.id)}
                           className={`border-2 rounded-2xl p-5 cursor-pointer text-left transition-all duration-300 relative ${selectedAddressId === addr.id
-                            ? 'border-pink-500 bg-pink-50/5 shadow-[0_4px_20px_rgba(236,72,153,0.08)] scale-[1.01]'
-                            : 'border-gray-100/80 hover:border-pink-200/80 hover:shadow-md bg-white'
+                            ? 'border-red-600 bg-red-50/5 shadow-[0_4px_20px_rgba(220,38,38,0.08)] scale-[1.01]'
+                            : 'border-gray-100/80 hover:border-red-200/80 hover:shadow-md bg-white'
                             }`}
                         >
                           <div className="flex items-center justify-between mb-2">
                             <span className="font-black text-sm text-gray-900">{addr.fullName}</span>
                             {addr.isDefault && (
-                              <span className="text-[9px] font-black uppercase bg-pink-100/50 text-pink-600 border border-pink-100/50 px-2 py-0.5 rounded-md">
+                              <span className="text-[9px] font-black uppercase bg-red-100/50 text-red-600 border border-red-100/50 px-2 py-0.5 rounded-md">
                                 Default
                               </span>
                             )}
@@ -576,8 +576,8 @@ export default function CheckoutScreen({
                       <div
                         onClick={() => setSelectedAddressId(null)}
                         className={`border-2 border-dashed rounded-2xl p-5 cursor-pointer transition-all duration-300 flex flex-col items-center justify-center min-h-[120px] ${selectedAddressId === null
-                          ? 'border-pink-500 bg-pink-50/5 shadow-[0_4px_20px_rgba(236,72,153,0.08)] text-pink-600 scale-[1.01]'
-                          : 'border-gray-200 hover:border-pink-200 text-gray-400 hover:text-pink-500 bg-white'
+                          ? 'border-red-600 bg-red-50/5 shadow-[0_4px_20px_rgba(220,38,38,0.08)] text-red-600 scale-[1.01]'
+                          : 'border-gray-200 hover:border-red-200 text-gray-400 hover:text-red-600 bg-white'
                           }`}
                       >
                         <MapPin className="w-5 h-5 mb-1.5" />
@@ -654,8 +654,8 @@ export default function CheckoutScreen({
                 )}
 
                 {selectedAddressId !== null && (
-                  <div className="bg-pink-50/20 border border-pink-100/40 rounded-2xl p-5 text-left flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-pink-500 shrink-0 mt-0.5" />
+                  <div className="bg-red-50/20 border border-red-100/40 rounded-2xl p-5 text-left flex items-start gap-3">
+                    <MapPin className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
                     <div>
                       <h4 className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">Selected Shipping Details</h4>
                       <p className="text-sm font-black text-gray-900">{name}</p>
@@ -678,8 +678,8 @@ export default function CheckoutScreen({
                       key={method}
                       onClick={() => setPaymentMethod(method)}
                       className={`border-2 rounded-2xl p-6 flex flex-col justify-between h-36 cursor-pointer transition-all duration-300 relative ${paymentMethod === method
-                        ? 'border-pink-500 bg-pink-50/5 shadow-[0_4px_20px_rgba(236,72,153,0.08)] scale-[1.01]'
-                        : 'border-gray-100/80 hover:border-pink-200/80 hover:shadow-md bg-white'
+                        ? 'border-red-600 bg-red-50/5 shadow-[0_4px_20px_rgba(220,38,38,0.08)] scale-[1.01]'
+                        : 'border-gray-100/80 hover:border-red-200/80 hover:shadow-md bg-white'
                         }`}
                     >
                       <div className="flex items-center justify-between">
@@ -730,7 +730,7 @@ export default function CheckoutScreen({
                               Color: {item.color}
                             </span>
                           )}
-                          <span className="text-[9px] font-black uppercase tracking-wider bg-pink-50/60 border border-pink-100/60 px-2 py-0.5 rounded text-pink-600">
+                          <span className="text-[9px] font-black uppercase tracking-wider bg-red-50/60 border border-red-100/60 px-2 py-0.5 rounded text-red-600">
                             Qty: {item.quantity}
                           </span>
                         </div>
@@ -754,7 +754,7 @@ export default function CheckoutScreen({
                     <button
                       type="button"
                       onClick={() => setShowCoupons(!showCoupons)}
-                      className="text-[10px] font-bold text-pink-500 hover:text-pink-600 flex items-center gap-1 cursor-pointer transition-colors"
+                      className="text-[10px] font-bold text-red-600 hover:text-red-700 flex items-center gap-1 cursor-pointer transition-colors"
                     >
                       {showCoupons ? 'Hide' : `View ${availableCoupons.length} Coupons`}
                       {showCoupons ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
@@ -796,7 +796,7 @@ export default function CheckoutScreen({
                         value={couponCode}
                         onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponError(''); }}
                         placeholder="Enter coupon code"
-                        className="flex-1 border border-gray-100 rounded-xl px-4 py-3 text-xs font-bold uppercase tracking-wider placeholder:text-gray-300 placeholder:normal-case placeholder:tracking-normal focus:outline-none focus:border-pink-300 focus:ring-2 focus:ring-pink-100/50 transition-all"
+                        className="flex-1 border border-gray-100 rounded-xl px-4 py-3 text-xs font-bold uppercase tracking-wider placeholder:text-gray-300 placeholder:normal-case placeholder:tracking-normal focus:outline-none focus:border-red-300 focus:ring-2 focus:ring-red-100/50 transition-all"
                       />
                       <button
                         type="button"
@@ -841,22 +841,22 @@ export default function CheckoutScreen({
                                   handleApplyCoupon(coupon.code);
                                   setShowCoupons(false);
                                 }}
-                                className="w-full text-left bg-white hover:bg-pink-50/30 border border-gray-100 hover:border-pink-200/60 rounded-xl p-2.5 flex items-center gap-3 transition-all cursor-pointer group"
+                                className="w-full text-left bg-white hover:bg-red-50/30 border border-gray-100 hover:border-red-200/60 rounded-xl p-2.5 flex items-center gap-3 transition-all cursor-pointer group"
                               >
-                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-50 to-purple-50 border border-pink-100/50 flex items-center justify-center shrink-0 group-hover:from-pink-100 group-hover:to-purple-100 transition-colors">
-                                  <Percent className="w-3.5 h-3.5 text-pink-500" />
+                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-50 to-rose-50 border border-red-100/50 flex items-center justify-center shrink-0 group-hover:from-red-100 group-hover:to-rose-100 transition-colors">
+                                  <Percent className="w-3.5 h-3.5 text-red-600" />
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-[11px] font-black uppercase tracking-wider text-gray-900 truncate">{coupon.code}</p>
                                   <p className="text-[9px] text-gray-400 font-semibold truncate mt-0.5">
                                     {coupon.couponType === 'PERCENTAGE'
-                                      ? `${coupon.discountValue}% off`
-                                      : `₹${coupon.discountValue} off`}
+                                       ? `${coupon.discountValue}% off`
+                                       : `₹${coupon.discountValue} off`}
                                     {coupon.minOrderAmount ? ` • Min order ₹${coupon.minOrderAmount}` : ''}
                                     {coupon.maxDiscount ? ` • Max ₹${coupon.maxDiscount}` : ''}
                                   </p>
                                 </div>
-                                <span className="text-[9px] font-bold text-pink-500 uppercase tracking-widest shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span className="text-[9px] font-bold text-red-600 uppercase tracking-widest shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                                   Apply
                                 </span>
                               </button>
@@ -910,7 +910,7 @@ export default function CheckoutScreen({
 
                 <div className="flex justify-between items-baseline text-base font-black text-gray-900">
                   <span>Grand Total</span>
-                  <span className="text-2xl text-pink-600">₹{total.toFixed(2)}</span>
+                  <span className="text-2xl text-red-600">₹{total.toFixed(2)}</span>
                 </div>
               </div>
 
@@ -920,7 +920,7 @@ export default function CheckoutScreen({
                 size="lg"
                 fullWidth
                 disabled={isProcessing}
-                className="rounded-2xl font-black uppercase tracking-wider text-xs bg-pink-500 hover:bg-pink-400 border border-pink-400/50 py-4 shadow-[0_4px_12px_rgba(236,72,153,0.2)] hover:shadow-[0_8px_20px_rgba(236,72,153,0.3)] transition-all duration-300 active:scale-[0.98] cursor-pointer !bg-pink-500 text-white disabled:bg-gray-200 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="rounded-2xl font-black uppercase tracking-wider text-xs bg-red-600 hover:bg-red-700 border border-red-500/50 py-4 shadow-[0_4px_12px_rgba(220,38,38,0.2)] hover:shadow-[0_8px_20px_rgba(220,38,38,0.3)] transition-all duration-300 active:scale-[0.98] cursor-pointer !bg-red-600 text-white disabled:bg-gray-200 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isProcessing ? (
                   <>

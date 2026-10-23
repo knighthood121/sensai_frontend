@@ -5,3 +5,5 @@ export { default as Orders } from './Orders/OrdersScreen';
 export { default as ProductDetail } from './ProductDetail';
 export { default as CategoryBrowse } from './CategoryBrowse';
 export { default as Profile } from './Profile';
+export { default as JoinUs } from './JoinUs';
+

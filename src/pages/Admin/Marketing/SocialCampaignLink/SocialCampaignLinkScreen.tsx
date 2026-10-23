@@ -26,7 +26,7 @@ export default function SocialCampaignLinkScreen() {
           <h1 className="text-2xl font-bold" style={{ fontFamily: FONTS.heading }}>Social Campaigns</h1>
           <p className="text-sm text-gray-500 mt-1">Manage tracking links and monitor social media impact.</p>
         </div>
-        <Button variant="primary" size="md" className="shadow-lg shadow-pink-500/30 hover:-translate-y-0.5 transition-transform">
+        <Button variant="primary" size="md" className="shadow-lg shadow-red-500/20 hover:-translate-y-0.5 transition-transform">
           + Create Tracking Link
         </Button>
       </div>
@@ -41,7 +41,7 @@ export default function SocialCampaignLinkScreen() {
         <p className="text-sm text-gray-500 max-w-md mb-6">Connect your social media platforms to auto-generate tracking links and view campaign analytics here.</p>
         <div className="flex gap-3">
           <Button variant="outline" size="sm" className="!bg-[#1877F2] !text-white !border-transparent hover:!bg-blue-700">Connect Facebook</Button>
-          <Button variant="outline" size="sm" className="!bg-[#E4405F] !text-white !border-transparent hover:!bg-pink-700">Connect Instagram</Button>
+          <Button variant="outline" size="sm" className="!bg-[#E4405F] !text-white !border-transparent hover:!bg-[#D82D51]">Connect Instagram</Button>
         </div>
       </div>
     </div>

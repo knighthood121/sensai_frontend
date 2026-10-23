@@ -106,7 +106,7 @@ export default function CouponsDiscountScreen({
           variant="primary"
           size="md"
           onClick={handleOpenCreate}
-          className="shadow-lg shadow-pink-500/30 hover:-translate-y-0.5 transition-transform"
+          className="shadow-lg shadow-red-500/20 hover:-translate-y-0.5 transition-transform"
         >
           + Create Coupon
         </Button>
@@ -169,7 +169,7 @@ export default function CouponsDiscountScreen({
                 {coupons.map((coupon) => (
                   <tr key={coupon.id} className="hover:bg-gray-50 transition-colors group">
                     <td className="px-5 py-4">
-                      <span className="font-mono font-bold text-pink-600 bg-pink-50 px-2.5 py-1 rounded border border-pink-100">{coupon.code}</span>
+                      <span className="font-mono font-bold text-red-600 bg-red-50 px-2.5 py-1 rounded border border-red-100">{coupon.code}</span>
                     </td>
                     <td className="px-5 py-4">
                       <p className="font-bold text-gray-900">{formatDiscount(coupon.couponType, coupon.discountValue)}</p>
@@ -188,7 +188,7 @@ export default function CouponsDiscountScreen({
                       <button
                         type="button"
                         onClick={() => handleOpenEdit(coupon)}
-                        className="text-pink-600 hover:text-pink-700 font-bold text-xs uppercase tracking-wider cursor-pointer focus:outline-none"
+                        className="text-red-600 hover:text-red-700 font-bold text-xs uppercase tracking-wider cursor-pointer focus:outline-none"
                       >
                         Edit
                       </button>
@@ -344,7 +344,7 @@ export default function CouponsDiscountScreen({
               id="isActive"
               checked={isActive}
               onChange={(e) => setIsActive(e.target.checked)}
-              className="w-4 h-4 cursor-pointer accent-pink-500"
+              className="w-4 h-4 cursor-pointer accent-red-600"
             />
             <label htmlFor="isActive" className="text-xs font-black uppercase tracking-widest text-gray-500 cursor-pointer">
               Coupon is Active

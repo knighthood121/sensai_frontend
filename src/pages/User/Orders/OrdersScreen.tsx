@@ -4,8 +4,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { COLORS, FONTS } from '../../../constant/style';
 import Navbar from '../../../components/layout/Navbar';
 import Footer from '../../../components/layout/Footer';
-import logo from '../../../assets/logo.png';
 import Button from '../../../components/common/Button';
+import TaxInvoice from '../../../components/common/TaxInvoice';
 import { useAppSelector } from '../../../app/hooks';
 import { useToast } from '../../../components/common/Toast';
 import {
@@ -16,6 +16,7 @@ import {
 import { useAddToCartMutation } from '../../../service/cartApi';
 import { useCreateTicketMutation } from '../../../service/ticketApi';
 import {
+  Check,
   Clock,
   MapPin,
   Truck,
@@ -236,9 +237,6 @@ export default function OrdersScreen() {
   const handlePrintInvoice = (order: any) => {
     setPrintingOrder(order);
     setOpenInvoiceDropdownId(null);
-    setTimeout(() => {
-      window.print();
-    }, 300);
   };
 
   // ─── Format & Styles ──────────────────────────────────────────────────────
@@ -264,19 +262,25 @@ export default function OrdersScreen() {
   const getOrderStatusDisplay = (status: OrderStatus) => {
     switch (status) {
       case 'DELIVERED':
-        return { text: 'Delivered today', desc: 'Package was handed to resident', color: 'text-emerald-600' };
+        return { text: 'Delivered', desc: 'Package was delivered successfully', color: 'text-emerald-600' };
       case 'CANCELLED':
         return { text: 'Cancelled', desc: 'This order has been cancelled', color: 'text-rose-600' };
       case 'RETURNED':
         return { text: 'Returned', desc: 'Items have been returned successfully', color: 'text-rose-600' };
+      case 'RETURN_REQUESTED':
+        return { text: 'Return Requested', desc: 'Return request is currently under review', color: 'text-purple-600' };
       case 'SHIPPED':
         return { text: 'Shipped', desc: 'In Transit / Package is on its way', color: 'text-blue-600' };
       case 'OUT_FOR_DELIVERY':
         return { text: 'Out for delivery', desc: 'Package is out with delivery partner', color: 'text-amber-600' };
+      case 'PACKED':
+        return { text: 'Packed', desc: 'Order packed and ready for dispatch', color: 'text-indigo-600' };
+      case 'CONFIRMED':
+        return { text: 'Order Confirmed', desc: "We've received your order and are preparing it for shipment", color: 'text-emerald-600' };
       case 'PENDING':
-        return { text: 'Pending Approval', desc: 'Waiting for merchant confirmation', color: 'text-gray-500' };
+        return { text: 'Order Confirmed', desc: "We've received your order and are preparing it for shipment", color: 'text-emerald-600' };
       default:
-        return { text: 'Cannot display current status', desc: 'Contact support for update', color: 'text-gray-500' };
+        return { text: 'Processing', desc: 'We are processing your order', color: 'text-gray-500' };
     }
   };
 
@@ -288,13 +292,14 @@ export default function OrdersScreen() {
       case 'RETURNED':
         return 'bg-rose-50 text-rose-600 border-rose-100';
       case 'PENDING':
-        return 'bg-amber-50 text-amber-600 border-amber-100';
       case 'CONFIRMED':
+        return 'bg-emerald-50 text-emerald-600 border-emerald-100';
       case 'PACKED':
-        return 'bg-indigo-50 text-indigo-600 border-indigo-100';
+        return 'bg-teal-50 text-teal-600 border-teal-100';
       case 'SHIPPED':
-      case 'OUT_FOR_DELIVERY':
         return 'bg-blue-50 text-blue-600 border-blue-100';
+      case 'OUT_FOR_DELIVERY':
+        return 'bg-amber-50 text-amber-600 border-amber-100';
       case 'RETURN_REQUESTED':
         return 'bg-purple-50 text-purple-600 border-purple-100';
       default:
@@ -302,11 +307,138 @@ export default function OrdersScreen() {
     }
   };
 
+  const getOrderTrackingInfo = (status: OrderStatus) => {
+    switch (status) {
+      case 'PENDING':
+      case 'CONFIRMED':
+        return {
+          progressWidth: '25%',
+          statusText: 'Order Confirmed',
+          statusDesc: "We've received your order and are preparing it for shipment.",
+          badgeStyle: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+          steps: [
+            { label: 'Order Confirmed', desc: 'Completed', isCompleted: true, isActive: false },
+            { label: 'Processing', desc: 'Active', isCompleted: false, isActive: true },
+            { label: 'Shipped', desc: 'Upcoming', isCompleted: false, isActive: false },
+            { label: 'Out for Delivery', desc: 'Upcoming', isCompleted: false, isActive: false },
+            { label: 'Delivered', desc: 'Upcoming', isCompleted: false, isActive: false },
+          ],
+        };
+      case 'PACKED':
+        return {
+          progressWidth: '40%',
+          statusText: 'Processing & Packed',
+          statusDesc: 'Your order has been packed and is awaiting courier pickup.',
+          badgeStyle: 'bg-teal-50 text-teal-600 border-teal-100',
+          steps: [
+            { label: 'Order Confirmed', desc: 'Completed', isCompleted: true, isActive: false },
+            { label: 'Processing', desc: 'Completed', isCompleted: true, isActive: false },
+            { label: 'Shipped', desc: 'Awaiting Pickup', isCompleted: false, isActive: true },
+            { label: 'Out for Delivery', desc: 'Upcoming', isCompleted: false, isActive: false },
+            { label: 'Delivered', desc: 'Upcoming', isCompleted: false, isActive: false },
+          ],
+        };
+      case 'SHIPPED':
+        return {
+          progressWidth: '55%',
+          statusText: 'Shipped',
+          statusDesc: 'Package has been dispatched and is on its way.',
+          badgeStyle: 'bg-blue-50 text-blue-600 border-blue-100',
+          steps: [
+            { label: 'Order Confirmed', desc: 'Completed', isCompleted: true, isActive: false },
+            { label: 'Processing', desc: 'Completed', isCompleted: true, isActive: false },
+            { label: 'Shipped', desc: 'Active', isCompleted: false, isActive: true },
+            { label: 'Out for Delivery', desc: 'Upcoming', isCompleted: false, isActive: false },
+            { label: 'Delivered', desc: 'Upcoming', isCompleted: false, isActive: false },
+          ],
+        };
+      case 'OUT_FOR_DELIVERY':
+        return {
+          progressWidth: '75%',
+          statusText: 'Out for Delivery',
+          statusDesc: 'Package is out for delivery with our courier partner.',
+          badgeStyle: 'bg-amber-50 text-amber-600 border-amber-100',
+          steps: [
+            { label: 'Order Confirmed', desc: 'Completed', isCompleted: true, isActive: false },
+            { label: 'Processing', desc: 'Completed', isCompleted: true, isActive: false },
+            { label: 'Shipped', desc: 'Completed', isCompleted: true, isActive: false },
+            { label: 'Out for Delivery', desc: 'Active', isCompleted: false, isActive: true },
+            { label: 'Delivered', desc: 'Upcoming', isCompleted: false, isActive: false },
+          ],
+        };
+      case 'DELIVERED':
+        return {
+          progressWidth: '100%',
+          statusText: 'Delivered',
+          statusDesc: 'Package was delivered successfully.',
+          badgeStyle: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+          steps: [
+            { label: 'Order Confirmed', desc: 'Completed', isCompleted: true, isActive: false },
+            { label: 'Processing', desc: 'Completed', isCompleted: true, isActive: false },
+            { label: 'Shipped', desc: 'Completed', isCompleted: true, isActive: false },
+            { label: 'Out for Delivery', desc: 'Completed', isCompleted: true, isActive: false },
+            { label: 'Delivered', desc: 'Completed', isCompleted: true, isActive: false },
+          ],
+        };
+      default:
+        return null;
+    }
+  };
+
+  const OrderTrackingStepper = ({ trackingInfo }: { trackingInfo: NonNullable<ReturnType<typeof getOrderTrackingInfo>> }) => {
+    return (
+      <div className="w-full max-w-3xl mx-auto px-2">
+        <div className="relative flex items-center justify-between w-full">
+          {/* Background Line */}
+          <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1 bg-gray-200 rounded-full -z-10" />
+
+          {/* Active Animated Progress Line */}
+          <motion.div
+            initial={{ width: '0%' }}
+            animate={{ width: trackingInfo.progressWidth }}
+            transition={{ delay: 0.2, duration: 0.8, ease: 'easeInOut' }}
+            className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full -z-10"
+          />
+
+          {/* Timeline Steps */}
+          {trackingInfo.steps.map((step, idx) => (
+            <div key={idx} className="flex flex-col items-center flex-1 relative">
+              {/* Circle indicator */}
+              {step.isCompleted ? (
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-emerald-500 border-4 border-emerald-100 flex items-center justify-center text-white shadow-md transition-all duration-300">
+                  <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 stroke-[3]" />
+                </div>
+              ) : step.isActive ? (
+                <div className="relative">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75 animate-ping" />
+                  <div className="relative w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border-4 border-teal-400 flex items-center justify-center shadow-md transition-all duration-300">
+                    <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-teal-500" />
+                  </div>
+                </div>
+              ) : (
+                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border-4 border-gray-200 flex items-center justify-center text-gray-300 shadow-sm transition-all duration-300" />
+              )}
+
+              {/* Label */}
+              <span
+                className={`mt-3 text-[9px] sm:text-[10px] md:text-xs font-black uppercase tracking-wider text-center max-w-[70px] sm:max-w-[85px] md:max-w-[120px] transition-colors duration-300 ${
+                  step.isCompleted || step.isActive ? 'text-gray-900' : 'text-gray-400'
+                }`}
+              >
+                {step.label}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[#FAFAFC] relative overflow-hidden" style={{ fontFamily: FONTS.main, color: COLORS.text }}>
       {/* Decorative background blobs to match other screens */}
-      <div className="absolute top-[-8%] left-[-5%] w-[500px] h-[500px] bg-gradient-to-tr from-pink-200/8 to-purple-200/8 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-gradient-to-br from-indigo-200/8 to-emerald-100/8 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-[-8%] left-[-5%] w-[500px] h-[500px] bg-gradient-to-tr from-red-200/8 to-rose-200/8 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-gradient-to-br from-red-100/10 to-stone-100/10 rounded-full blur-[140px] pointer-events-none" />
 
       <Navbar />
 
@@ -314,7 +446,7 @@ export default function OrdersScreen() {
         {/* Breadcrumb Navigation & Title */}
         <div className="mb-10 sm:mb-14">
           <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-4">
-            <button onClick={() => navigate('/')} className="hover:text-pink-500 transition-colors cursor-pointer">Home</button>
+            <button onClick={() => navigate('/')} className="hover:text-red-600 transition-colors cursor-pointer">Home</button>
             <ChevronRight className="w-3 h-3" />
             <span className="text-gray-600">My Orders</span>
           </div>
@@ -333,7 +465,7 @@ export default function OrdersScreen() {
           <div className="flex items-center gap-6 text-sm font-semibold">
             <button
               onClick={() => { setActiveTab('orders'); setPage(1); }}
-              className={`pb-3.5 relative transition-all cursor-pointer ${activeTab === 'orders' ? 'text-gray-900 font-bold' : 'text-gray-500 hover:text-pink-600'
+              className={`pb-3.5 relative transition-all cursor-pointer ${activeTab === 'orders' ? 'text-gray-900 font-bold' : 'text-gray-500 hover:text-red-600'
                 }`}
             >
               Orders
@@ -343,7 +475,7 @@ export default function OrdersScreen() {
             </button>
             <button
               onClick={() => { setActiveTab('buyAgain'); setPage(1); }}
-              className={`pb-3.5 relative transition-all cursor-pointer ${activeTab === 'buyAgain' ? 'text-gray-900 font-bold' : 'text-gray-500 hover:text-pink-600'
+              className={`pb-3.5 relative transition-all cursor-pointer ${activeTab === 'buyAgain' ? 'text-gray-900 font-bold' : 'text-gray-500 hover:text-red-600'
                 }`}
             >
               Buy Again
@@ -353,7 +485,7 @@ export default function OrdersScreen() {
             </button>
             <button
               onClick={() => { setActiveTab('notShipped'); setPage(1); }}
-              className={`pb-3.5 relative transition-all cursor-pointer ${activeTab === 'notShipped' ? 'text-gray-900 font-bold' : 'text-gray-500 hover:text-pink-600'
+              className={`pb-3.5 relative transition-all cursor-pointer ${activeTab === 'notShipped' ? 'text-gray-900 font-bold' : 'text-gray-500 hover:text-red-600'
                 }`}
             >
               Not Yet Shipped
@@ -375,7 +507,7 @@ export default function OrdersScreen() {
                 placeholder="Search all orders"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-11 pr-4 py-2.5 rounded-l-2xl border border-gray-200 text-sm focus:outline-none focus:border-pink-500 bg-white"
+                className="w-full pl-11 pr-4 py-2.5 rounded-l-2xl border border-gray-200 text-sm focus:outline-none focus:border-red-600 bg-white"
               />
             </div>
             <button
@@ -411,7 +543,7 @@ export default function OrdersScreen() {
         {/* Loading / Error States */}
         {isListLoading ? (
           <div className="flex flex-col items-center justify-center py-24 bg-white border border-gray-100 rounded-[32px] shadow-sm">
-            <Loader2 className="w-10 h-10 text-pink-500 animate-spin mb-4" />
+            <Loader2 className="w-10 h-10 text-red-600 animate-spin mb-4" />
             <p className="text-gray-400 font-bold uppercase tracking-wider text-xs">Loading orders...</p>
           </div>
         ) : isListError ? (
@@ -445,12 +577,12 @@ export default function OrdersScreen() {
                     <div className="px-1 text-left space-y-1">
                       <h4
                         onClick={() => navigate(`/product/${item.productId}`)}
-                        className="font-bold text-gray-900 line-clamp-2 hover:text-pink-600 cursor-pointer hover:underline text-sm leading-snug"
+                        className="font-bold text-gray-900 line-clamp-2 hover:text-red-600 cursor-pointer hover:underline text-sm leading-snug"
                       >
                         {item.productName}
                       </h4>
                       <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Bought on {new Date(item.orderDate).toLocaleDateString()}</p>
-                      <p className="text-base font-extrabold text-pink-600 pt-1">₹{item.unitPrice.toFixed(2)}</p>
+                      <p className="text-base font-extrabold text-red-600 pt-1">₹{item.unitPrice.toFixed(2)}</p>
                     </div>
                   </div>
                   <div className="mt-5 pt-3 border-t border-gray-50 flex gap-2">
@@ -488,6 +620,7 @@ export default function OrdersScreen() {
           <div className="space-y-8">
             {displayedOrders.map((order) => {
               const statusDisplay = getOrderStatusDisplay(order.status);
+              const trackingInfo = getOrderTrackingInfo(order.status);
               const shipName = order.address?.fullName || 'Customer';
 
               return (
@@ -502,7 +635,7 @@ export default function OrdersScreen() {
                       <div className="hidden sm:block w-px h-6 bg-gray-200" />
                       <div>
                         <p className="text-[9px] text-gray-400 mb-0.5">Total</p>
-                        <p className="text-pink-650 font-black">₹{order.totalAmount.toFixed(2)}</p>
+                        <p className="text-red-600 font-black">₹{order.totalAmount.toFixed(2)}</p>
                       </div>
                       <div className="hidden sm:block w-px h-6 bg-gray-200" />
                       <div className="relative">
@@ -590,7 +723,7 @@ export default function OrdersScreen() {
                                   >
                                     <button
                                       onClick={() => handlePrintInvoice(order)}
-                                      className="w-full text-left px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-pink-50/50 hover:text-pink-600 transition-colors"
+                                      className="w-full text-left px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-red-50/50 hover:text-red-600 transition-colors"
                                     >
                                       Print Invoice
                                     </button>
@@ -604,19 +737,65 @@ export default function OrdersScreen() {
                     </div>
                   </div>
 
-                  {/* Card Body */}
-                  <div className="p-6 sm:p-10 flex flex-col lg:flex-row lg:justify-between lg:items-start gap-8">
-                    {/* Left side: Status and Items */}
-                    <div className="flex-1 space-y-6">
-                      {/* Status header */}
-                      <div>
-                        <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-2 ${getStatusBadgeStyle(order.status)}`}>
-                          <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                          {statusDisplay.text}
-                        </span>
-                        <p className="text-xs text-gray-500 font-medium">{statusDisplay.desc}</p>
+                  {/* Tracking Stepper Layout (matching Image 1) */}
+                  {trackingInfo ? (
+                    <div className="border-b border-gray-100/80 px-6 sm:px-10 py-6 sm:py-8 bg-gradient-to-b from-gray-50/40 via-white to-white">
+                      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+                        <div className="flex items-center gap-2.5">
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${trackingInfo.badgeStyle}`}>
+                            <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                            {trackingInfo.statusText}
+                          </span>
+                          <span className="text-xs text-gray-500 font-medium">
+                            {trackingInfo.statusDesc}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          {order.estimatedDelivery && (
+                            <span className="text-xs text-gray-500 font-semibold">
+                              Arriving by <strong className="text-gray-900">{formatDate(order.estimatedDelivery)}</strong>
+                            </span>
+                          )}
+                          {order.shippingTrackingId && (
+                            <div className="flex items-center gap-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-200/80 px-3 py-1 rounded-full">
+                              <Truck size={12} className="text-gray-400" />
+                              <span>Tracking: <strong className="text-gray-900">{order.shippingTrackingId}</strong></span>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
+                      <OrderTrackingStepper trackingInfo={trackingInfo} />
+                    </div>
+                  ) : (
+                    <div className={`border-b border-gray-100/80 px-6 sm:px-10 py-5 ${
+                      order.status === 'CANCELLED' ? 'bg-rose-50/30' : 'bg-purple-50/30'
+                    } flex flex-wrap items-center justify-between gap-4`}>
+                      <div className="flex items-center gap-3">
+                        {order.status === 'CANCELLED' ? (
+                          <div className="w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+                            <XCircle className="w-4 h-4" />
+                          </div>
+                        ) : (
+                          <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
+                            <AlertCircle className="w-4 h-4" />
+                          </div>
+                        )}
+                        <div>
+                          <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-0.5 ${getStatusBadgeStyle(order.status)}`}>
+                            <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                            {statusDisplay.text}
+                          </span>
+                          <p className="text-xs text-gray-500 font-medium">{statusDisplay.desc}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Card Body */}
+                  <div className="p-6 sm:p-10 flex flex-col lg:flex-row lg:justify-between lg:items-start gap-8">
+                    {/* Left side: Items */}
+                    <div className="flex-1 space-y-6">
                       {/* Items */}
                       <div className="divide-y divide-gray-50">
                         {order.items.map((item: any, itemIdx: number) => (
@@ -632,7 +811,7 @@ export default function OrdersScreen() {
                             <div className="min-w-0 space-y-1">
                               <h4
                                 onClick={() => navigate(`/product/${item.productId}`)}
-                                className="font-extrabold text-gray-900 hover:text-pink-600 cursor-pointer hover:underline text-sm sm:text-base leading-snug line-clamp-1"
+                                className="font-extrabold text-gray-900 hover:text-red-600 cursor-pointer hover:underline text-sm sm:text-base leading-snug line-clamp-1"
                               >
                                 {item.productName}
                               </h4>
@@ -646,7 +825,7 @@ export default function OrdersScreen() {
                                       {item.color}
                                     </span>
                                   )}
-                                  <span className="text-[9px] text-pink-600 font-black bg-pink-50/50 border border-pink-100/50 px-2 py-0.5 rounded-md uppercase tracking-wider">
+                                  <span className="text-[9px] text-red-600 font-black bg-red-50/50 border border-red-100/50 px-2 py-0.5 rounded-md uppercase tracking-wider">
                                     Qty: {item.quantity}
                                   </span>
                                 </div>
@@ -681,7 +860,7 @@ export default function OrdersScreen() {
                       {order.shippingTrackingId && (
                         <button
                           onClick={() => setSelectedOrderId(order.id)}
-                          className="w-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 hover:border-pink-300 hover:text-pink-600 font-bold py-2.5 rounded-full text-[10px] uppercase tracking-wider transition-all cursor-pointer active:scale-95"
+                          className="w-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 hover:border-red-300 hover:text-red-600 font-bold py-2.5 rounded-full text-[10px] uppercase tracking-wider transition-all cursor-pointer active:scale-95"
                         >
                           Track package
                         </button>
@@ -698,7 +877,7 @@ export default function OrdersScreen() {
                       {order.status === 'DELIVERED' && (
                         <button
                           onClick={() => handleOpenTicket({ ...order, subject: `Return/Replacement Request for Order #${order.orderNumber}` })}
-                          className="w-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-705 hover:border-pink-300 hover:text-pink-650 font-bold py-2.5 rounded-full text-[10px] uppercase tracking-wider transition-all cursor-pointer active:scale-95"
+                          className="w-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-705 hover:border-red-300 hover:text-red-600 font-bold py-2.5 rounded-full text-[10px] uppercase tracking-wider transition-all cursor-pointer active:scale-95"
                         >
                           Return or replace items
                         </button>
@@ -707,7 +886,7 @@ export default function OrdersScreen() {
                       {order.status === 'DELIVERED' && (
                         <button
                           onClick={() => navigate(`/product/${order.items[0]?.productId}`)}
-                          className="w-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-705 hover:border-pink-300 hover:text-pink-650 font-bold py-2.5 rounded-full text-[10px] uppercase tracking-wider transition-all cursor-pointer active:scale-95"
+                          className="w-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-705 hover:border-red-300 hover:text-red-600 font-bold py-2.5 rounded-full text-[10px] uppercase tracking-wider transition-all cursor-pointer active:scale-95"
                         >
                           Write product review
                         </button>
@@ -795,7 +974,7 @@ export default function OrdersScreen() {
                     required
                     value={ticketSubject}
                     onChange={(e) => setTicketSubject(e.target.value)}
-                    className="w-full rounded-2xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-pink-500 bg-white"
+                    className="w-full rounded-2xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-red-600 bg-white"
                   />
                 </div>
 
@@ -804,7 +983,7 @@ export default function OrdersScreen() {
                   <select
                     value={ticketPriority}
                     onChange={(e: any) => setTicketPriority(e.target.value)}
-                    className="w-full rounded-2xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-pink-500 bg-white appearance-none cursor-pointer"
+                    className="w-full rounded-2xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-red-600 bg-white appearance-none cursor-pointer"
                   >
                     <option value="LOW">Low</option>
                     <option value="NORMAL">Normal</option>
@@ -820,7 +999,7 @@ export default function OrdersScreen() {
                     rows={4}
                     value={ticketMessage}
                     onChange={(e) => setTicketMessage(e.target.value)}
-                    className="w-full rounded-2xl border border-gray-200 p-4 text-sm focus:outline-none focus:border-pink-500 bg-white resize-none"
+                    className="w-full rounded-2xl border border-gray-200 p-4 text-sm focus:outline-none focus:border-red-600 bg-white resize-none"
                   />
                 </div>
 
@@ -873,7 +1052,7 @@ export default function OrdersScreen() {
                     value={cancelReason}
                     onChange={(e) => setCancelReason(e.target.value)}
                     placeholder="e.g. Bought by mistake, Found a better deal..."
-                    className="w-full rounded-2xl border border-gray-200 p-4 text-sm focus:outline-none focus:border-pink-500 bg-white resize-none"
+                    className="w-full rounded-2xl border border-gray-200 p-4 text-sm focus:outline-none focus:border-red-600 bg-white resize-none"
                     disabled={isCancelling}
                   />
                 </div>
@@ -939,7 +1118,7 @@ export default function OrdersScreen() {
               <div className="p-8 space-y-6 flex-1 overflow-y-auto">
                 {isDetailLoading ? (
                   <div className="flex flex-col items-center justify-center py-20">
-                    <Loader2 className="w-8 h-8 text-pink-500 animate-spin mb-3" />
+                    <Loader2 className="w-8 h-8 text-red-600 animate-spin mb-3" />
                     <p className="text-xs text-gray-400">Loading details...</p>
                   </div>
                 ) : isDetailError || !detailData?.data ? (
@@ -947,14 +1126,33 @@ export default function OrdersScreen() {
                 ) : (
                   (() => {
                     const order = detailData.data;
+                    const modalTracking = getOrderTrackingInfo(order.status);
                     return (
-                      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+                      <div className="space-y-6">
+                        {modalTracking && (
+                          <div className="bg-gray-50/70 border border-gray-150 rounded-2xl p-6 sm:p-8">
+                            <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+                              <div className="flex items-center gap-2.5">
+                                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${modalTracking.badgeStyle}`}>
+                                  <span className="w-1.5 h-1.5 rounded-full bg-current" />
+                                  {modalTracking.statusText}
+                                </span>
+                                <span className="text-xs text-gray-500 font-medium">
+                                  {modalTracking.statusDesc}
+                                </span>
+                              </div>
+                            </div>
+                            <OrderTrackingStepper trackingInfo={modalTracking} />
+                          </div>
+                        )}
+
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
                         {/* Left column */}
                         <div className="md:col-span-7 space-y-4">
                           {/* Shipping address */}
                           <div className="bg-gray-50 rounded-2xl p-5 border border-gray-150">
                             <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
-                              <MapPin size={14} className="text-pink-500" /> Shipping Address
+                              <MapPin size={14} className="text-red-600" /> Shipping Address
                             </h4>
                             <p className="font-bold text-gray-900 text-sm">{order.address?.fullName || 'No Address'}</p>
                             <p className="text-xs text-gray-600 mt-1.5 leading-relaxed">
@@ -968,7 +1166,7 @@ export default function OrdersScreen() {
                           {/* Shipment info */}
                           <div className="bg-gray-50 rounded-2xl p-5 border border-gray-150">
                             <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-1.5">
-                              <Truck size={14} className="text-pink-500" /> Shipment Information
+                              <Truck size={14} className="text-red-600" /> Shipment Information
                             </h4>
                             <div className="text-xs space-y-2.5">
                               <div className="flex justify-between border-b pb-1.5">
@@ -992,15 +1190,15 @@ export default function OrdersScreen() {
                           {order.timelines && order.timelines.length > 0 && (
                             <div className="bg-gray-50 rounded-2xl p-5 border border-gray-150">
                               <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-4 flex items-center gap-1.5">
-                                <Clock size={14} className="text-pink-500" /> Order History
+                                <Clock size={14} className="text-red-600" /> Order History
                               </h4>
                               <div className="relative pl-4 space-y-4">
                                 <div className="absolute left-[3px] top-1.5 bottom-1.5 w-[1.5px] bg-gray-250" />
                                 {order.timelines.map((log: any, idx: number) => (
                                   <div key={log.id} className="relative pl-4">
-                                    <div className={`absolute left-[-15px] top-1.5 w-2.5 h-2.5 rounded-full border-2 ${idx === 0 ? 'bg-pink-500 border-pink-500 shadow-sm shadow-pink-200' : 'bg-white border-gray-300'
+                                    <div className={`absolute left-[-15px] top-1.5 w-2.5 h-2.5 rounded-full border-2 ${idx === 0 ? 'bg-red-600 border-red-600 shadow-sm shadow-red-200' : 'bg-white border-gray-300'
                                       }`} />
-                                    <p className={`text-xs font-bold ${idx === 0 ? 'text-pink-600' : 'text-gray-700'}`}>{log.status.replace(/_/g, ' ')}</p>
+                                    <p className={`text-xs font-bold ${idx === 0 ? 'text-red-600' : 'text-gray-700'}`}>{log.status.replace(/_/g, ' ')}</p>
                                     <p className="text-[10px] text-gray-450 mt-0.5">{formatDateTime(log.createdAt)}</p>
                                     {log.notes && <p className="text-[10px] text-gray-500 mt-1.5 bg-white border rounded-xl p-2.5 leading-relaxed">{log.notes}</p>}
                                   </div>
@@ -1060,14 +1258,15 @@ export default function OrdersScreen() {
                               <hr className="my-2" />
                               <div className="flex justify-between items-baseline pt-1">
                                 <span className="text-sm font-bold text-gray-900">Total</span>
-                                <span className="text-lg font-extrabold text-pink-600">₹{order.totalAmount.toFixed(2)}</span>
+                                <span className="text-lg font-extrabold text-red-600">₹{order.totalAmount.toFixed(2)}</span>
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    );
-                  })()
+                    </div>
+                  );
+                })()
                 )}
               </div>
             </motion.div>
@@ -1075,116 +1274,64 @@ export default function OrdersScreen() {
         )}
       </AnimatePresence>
 
-      {/* ─── PRINTABLE INVOICE VIEW (Hidden by default, shown during window.print()) ─── */}
+      {/* ─── OFFICIAL GST TAX INVOICE MODAL & PRINT VIEW ─── */}
       {printingOrder && (
-        <div id="printable-invoice" className="hidden print:block p-8 bg-white text-gray-950 font-sans text-xs">
-          <div className="flex justify-between items-start border-b pb-6 mb-6">
-            <div className="flex items-center gap-3">
-              <img src={logo} alt="sensai" className="h-12 w-auto object-contain" />
-              <div>
-                <p className="text-[10px] text-gray-500">Precision fasteners & workshop tools</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <h2 className="text-lg font-bold uppercase tracking-wider text-gray-900">INVOICE</h2>
-              <p className="text-xs font-semibold text-gray-700 mt-1">Invoice Number: #{printingOrder.orderNumber}</p>
-              <p className="text-[10px] text-gray-500 mt-0.5">Date: {formatDate(printingOrder.createdAt)}</p>
-            </div>
-          </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-2 sm:p-4 print:p-0 print:static print:bg-white print:backdrop-blur-none">
+          {/* Close overlay */}
+          <div className="absolute inset-0 print:hidden" onClick={() => setPrintingOrder(null)} />
 
-          <div className="grid grid-cols-2 gap-8 mb-8">
-            <div>
-              <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Billed To</p>
-              <p className="font-bold text-sm text-gray-800">{printingOrder.address?.fullName || 'Valued Customer'}</p>
-              <p className="mt-1 font-medium">{printingOrder.address?.addressLine1}</p>
-              {printingOrder.address?.addressLine2 && <p className="font-medium">{printingOrder.address?.addressLine2}</p>}
-              <p className="font-medium">{printingOrder.address?.city}, {printingOrder.address?.state} - {printingOrder.address?.postalCode}</p>
-              <p className="font-medium">{printingOrder.address?.country}</p>
-              <p className="mt-2 text-gray-500">Phone: {printingOrder.address?.phone}</p>
-            </div>
-            <div>
-              <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">Payment Details</p>
-              <p className="font-semibold">Method: <span className="uppercase">{printingOrder.paymentMethod}</span></p>
-              <p className="mt-1 font-semibold">Payment Status: <span className="uppercase">{printingOrder.paymentStatus}</span></p>
-              <p className="mt-1 font-semibold">Total Charged: ₹{printingOrder.totalAmount.toFixed(2)}</p>
-            </div>
-          </div>
+          <div
+            className="relative bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[92vh] overflow-y-auto print:max-h-none print:overflow-visible print:shadow-none print:rounded-none print:w-full print:m-0 z-10"
+            id="printable-invoice"
+          >
+            {(() => {
+              const orderDate = new Date(printingOrder.createdAt);
+              const orderYear = orderDate.getFullYear();
+              const nextYearShort = (orderYear + 1).toString().slice(2);
+              const invoiceNumber = `INV/${orderYear.toString().slice(2)}-${nextYearShort}/${printingOrder.orderNumber}`;
 
-          <table className="w-full text-left border-collapse border-b border-gray-200 mb-8">
-            <thead>
-              <tr className="border-b border-gray-300 text-[10px] font-bold uppercase tracking-wider text-gray-700">
-                <th className="py-2.5">Item Description</th>
-                <th className="py-2.5 text-center">Size / Color</th>
-                <th className="py-2.5 text-center">Qty</th>
-                <th className="py-2.5 text-right">Unit Price</th>
-                <th className="py-2.5 text-right">Total</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 text-xs">
-              {printingOrder.items.map((item: any, idx: number) => (
-                <tr key={idx}>
-                  <td className="py-3 font-semibold text-gray-900">{item.productName}</td>
-                  <td className="py-3 text-center font-medium text-gray-600">{item.size || '—'} {item.color && `/ ${item.color}`}</td>
-                  <td className="py-3 text-center font-medium text-gray-600">{item.quantity}</td>
-                  <td className="py-3 text-right font-medium text-gray-600">₹{item.unitPrice.toFixed(2)}</td>
-                  <td className="py-3 text-right font-bold text-gray-900">₹{item.totalPrice.toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+              const invoiceItems = printingOrder.items?.map((item: any) => ({
+                id: item.id,
+                productName: item.productName,
+                sku: item.size ? `${item.productName.slice(0, 4).toUpperCase()}-${item.size}` : 'ZOMM-LC-TL-0144',
+                hsnCode: '82079090',
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                totalPrice: item.totalPrice,
+                unit: 'NOS',
+              })) || [];
 
-          <div className="flex justify-end">
-            <div className="w-64 space-y-2 text-xs">
-              <div className="flex justify-between">
-                <span className="text-gray-500 font-medium">Subtotal:</span>
-                <span className="font-semibold">₹{printingOrder.subtotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-500 font-medium">Shipping:</span>
-                <span className="font-semibold">
-                  {printingOrder.shippingCharges === 0 ? 'Free' : `₹${printingOrder.shippingCharges.toFixed(2)}`}
-                </span>
-              </div>
-              {printingOrder.taxAmount > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-gray-500 font-medium">Tax:</span>
-                  <span className="font-semibold">₹{printingOrder.taxAmount.toFixed(2)}</span>
-                </div>
-              )}
-              {printingOrder.discountAmount > 0 && (
-                <div className="flex justify-between text-emerald-700">
-                  <span className="font-semibold">Discount ({printingOrder.couponCode}):</span>
-                  <span className="font-bold">-₹{printingOrder.discountAmount.toFixed(2)}</span>
-                </div>
-              )}
-              <div className="border-t border-gray-300 pt-2 flex justify-between font-bold text-sm text-gray-900">
-                <span>Total Amount:</span>
-                <span>₹{printingOrder.totalAmount.toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
+              const buyer = {
+                fullName: printingOrder.address?.fullName || 'Valued Customer',
+                companyName: (printingOrder as any).companyName || printingOrder.address?.fullName || 'Shigan Industries Private Limited',
+                addressLine1: printingOrder.address?.addressLine1 || 'Shyam Udyog Parisar, Alier',
+                addressLine2: printingOrder.address?.addressLine2 || 'Bhangrola Road, Manesar, Gurugram',
+                city: printingOrder.address?.city || 'Manesar',
+                state: printingOrder.address?.state || 'Haryana',
+                postalCode: printingOrder.address?.postalCode || '122052',
+                phone: printingOrder.address?.phone || '+91-9870517217',
+                email: '',
+                gstin: (printingOrder as any).gstin || '06AAZCS7666J1ZA',
+                pan: (printingOrder as any).pan || 'AAZCS7666J',
+              };
 
-          <div className="mt-16 text-center text-[10px] text-gray-400 border-t pt-4">
-            <p>Thank you for shopping with Sansei!</p>
-            <p className="mt-1">For support, please file a ticket under "Problem with Order" in your dashboard.</p>
+              return (
+                <TaxInvoice
+                  invoiceNumber={invoiceNumber}
+                  invoiceDate={orderDate}
+                  poNumber={`PO-PC/${orderYear.toString().slice(2)}-${nextYearShort}/${printingOrder.orderNumber}`}
+                  poDate={new Date(orderDate.getTime() - 30 * 24 * 60 * 60 * 1000)}
+                  buyer={buyer}
+                  items={invoiceItems}
+                  subtotal={printingOrder.subtotal}
+                  totalAmount={printingOrder.totalAmount}
+                  onClose={() => setPrintingOrder(null)}
+                />
+              );
+            })()}
           </div>
         </div>
       )}
-
-      {/* Global CSS injection for printing */}
-      <style>{`
-        @media print {
-          body > *:not(#printable-invoice) {
-            display: none !important;
-          }
-          #printable-invoice {
-            display: block !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 24px !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }

@@ -1,5 +1,5 @@
-// export const API_BASE_URL = 'http://localhost:3001';
-export const API_BASE_URL = 'https://sensai-backend-nmbj.onrender.com';
+export const API_BASE_URL = 'http://localhost:3001';
+// export const API_BASE_URL = 'https://sensai-backend-nmbj.onrender.com';
 
 export const ENDPOINTS = {
   auth: {
@@ -103,5 +103,16 @@ export const ENDPOINTS = {
   adminTickets: {
     base: '/api/v1/admin/tickets',
     byId: (id: number) => `/api/v1/admin/tickets/${id}`,
+  },
+  adminCustomers: {
+    base: '/api/v1/admin/customers',
+    byId: (id: number | string) => `/api/v1/admin/customers/${id}`,
+  },
+  adminBanners: {
+    base: '/api/v1/admin/banners',
+    byId: (id: number | string) => `/api/v1/admin/banners/${id}`,
+  },
+  banners: {
+    base: '/api/v1/banners',
   },
 };

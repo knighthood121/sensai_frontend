@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import Navbar from '../../../components/layout/Navbar';
 import Footer from '../../../components/layout/Footer';
+import HeroBanner from '../../../components/common/HeroBanner';
+import { useToast } from '../../../components/common/Toast';
 import type { LandingPageScreenProps } from './index';
 
 type CatalogItem = {
@@ -43,15 +45,12 @@ const kindFromName = (value: string): CatalogItem['kind'] => {
   return 'screw';
 };
 
-const heroSlides = [
-  { image: '/images/hand-tools-hero-v2.png', type: 'tools' as const },
-  { image: '/images/brass-inserts-hero-v2.png', type: 'brass' as const },
-];
-
 export default function LandingPageScreen(p: LandingPageScreenProps) {
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const [sent, setSent] = useState(false);
-  const hero = heroSlides[p.carouselIndex % heroSlides.length];
+  const [showNewsletterModal, setShowNewsletterModal] = useState(false);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
   const visibleCategories = (p.categories || []).map((category) => ({
     name: category.name,
     slug: category.slug || categorySlug(category.name),
@@ -67,7 +66,7 @@ export default function LandingPageScreen(p: LandingPageScreenProps) {
       price: Number(product.sellingPrice ?? product.discountPrice ?? product.basePrice ?? 0),
       oldPrice:
         Number(product.basePrice || 0) >
-        Number(product.sellingPrice ?? product.discountPrice ?? product.basePrice ?? 0)
+          Number(product.sellingPrice ?? product.discountPrice ?? product.basePrice ?? 0)
           ? Number(product.basePrice)
           : undefined,
       kind: kindFromName(`${product.category?.name || ''} ${product.name}`),
@@ -80,64 +79,60 @@ export default function LandingPageScreen(p: LandingPageScreenProps) {
     const matches = liveItems.filter((item) => matcher.test(`${item.name} ${item.kind}`));
     return matches.slice(0, count);
   };
-  const homepageHssBits = productsFor(/hss|parallel shank/i, 8);
   const homepageSpecialtyBits = productsFor(/flat wood|masonry|glass|tile|tap/i, 8);
   const openCatalogItem = (item: CatalogItem) => {
     navigate(`/product/${item.id}`);
+  };
+
+  const handleNewsletterSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim()) {
+      showToast('Please enter your email address.', 'error');
+      return;
+    }
+    showToast('Thank you for subscribing to the Walter newsletter!', 'success');
+    setNewsletterEmail('');
+    setShowNewsletterModal(false);
   };
 
   return (
     <div className="min-h-screen bg-white font-sans text-[#17171a]">
       <Navbar onLoginClick={p.onLoginClick} />
       <main>
-        <div className="relative flex h-[58px] items-center justify-center bg-[#121212] px-12 text-center text-xs font-medium tracking-[.08em] text-white sm:text-lg">
-          <ChevronRight className="absolute left-[10%] rotate-180 text-gray-500" size={20} />
-          <span>{hero.type === 'tools' ? 'Cash on Delivery is available on orders above ₹450 and below ₹800' : 'FREE Standard Shipping on all orders above Rs.799'}</span>
-          <ChevronRight className="absolute right-[10%] text-gray-500" size={20} />
-        </div>
 
-        <section className="relative h-[430px] overflow-hidden bg-[#e9e9e9] sm:h-[520px] lg:h-[640px]">
-          <img src={hero.image} alt="" className="absolute inset-0 h-full w-full object-cover" />
-          <div className="relative z-10 flex h-full items-center justify-center px-5 text-center">
-            {hero.type === 'tools' ? (
-              <div className="-mt-2">
-                <h1 className="text-[66px] font-black leading-[.72] tracking-[-.08em] text-violet-600 sm:text-[110px] lg:text-[170px]">Hand</h1>
-                <p className="ml-16 text-[62px] font-black leading-none tracking-[-.07em] text-transparent sm:ml-28 sm:text-[105px] lg:ml-44 lg:text-[160px]" style={{ WebkitTextStroke: '4px #8b4bf8' }}>Tools</p>
-                <p className="ml-auto mr-[12%] -mt-2 w-max text-sm font-black text-violet-600 sm:text-2xl">Are here</p>
-              </div>
-            ) : (
-              <div className="relative text-[#946029]">
-                <span className="absolute -right-10 -top-16 text-[78px] font-black text-transparent sm:-right-20 sm:-top-28 sm:text-[130px] lg:text-[175px]" style={{ WebkitTextStroke: '3px #bd9858' }}>M3</span>
-                <h1 className="text-[52px] font-black leading-[.8] tracking-[-.06em] sm:text-[90px] lg:text-[125px]">3D Printing</h1>
-                <p className="text-[43px] font-black leading-none tracking-[-.06em] text-transparent sm:text-[76px] lg:text-[105px]" style={{ WebkitTextStroke: '3px #bd9858' }}>Brass Inserts</p>
-                <p className="ml-auto mr-[5%] w-max text-sm font-black text-[#bd9858] sm:text-2xl">Are back</p>
-              </div>
-            )}
-            <button onClick={() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' })} className={`absolute bottom-8 px-10 py-4 text-sm font-medium tracking-wide sm:bottom-12 sm:text-lg ${hero.type === 'tools' ? 'bg-violet-700 text-white' : 'bg-white text-gray-900'}`}>Buy Now!</button>
-          </div>
-        </section>
+        {/* ─── High-Precision Swiss Tooling Hero Banner (Matching Reference Design) ─── */}
+        <HeroBanner banners={p.banners && p.banners.length > 0 ? p.banners : []} />
 
-        <div className="relative flex h-[58px] items-center justify-center gap-5 border-b border-gray-200 bg-white">
-          <button onClick={() => p.setCarouselIndex((p.carouselIndex - 1 + heroSlides.length) % heroSlides.length)} className="absolute left-[40%] hidden text-2xl text-gray-500 sm:block">‹</button>
-          {heroSlides.map((_, index) => <button key={index} onClick={() => p.setCarouselIndex(index)} className={`h-3 w-3 rounded-full border border-gray-500 ${index === p.carouselIndex % heroSlides.length ? 'bg-black' : 'bg-white'}`} aria-label={`Show slide ${index + 1}`} />)}
-          <button onClick={() => p.setCarouselIndex((p.carouselIndex + 1) % heroSlides.length)} className="absolute right-[40%] hidden text-2xl text-gray-500 sm:block">›</button>
-        </div>
-
-        <section className="border-b border-gray-200 bg-white py-14 sm:py-20">
+        {/* <section className="border-b border-gray-200 bg-white py-14 sm:py-20">
           <div className="mx-auto grid max-w-[1600px] grid-cols-3 items-center gap-10 px-6 text-center font-black text-gray-500 sm:grid-cols-6">
             {['DELHIVERY', 'adomberg', 'PHILIPS', 'ZOHO', 'ULTRAVIOLETTE', 'ATHER'].map((brand, index) => <span key={brand} className={`${index === 0 ? 'font-mono' : ''} text-base tracking-tight sm:text-xl lg:text-3xl`}>{brand}</span>)}
           </div>
-        </section>
+        </section> */}
 
-        <section id="categories-grid" className="py-16 sm:py-20">
+        <section id="categories-grid" className="py-16 sm:py-20 bg-white">
           <div className="mx-auto max-w-[1500px] px-6 lg:px-8">
-            <h2 className="text-4xl font-normal tracking-tight sm:text-5xl lg:text-[58px]">Drill Bits and Taps</h2>
-            <div className="mt-14 grid grid-cols-2 gap-x-8 gap-y-20 sm:grid-cols-3 lg:grid-cols-5 lg:gap-y-24">
+            {/* <h2 className="text-4xl font-normal tracking-tight sm:text-5xl lg:text-[58px]">Drill Bits and Taps</h2> */}
+            <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-5 lg:gap-6">
               {visibleCategories.map((category, index) => (
-                <button key={category.slug} onClick={() => navigate(`/category/${category.slug}`)} className="group text-center">
-                  <span className="mx-auto block h-40 w-full overflow-hidden bg-white transition group-hover:-translate-y-1 sm:h-44">{category.image ? <img src={category.image} alt={category.name} className="h-full w-full object-contain" /> : <CategorySymbol kind={category.kind} index={index} />}</span>
-                  <b className="mt-6 block text-lg font-medium leading-7 underline underline-offset-4 sm:text-xl">{category.name}</b>
-                  <small className="mt-5 block text-sm tracking-wide text-gray-800 sm:text-base">Click here →</small>
+                <button
+                  key={category.slug}
+                  onClick={() => navigate(`/category/${category.slug}`)}
+                  className="group flex flex-col items-center text-center cursor-pointer focus:outline-none"
+                >
+                  <span className="mb-4 block text-center text-lg font-normal text-gray-900 transition-colors group-hover:text-black sm:text-xl lg:text-[22px]">
+                    {category.name}
+                  </span>
+                  <span className="mx-auto flex aspect-square w-full items-center justify-center overflow-hidden bg-black p-6 transition duration-300 group-hover:scale-[1.02] sm:p-8">
+                    {category.image ? (
+                      <img
+                        src={category.image}
+                        alt={category.name}
+                        className="h-full w-full object-contain"
+                      />
+                    ) : (
+                      <CategorySymbol kind={category.kind} index={index} />
+                    )}
+                  </span>
                 </button>
               ))}
             </div>
@@ -145,57 +140,148 @@ export default function LandingPageScreen(p: LandingPageScreenProps) {
         </section>
 
         {false && <>
-        <section className="relative min-h-[390px] overflow-hidden bg-[#f4f2fb] sm:min-h-[470px]">
-          <img src="/images/mechanical-hero.png" alt="Mechanical fasteners and a cordless drill" className="absolute inset-0 h-full w-full object-cover object-[66%_center]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/72 to-transparent" />
-          <div className="relative mx-auto flex min-h-[390px] max-w-7xl items-center px-5 py-14 sm:min-h-[470px] lg:px-8">
-            <div className="max-w-xl">
-              <p className="text-[11px] font-black uppercase tracking-[.22em] text-violet-700">India's fastener & tools store</p>
-              <h1 className="mt-4 text-4xl font-black leading-[.96] tracking-[-.04em] sm:text-6xl">Built to hold.<br /><span className="text-violet-700">Made to last.</span></h1>
-              <p className="mt-5 max-w-md text-sm leading-7 text-gray-600 sm:text-base">Precision screws, nuts, bolts, bearings and workshop tools—carefully selected and delivered across India.</p>
-              <div className="mt-7 flex flex-wrap gap-3">
-                <button onClick={() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' })} className="flex items-center gap-2 bg-violet-700 px-6 py-3 text-sm font-extrabold text-white transition hover:bg-violet-800">Shop fasteners <ArrowRight size={16} /></button>
-                <button onClick={() => document.getElementById('categories-grid')?.scrollIntoView({ behavior: 'smooth' })} className="border border-gray-900 bg-white/80 px-6 py-3 text-sm font-extrabold">Explore categories</button>
+          <section className="relative min-h-[390px] overflow-hidden bg-[#faf8f8] sm:min-h-[470px]">
+            <img src="/images/mechanical-hero.png" alt="Mechanical fasteners and a cordless drill" className="absolute inset-0 h-full w-full object-cover object-[66%_center]" />
+            <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/72 to-transparent" />
+            <div className="relative mx-auto flex min-h-[390px] max-w-7xl items-center px-5 py-14 sm:min-h-[470px] lg:px-8">
+              <div className="max-w-xl">
+                <p className="text-[11px] font-black uppercase tracking-[.22em] text-red-600">India's fastener & tools store</p>
+                <h1 className="mt-4 text-4xl font-black leading-[.96] tracking-[-.04em] sm:text-6xl">Built to hold.<br /><span className="text-red-600">Made to last.</span></h1>
+                <p className="mt-5 max-w-md text-sm leading-7 text-gray-600 sm:text-base">Precision screws, nuts, bolts, bearings and workshop tools—carefully selected and delivered across India.</p>
+                <div className="mt-7 flex flex-wrap gap-3">
+                  <button onClick={() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' })} className="flex items-center gap-2 bg-red-600 px-6 py-3 text-sm font-extrabold text-white transition hover:bg-red-700">Shop fasteners <ArrowRight size={16} /></button>
+                  <button onClick={() => document.getElementById('categories-grid')?.scrollIntoView({ behavior: 'smooth' })} className="border border-gray-900 bg-white/80 px-6 py-3 text-sm font-extrabold">Explore categories</button>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <section className="border-y border-gray-200 bg-white py-7">
-          <p className="text-center text-[9px] font-black uppercase tracking-[.22em] text-gray-400">Trusted by industry leaders</p>
-          <div className="mx-auto mt-5 grid max-w-5xl grid-cols-3 items-center gap-5 px-5 text-center text-sm font-black tracking-tight text-gray-400 sm:grid-cols-6">
-            {['UST', 'METRIX', 'hyperpure', 'DELHIVERY', 'adember', 'PHILIPS'].map((brand) => <span key={brand}>{brand}</span>)}
-          </div>
-        </section>
-
-        <section id="categories-grid" className="py-14 sm:py-16">
-          <div className="mx-auto max-w-7xl px-5 lg:px-8">
-            <h2 className="text-2xl font-black tracking-tight sm:text-3xl">Drill Bits and Taps</h2>
-            <p className="mt-2 text-sm text-gray-500">Everything for making, fixing and building—organized so you can find it fast.</p>
-            <div className="mt-8 grid grid-cols-3 gap-x-3 gap-y-8 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9">
-              {visibleCategories.map((category) => (
-                <button key={category.slug} onClick={() => navigate(`/category/${category.slug}`)} className="group text-center">
-                  <span className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-gray-200 bg-[#fafafa] text-gray-700 transition group-hover:-translate-y-1 group-hover:border-violet-400 group-hover:text-violet-700 group-hover:shadow-md sm:h-20 sm:w-20"><HardwareIcon kind={category.kind} size={30} /></span>
-                  <b className="mt-2.5 block text-[11px] leading-4">{category.name}</b>
-                  <small className="text-[8px] text-gray-400">Click here →</small>
-                </button>
-              ))}
+          <section className="border-y border-gray-200 bg-white py-7">
+            <p className="text-center text-[9px] font-black uppercase tracking-[.22em] text-gray-400">Trusted by industry leaders</p>
+            <div className="mx-auto mt-5 grid max-w-5xl grid-cols-3 items-center gap-5 px-5 text-center text-sm font-black tracking-tight text-gray-400 sm:grid-cols-6">
+              {['UST', 'METRIX', 'hyperpure', 'DELHIVERY', 'adember', 'PHILIPS'].map((brand) => <span key={brand}>{brand}</span>)}
             </div>
-          </div>
-        </section>
+          </section>
+
+          <section id="categories-grid" className="py-14 sm:py-16">
+            <div className="mx-auto max-w-7xl px-5 lg:px-8">
+              <h2 className="text-2xl font-black tracking-tight sm:text-3xl">Drill Bits and Taps</h2>
+              <p className="mt-2 text-sm text-gray-500">Everything for making, fixing and building—organized so you can find it fast.</p>
+              <div className="mt-8 grid grid-cols-3 gap-x-3 gap-y-8 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9">
+                {visibleCategories.map((category) => (
+                  <button key={category.slug} onClick={() => navigate(`/category/${category.slug}`)} className="group text-center">
+                    <span className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-gray-200 bg-[#fafafa] text-gray-700 transition group-hover:-translate-y-1 group-hover:border-red-400 group-hover:text-red-600 group-hover:shadow-md sm:h-20 sm:w-20"><HardwareIcon kind={category.kind} size={30} /></span>
+                    <b className="mt-2.5 block text-[11px] leading-4">{category.name}</b>
+                    <small className="text-[8px] text-gray-400">Click here →</small>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </section>
 
         </>}
         <section className="bg-gray-50 py-14">
           <div className="mx-auto max-w-7xl px-5 lg:px-8">
             <div className="text-center"><h2 className="text-xl font-black">Let customers speak for us</h2><p className="mt-1 text-xs text-gray-400">from 1,200+ verified reviews</p></div>
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {testimonials.map(([name, copy]) => <article key={name} className="bg-white p-5 shadow-sm"><div className="flex text-violet-600">{[0, 1, 2, 3, 4].map(i => <Star key={i} size={12} fill="currentColor" />)}</div><p className="mt-3 text-xs leading-5 text-gray-600">“{copy}”</p><b className="mt-4 block text-xs">{name}</b><small className="flex items-center gap-1 text-[9px] text-emerald-600"><BadgeCheck size={11} /> Verified buyer</small></article>)}
+              {testimonials.map(([name, copy]) => <article key={name} className="bg-white p-5 shadow-sm"><div className="flex text-amber-400">{[0, 1, 2, 3, 4].map(i => <Star key={i} size={12} fill="currentColor" />)}</div><p className="mt-3 text-xs leading-5 text-gray-600">“{copy}”</p><b className="mt-4 block text-xs">{name}</b><small className="flex items-center gap-1 text-[9px] text-emerald-600"><BadgeCheck size={11} /> Verified buyer</small></article>)}
             </div>
           </div>
         </section>
 
-        <ProductSection id="shop" dark title="HSS Drill Bits" eyebrow="PRECISION FOR EVERY HOLE" items={homepageHssBits} onOpen={openCatalogItem} />
-        <ProductSection title="Specialty Drill Bits & Taps" eyebrow="BUILT FOR EVERY MATERIAL" items={homepageSpecialtyBits} onOpen={openCatalogItem} />
+        {/* ─── Walter Newsletter & Registration Section (Image 2) ─── */}
+        <section className="bg-black text-white py-14 sm:py-20 lg:py-24 border-y border-neutral-900">
+          <div className="mx-auto max-w-[1500px] px-6 lg:px-12">
+            <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-0">
+              
+              {/* Left Column: Walter Newsletter */}
+              <div className="flex flex-col items-center text-center justify-center lg:px-12">
+                <p className="text-[#3d7f35] font-semibold text-lg sm:text-xl tracking-normal">
+                  Walter Newsletter
+                </p>
+                <h2 className="mt-2 text-2xl sm:text-3xl lg:text-[32px] font-bold text-white tracking-tight">
+                  Make sure you stay up to date!
+                </h2>
+                <p className="mt-6 max-w-lg text-xs sm:text-[14px] leading-relaxed text-white">
+                  With the Walter newsletter, you&apos;ll be able find out everything you need to know about Walter, our products, our services and current trends in the industry.
+                  <br className="hidden sm:inline" />
+                  {' '}Register now and find out more.
+                </p>
+                <button
+                  onClick={() => setShowNewsletterModal(true)}
+                  className="mt-8 bg-[#3d7f35] hover:bg-[#32692c] text-white px-8 py-3 text-sm sm:text-base font-semibold transition-colors duration-200 cursor-pointer"
+                >
+                  Sign up now
+                </button>
+              </div>
+
+              {/* Vertical Dotted Divider for Desktop */}
+              <div className="hidden lg:block absolute left-1/2 top-2 bottom-2 w-[1px] border-r border-dotted border-gray-600 -translate-x-1/2 pointer-events-none" />
+
+              {/* Right Column: User Registration */}
+              <div className="flex flex-col items-center justify-center lg:px-12 border-t border-dotted border-gray-700 pt-10 lg:border-t-0 lg:pt-0">
+                <h2 className="text-2xl sm:text-3xl lg:text-[32px] font-bold text-white tracking-tight text-center">
+                  Not a user yet? Register now!
+                </h2>
+
+                <div className="mt-8 w-full max-w-xl">
+                  <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+                    {/* "Why register?" */}
+                    <div className="sm:w-[35%] sm:text-right pt-1 sm:pt-4">
+                      <span className="text-white text-xl sm:text-2xl font-normal whitespace-nowrap">
+                        Why register?
+                      </span>
+                    </div>
+
+                    {/* Dotted line between Why register and bullet list */}
+                    <div className="hidden sm:block w-[1px] border-r border-dotted border-gray-500 self-stretch my-1" />
+
+                    {/* Bullet list */}
+                    <div className="sm:w-[65%] text-left">
+                      <p className="text-xs sm:text-[13px] text-white leading-relaxed">
+                        As a registered user of the Walter web platform, you can log in directly and immediately benefit from exclusive content and advantages such as:
+                      </p>
+                      <ul className="mt-3 space-y-1.5 text-xs sm:text-[13px] text-white">
+                        <li className="flex items-start gap-2">
+                          <span className="text-gray-300 select-none text-[10px] mt-0.5">▸</span>
+                          <span>Free access to product data</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-gray-300 select-none text-[10px] mt-0.5">▸</span>
+                          <span>Download of Walter white papers</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-gray-300 select-none text-[10px] mt-0.5">▸</span>
+                          <span>Extended functions of the Walter online catalogue</span>
+                        </li>
+                      </ul>
+
+                      {/* Log in and Register buttons */}
+                      <div className="mt-8 flex flex-wrap items-center gap-4">
+                        <button
+                          onClick={() => navigate('/login')}
+                          className="bg-[#3d7f35] hover:bg-[#32692c] text-white px-8 py-2.5 text-sm sm:text-base font-semibold transition-colors duration-200 cursor-pointer"
+                        >
+                          Log in
+                        </button>
+                        <button
+                          onClick={() => navigate('/signup')}
+                          className="border border-[#3d7f35] text-[#4ea843] hover:text-white hover:bg-[#3d7f35] px-8 py-2.5 text-sm sm:text-base font-semibold transition-colors duration-200 cursor-pointer"
+                        >
+                          Register
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        <ProductSection id="shop" title="Specialty Drill Bits & Taps" eyebrow="BUILT FOR EVERY MATERIAL" items={homepageSpecialtyBits} onOpen={openCatalogItem} />
 
         <section className="bg-[#111214] py-14 text-white">
           <div className="mx-auto max-w-7xl px-5 lg:px-8">
@@ -205,29 +291,84 @@ export default function LandingPageScreen(p: LandingPageScreenProps) {
                 ['Choose the right bit', 'How to Select the Right Drill Bit', 'Match the drill bit to metal, wood, masonry, glass or tile.', '/images/drill-bits/hss-drill-bit.png'],
                 ['Drill wood cleanly', 'A Practical Guide to Flat Wood Bits', 'Choose the correct spade-bit size and make cleaner holes in wood.', '/images/drill-bits/flat-wood-drill-bit.png'],
                 ['Drill tough surfaces', 'Tips for Masonry, Glass and Tile', 'Use the right tip, speed and pressure for brittle or abrasive materials.', '/images/drill-bits/masonry-drill-bit.png'],
-              ].map(([tag, title, copy, image]) => <article key={title} className="overflow-hidden border border-white/10 bg-[#1b1c20]"><div className="aspect-[16/8] overflow-hidden bg-white"><img src={image} alt={title} className="h-full w-full object-contain" /></div><div className="p-5"><small className="font-black uppercase tracking-widest text-violet-400">{tag}</small><h3 className="mt-2 text-lg font-extrabold leading-6">{title}</h3><p className="mt-3 text-xs leading-5 text-gray-400">{copy}</p><button className="mt-5 flex items-center gap-2 text-xs font-bold text-violet-400">Read article <ArrowRight size={13} /></button></div></article>)}
+              ].map(([tag, title, copy, image]) => <article key={title} className="overflow-hidden border border-white/10 bg-[#1b1c20]"><div className="aspect-[16/8] overflow-hidden bg-white"><img src={image} alt={title} className="h-full w-full object-contain" /></div><div className="p-5"><small className="font-black uppercase tracking-widest text-red-500">{tag}</small><h3 className="mt-2 text-lg font-extrabold leading-6">{title}</h3><p className="mt-3 text-xs leading-5 text-gray-400">{copy}</p><button className="mt-5 flex items-center gap-2 text-xs font-bold text-red-500 hover:text-red-400">Read article <ArrowRight size={13} /></button></div></article>)}
             </div>
           </div>
         </section>
 
         <section className="mx-auto grid max-w-7xl grid-cols-2 border-x border-gray-200 md:grid-cols-4">
-          {[[ShieldCheck, 'Best price'], [PackageCheck, 'No MOQ'], [Truck, 'Fast shipping'], [Sparkles, 'Best quality']].map(([Icon, title]: any) => <div key={title} className="border-b border-r border-gray-200 py-9 text-center"><Icon className="mx-auto text-violet-700" size={31} /><b className="mt-3 block text-xs">{title}</b></div>)}
+          {[[ShieldCheck, 'Best price'], [PackageCheck, 'No MOQ'], [Truck, 'Fast shipping'], [Sparkles, 'Best quality']].map(([Icon, title]: any) => <div key={title} className="border-b border-r border-gray-200 py-9 text-center"><Icon className="mx-auto text-red-600" size={31} /><b className="mt-3 block text-xs">{title}</b></div>)}
         </section>
 
-        <section id="bulk-inquiry" className="bg-[#252936] py-16 text-white">
+        <section id="bulk-inquiry" className="bg-[#17171a] py-16 text-white">
           <div className="mx-auto grid max-w-5xl gap-10 px-5 lg:grid-cols-[.85fr_1.15fr] lg:px-8">
-            <div><p className="text-xs font-black tracking-[.2em] text-violet-400">FOR BULK ORDERS</p><h2 className="mt-3 text-3xl font-black">Found your part?<br />Tell us the quantity.</h2><p className="mt-4 text-sm leading-7 text-gray-300">Share your specifications or bill of materials and our team will reply with availability and pricing.</p><p className="mt-6 flex gap-3 text-sm text-gray-300"><Headphones className="text-violet-400" size={20} /> Real support from product specialists</p></div>
+            <div><p className="text-xs font-black tracking-[.2em] text-red-500">FOR BULK ORDERS</p><h2 className="mt-3 text-3xl font-black">Found your part?<br />Tell us the quantity.</h2><p className="mt-4 text-sm leading-7 text-gray-300">Share your specifications or bill of materials and our team will reply with availability and pricing.</p><p className="mt-6 flex gap-3 text-sm text-gray-300"><Headphones className="text-red-500" size={20} /> Real support from product specialists</p></div>
             <form onSubmit={(event: FormEvent<HTMLFormElement>) => { event.preventDefault(); setSent(true); event.currentTarget.reset(); }} className="grid gap-3 sm:grid-cols-2">
-              <input required placeholder="Your full name" className="bg-white/10 px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-violet-400" />
-              <input required type="email" placeholder="Email address" className="bg-white/10 px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-violet-400" />
+              <input required placeholder="Your full name" className="bg-white/10 px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-red-500" />
+              <input required type="email" placeholder="Email address" className="bg-white/10 px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-red-500" />
               <input placeholder="Phone number" className="bg-white/10 px-4 py-3 text-sm outline-none sm:col-span-2" />
               <textarea required rows={4} placeholder="Part, size, material and quantity required" className="bg-white/10 px-4 py-3 text-sm outline-none sm:col-span-2" />
-              <button className="bg-violet-700 px-5 py-3 text-sm font-extrabold sm:col-span-2">Send requirement</button>
+              <button className="bg-red-600 hover:bg-red-700 px-5 py-3 text-sm font-extrabold sm:col-span-2 transition-colors">Send requirement</button>
               {sent && <p className="flex gap-2 text-xs text-emerald-300 sm:col-span-2"><Check size={15} /> Thanks—your requirement has been recorded.</p>}
             </form>
           </div>
         </section>
       </main>
+
+      {/* Newsletter Signup Modal */}
+      {showNewsletterModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-md border border-neutral-700 bg-[#121316] p-6 sm:p-8 text-white shadow-2xl">
+            <button
+              onClick={() => setShowNewsletterModal(false)}
+              className="absolute right-4 top-4 text-gray-400 hover:text-white cursor-pointer"
+              aria-label="Close"
+            >
+              <X size={20} />
+            </button>
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#3d7f35]">
+              Walter Newsletter
+            </p>
+            <h3 className="mt-2 text-xl font-bold text-white">
+              Make sure you stay up to date!
+            </h3>
+            <p className="mt-2 text-xs leading-relaxed text-gray-300">
+              With the Walter newsletter, you&apos;ll be able find out everything you need to know about Walter, our products, our services and current trends in the industry.
+            </p>
+            <form onSubmit={handleNewsletterSubmit} className="mt-5 space-y-4">
+              <div>
+                <label className="block text-[11px] font-medium text-gray-300 mb-1">
+                  Email address
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
+                  placeholder="you@company.com"
+                  className="w-full bg-[#1e2025] border border-neutral-700 px-3.5 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-[#3d7f35]"
+                />
+              </div>
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowNewsletterModal(false)}
+                  className="px-4 py-2 text-xs font-medium text-gray-400 hover:text-white cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="bg-[#3d7f35] hover:bg-[#32692c] px-6 py-2.5 text-xs font-bold text-white transition-colors cursor-pointer"
+                >
+                  Subscribe
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </div>
   );
@@ -237,10 +378,10 @@ function ProductSection({ id, dark = false, title, eyebrow, items, onOpen, compa
   return (
     <section id={id} className={dark ? 'bg-[#111214] py-14 text-white' : 'bg-white py-14'}>
       <div className="mx-auto max-w-7xl px-5 lg:px-8">
-        <p className="text-[9px] font-black tracking-[.22em] text-violet-500">{eyebrow}</p>
+        <p className="text-[9px] font-black tracking-[.22em] text-red-500">{eyebrow}</p>
         <div className="mt-1 flex items-end justify-between gap-4">
           <h2 className="text-2xl font-black sm:text-3xl">{title}</h2>
-          <button className="flex items-center gap-1 text-xs font-bold text-violet-500">View all <ChevronRight size={14} /></button>
+          <button className="flex items-center gap-1 text-xs font-bold text-red-500 hover:text-red-400 transition-colors">View all <ChevronRight size={14} /></button>
         </div>
         <div className={`mt-8 grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 ${compact ? 'lg:grid-cols-4' : 'lg:grid-cols-5'}`}>
           {items.map(item => <ProductCard key={item.id} item={item} dark={dark} onOpen={onOpen} compact={compact} />)}
@@ -261,7 +402,7 @@ function ProductCard({ item, dark, onOpen, compact }: { item: CatalogItem; dark:
           <ProductVisual kind={item.kind} />
         )}
         <span className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-white text-gray-500 shadow-sm"><Heart size={13} /></span>
-        {item.badge && <small className="absolute left-2 top-2 bg-violet-700 px-2 py-1 text-[7px] font-black text-white">{item.badge}</small>}
+        {item.badge && <small className="absolute left-2 top-2 bg-red-600 px-2 py-1 text-[7px] font-black text-white">{item.badge}</small>}
         <span className="absolute inset-x-2 bottom-2 translate-y-10 bg-black/90 py-2 text-[10px] font-bold text-white opacity-0 transition group-hover:translate-y-0 group-hover:opacity-100">Quick view</span>
       </button>
       <button onClick={() => onOpen(item)} className={`mt-3 line-clamp-2 min-h-10 text-left text-xs font-bold leading-5 ${dark ? 'text-gray-100' : 'text-gray-900'}`}>{item.name}</button>
@@ -272,14 +413,15 @@ function ProductCard({ item, dark, onOpen, compact }: { item: CatalogItem; dark:
   );
 }
 
+
 function CategorySymbol({ kind, index }: { kind: CatalogItem['kind']; index: number }) {
-  if (index === 0) return <span className="relative block h-24 w-24 rounded-full border-[6px] border-[#202020]"><span className="absolute left-0 top-1/2 h-[14px] w-full -translate-y-1/2 bg-[#202020]" /></span>;
-  if (index === 1) return <span className="grid h-24 w-24 place-items-center rounded-full border-[6px] border-[#202020]"><X size={66} strokeWidth={6} /></span>;
-  if (index === 2) return <span className="grid h-24 w-24 place-items-center rounded-full border-[6px] border-[#202020]"><Hexagon size={52} fill="currentColor" /></span>;
-  if (index === 3) return <span className="relative block h-24 w-24 rounded-full border-[6px] border-[#202020]"><span className="absolute left-1/2 top-0 h-full w-[12px] -translate-x-1/2 bg-[#202020]" /><span className="absolute left-1/2 top-1/2 h-[12px] w-14 -translate-x-1/2 -translate-y-1/2 bg-[#202020]" /></span>;
-  if (index === 4) return <span className="grid h-24 w-24 place-items-center rounded-full border-[6px] border-[#202020]"><Star size={58} fill="currentColor" strokeWidth={2} /></span>;
-  if (index === 5) return <Hexagon size={108} fill="currentColor" strokeWidth={1} />;
-  return <HardwareIcon kind={kind} size={88} />;
+  if (index === 0) return <span className="relative block h-20 w-20 rounded-full border-[5px] border-white"><span className="absolute left-0 top-1/2 h-[10px] w-full -translate-y-1/2 bg-white" /></span>;
+  if (index === 1) return <span className="grid h-20 w-20 place-items-center rounded-full border-[5px] border-white text-white"><X size={52} strokeWidth={5} /></span>;
+  if (index === 2) return <span className="grid h-20 w-20 place-items-center rounded-full border-[5px] border-white text-white"><Hexagon size={44} fill="currentColor" /></span>;
+  if (index === 3) return <span className="relative block h-20 w-20 rounded-full border-[5px] border-white"><span className="absolute left-1/2 top-0 h-full w-[10px] -translate-x-1/2 bg-white" /><span className="absolute left-1/2 top-1/2 h-[10px] w-12 -translate-x-1/2 -translate-y-1/2 bg-white" /></span>;
+  if (index === 4) return <span className="grid h-20 w-20 place-items-center rounded-full border-[5px] border-white text-white"><Star size={48} fill="currentColor" strokeWidth={2} /></span>;
+  if (index === 5) return <Hexagon size={80} fill="currentColor" strokeWidth={1} className="text-white" />;
+  return <div className="text-white"><HardwareIcon kind={kind} size={70} /></div>;
 }
 
 function ProductVisual({ kind }: { kind: CatalogItem['kind'] }) {

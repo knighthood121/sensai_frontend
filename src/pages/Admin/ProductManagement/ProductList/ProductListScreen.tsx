@@ -19,7 +19,7 @@ export default function ProductListScreen({
     return (
       <div className="flex items-center justify-center min-h-[400px]" style={{ fontFamily: FONTS.main, color: COLORS.text }}>
         <div className="text-center">
-          <svg className="animate-spin h-8 w-8 text-pink-500 mx-auto mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin h-8 w-8 text-red-600 mx-auto mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
@@ -62,7 +62,7 @@ export default function ProductListScreen({
               <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
             <input
-              className="w-full pl-11 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-all focus:ring-4 focus:ring-pink-100"
+              className="w-full pl-11 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-all focus:ring-4 focus:ring-red-100"
               style={{ borderColor: COLORS.border }}
               placeholder="Search products..."
               onFocus={(e) => { e.target.style.borderColor = COLORS.primary; }}
@@ -70,7 +70,7 @@ export default function ProductListScreen({
             />
           </div>
         </div>
-        <Button variant="primary" size="md" onClick={onAddProduct} className="shadow-lg shadow-pink-500/30 hover:-translate-y-0.5 transition-transform">
+        <Button variant="primary" size="md" onClick={onAddProduct} className="shadow-lg shadow-red-500/30 hover:-translate-y-0.5 transition-transform">
           + Add Product
         </Button>
       </div>
@@ -82,7 +82,7 @@ export default function ProductListScreen({
             <thead>
               <tr className="bg-gray-50/50 border-b border-gray-200 transition-colors">
                 <th className="px-5 py-4 w-12 text-left">
-                  <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-pink-500 focus:ring-pink-500 cursor-pointer" />
+                  <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-600 cursor-pointer" />
                 </th>
                 <th className="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">Product</th>
                 <th className="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest hidden md:table-cell text-gray-500">Category</th>
@@ -99,7 +99,7 @@ export default function ProductListScreen({
                   return (
                     <tr key={product.id} className="hover:bg-gray-50 transition-colors group">
                       <td className="px-5 py-4">
-                        <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-pink-500 focus:ring-pink-500 cursor-pointer" />
+                        <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-600 cursor-pointer" />
                       </td>
                       <td className="px-5 py-4">
                         <div className="flex items-center gap-3">
@@ -107,7 +107,7 @@ export default function ProductListScreen({
                             <img src={product.images?.[0]?.imageUrl || 'https://via.placeholder.com/40'} alt={product.name} className="w-full h-full object-cover" />
                           </div>
                           <div>
-                            <p className="font-bold text-sm text-gray-900 group-hover:text-pink-600 transition-colors">{product.name}</p>
+                            <p className="font-bold text-sm text-gray-900 group-hover:text-red-600 transition-colors">{product.name}</p>
                             <p className="text-xs mt-0.5 md:hidden text-gray-500">{product.category?.name || 'Uncategorized'}</p>
                           </div>
                         </div>
@@ -148,7 +148,7 @@ export default function ProductListScreen({
                       <td className="px-5 py-4 text-right">
                         <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
-                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-500/20 cursor-pointer"
+                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-500/20 cursor-pointer"
                             onClick={() => onEditProduct(product.id)}
                             title="Edit Product"
                           >

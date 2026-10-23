@@ -266,7 +266,7 @@ export default function AddProductScreen({
               <div className="mb-4 rounded-2xl border p-4" style={{ borderColor: COLORS.border }}>
                 <p className="mb-3 text-xs font-bold uppercase tracking-wider" style={{ color: COLORS.textLight }}>Add from image URL</p>
                 <div className="flex flex-col gap-2 sm:flex-row">
-                  <input type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddImageUrl(); } }} placeholder="https://example.com/product-image.jpg" className="min-w-0 flex-1 rounded-xl border-2 px-4 py-3 text-sm outline-none focus:border-violet-500" style={{ borderColor: COLORS.border }} disabled={isLoading} />
+                  <input type="url" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddImageUrl(); } }} placeholder="https://example.com/product-image.jpg" className="min-w-0 flex-1 rounded-xl border-2 px-4 py-3 text-sm outline-none focus:border-red-600" style={{ borderColor: COLORS.border }} disabled={isLoading} />
                   <Button type="button" variant="outline" size="md" onClick={handleAddImageUrl} disabled={isLoading || !imageUrl.trim()}>Add URL</Button>
                 </div>
                 <p className="mt-2 text-[11px]" style={{ color: COLORS.textLight }}>Paste a public HTTP or HTTPS image address, or upload a file from your computer below.</p>
@@ -278,7 +278,7 @@ export default function AddProductScreen({
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 className={`border-2 border-dashed rounded-2xl p-8 text-center transition-all duration-300 cursor-pointer mb-4 flex flex-col items-center justify-center ${
-                  isDragging ? 'bg-pink-50 border-pink-400' : 'hover:border-pink-300 bg-gray-50/50'
+                  isDragging ? 'bg-red-50 border-red-500' : 'hover:border-red-300 bg-gray-50/50'
                 }`}
                 style={{
                   borderColor: isDragging ? COLORS.primary : COLORS.border,
@@ -322,7 +322,7 @@ export default function AddProductScreen({
                       <img src={preview} alt={`Preview ${index + 1}`} className="w-full h-full object-cover" />
 
                       {index === 0 && (
-                        <span className="absolute top-1.5 left-1.5 bg-pink-500 text-white text-[8px] font-black uppercase px-1.5 py-0.5 rounded-md shadow-sm">
+                        <span className="absolute top-1.5 left-1.5 bg-red-600 text-white text-[8px] font-black uppercase px-1.5 py-0.5 rounded-md shadow-sm">
                           Primary
                         </span>
                       )}
@@ -355,7 +355,7 @@ export default function AddProductScreen({
                   {imageUrls.map((url, index) => (
                     <div key={url} className="group relative aspect-square overflow-hidden rounded-xl border bg-white shadow-sm" style={{ borderColor: COLORS.border }}>
                       <img src={url} alt={`URL preview ${index + 1}`} className="h-full w-full object-cover" />
-                      {images.length === 0 && index === 0 && <span className="absolute left-1.5 top-1.5 rounded-md bg-violet-600 px-1.5 py-0.5 text-[8px] font-black uppercase text-white">Primary</span>}
+                      {images.length === 0 && index === 0 && <span className="absolute left-1.5 top-1.5 rounded-md bg-red-600 px-1.5 py-0.5 text-[8px] font-black uppercase text-white">Primary</span>}
                       <button type="button" onClick={() => handleRemoveImageUrl(index)} className="absolute right-1.5 top-1.5 grid h-7 w-7 place-items-center rounded-full bg-white text-rose-600 opacity-0 shadow group-hover:opacity-100" aria-label="Remove image URL">×</button>
                     </div>
                   ))}
@@ -368,7 +368,7 @@ export default function AddProductScreen({
                 Product Videos ({videoUrls.length + videoFiles.length})
               </label>
               <input ref={videoFileInputRef} type="file" accept="video/mp4,video/webm,video/quicktime" multiple onChange={handleVideoFileChange} className="hidden" disabled={isLoading} />
-              <button type="button" onClick={() => videoFileInputRef.current?.click()} className="mb-4 w-full rounded-xl border-2 border-dashed px-5 py-8 text-sm font-bold transition hover:border-violet-400 hover:bg-violet-50" style={{ borderColor: COLORS.border }} disabled={isLoading || videoFiles.length >= 5}>
+              <button type="button" onClick={() => videoFileInputRef.current?.click()} className="mb-4 w-full rounded-xl border-2 border-dashed px-5 py-8 text-sm font-bold transition hover:border-red-400 hover:bg-red-50" style={{ borderColor: COLORS.border }} disabled={isLoading || videoFiles.length >= 5}>
                 Upload MP4, WebM or MOV videos from your computer
                 <span className="mt-1 block text-xs font-normal" style={{ color: COLORS.textLight }}>Up to 5 files, 100MB each</span>
               </button>
@@ -384,7 +384,7 @@ export default function AddProductScreen({
               )}
               <p className="mb-3 text-xs font-bold uppercase tracking-wider" style={{ color: COLORS.textLight }}>Or add a public video URL</p>
               <div className="flex flex-col gap-2 sm:flex-row">
-                <input type="url" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddVideoUrl(); } }} placeholder="https://example.com/product-demo.mp4" className="min-w-0 flex-1 rounded-xl border-2 px-4 py-3 text-sm outline-none focus:border-violet-500" style={{ borderColor: COLORS.border }} disabled={isLoading} />
+                <input type="url" value={videoUrl} onChange={(e) => setVideoUrl(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddVideoUrl(); } }} placeholder="https://example.com/product-demo.mp4" className="min-w-0 flex-1 rounded-xl border-2 px-4 py-3 text-sm outline-none focus:border-red-600" style={{ borderColor: COLORS.border }} disabled={isLoading} />
                 <Button type="button" variant="outline" size="md" onClick={handleAddVideoUrl} disabled={isLoading || !videoUrl.trim()}>Add Video</Button>
               </div>
               <p className="mt-2 text-[11px]" style={{ color: COLORS.textLight }}>Add up to 10 public MP4, WebM, Cloudinary, YouTube, or Vimeo URLs.</p>

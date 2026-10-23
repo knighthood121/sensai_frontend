@@ -109,7 +109,7 @@ export default function ProductImageUploadScreen({
               <div
                 onClick={handleUploadAreaClick}
                 className={`border-2 border-dashed rounded-2xl p-10 text-center transition-colors cursor-pointer mb-8 ${
-                  isUploading ? 'bg-gray-50 border-pink-200 pointer-events-none' : 'hover:border-pink-300'
+                  isUploading ? 'bg-gray-50 border-red-200 pointer-events-none' : 'hover:border-red-300'
                 }`}
                 style={{ borderColor: COLORS.border }}
               >
@@ -127,7 +127,7 @@ export default function ProductImageUploadScreen({
                   style={{ backgroundColor: COLORS.primary + '12', color: COLORS.primary }}
                 >
                   {isUploading ? (
-                    <svg className="animate-spin h-6 w-6 text-pink-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
@@ -169,7 +169,7 @@ export default function ProductImageUploadScreen({
                       <img src={img.imageUrl} alt={img.altText || currentProduct?.name} className="w-full h-full object-cover" />
                       
                       {img.isPrimary && (
-                        <span className="absolute top-2 left-2 bg-pink-500 text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-md shadow-sm">
+                        <span className="absolute top-2 left-2 bg-red-600 text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-md shadow-sm">
                           Primary
                         </span>
                       )}

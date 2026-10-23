@@ -26,13 +26,13 @@ export default function EmailMarketingScreen() {
           <h1 className="text-2xl font-bold" style={{ fontFamily: FONTS.heading }}>Email Marketing</h1>
           <p className="text-sm text-gray-500 mt-1">Design newsletters and automated email sequences.</p>
         </div>
-        <Button variant="primary" size="md" className="shadow-lg shadow-pink-500/30 hover:-translate-y-0.5 transition-transform">
+        <Button variant="primary" size="md" className="shadow-lg shadow-red-500/20 hover:-translate-y-0.5 transition-transform">
           + Create Campaign
         </Button>
       </div>
       
       <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border shadow-sm" style={{ borderColor: COLORS.border }}>
-        <div className="w-16 h-16 rounded-full bg-pink-50 flex items-center justify-center text-pink-500 mb-4">
+        <div className="w-16 h-16 rounded-full bg-red-50 flex items-center justify-center text-red-600 mb-4">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" />
           </svg>

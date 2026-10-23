@@ -36,7 +36,7 @@ export default function CartScreen({
       <div className="min-h-screen flex flex-col bg-[#FAFAFC]" style={{ fontFamily: FONTS.main }}>
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
         </div>
         <Footer />
       </div>
@@ -46,8 +46,8 @@ export default function CartScreen({
   return (
     <div className="min-h-screen flex flex-col bg-[#FAFAFC] relative overflow-hidden" style={{ fontFamily: FONTS.main, color: COLORS.text }}>
       {/* Decorative background blobs */}
-      <div className="absolute top-[-8%] left-[-5%] w-[500px] h-[500px] bg-gradient-to-tr from-pink-200/8 to-purple-200/8 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-gradient-to-br from-indigo-200/8 to-emerald-100/8 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-[-8%] left-[-5%] w-[500px] h-[500px] bg-gradient-to-tr from-red-200/8 to-rose-200/8 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-gradient-to-br from-red-100/10 to-stone-100/10 rounded-full blur-[140px] pointer-events-none" />
 
       <Navbar />
 
@@ -56,7 +56,7 @@ export default function CartScreen({
         {/* Breadcrumb Navigation & Title */}
         <div className="mb-10 sm:mb-14">
           <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-4">
-            <button onClick={() => navigate('/')} className="hover:text-pink-500 transition-colors cursor-pointer">Home</button>
+            <button onClick={() => navigate('/')} className="hover:text-red-600 transition-colors cursor-pointer">Home</button>
             <ChevronRight className="w-3 h-3" />
             <span className="text-gray-600">Shopping Cart</span>
           </div>
@@ -79,11 +79,11 @@ export default function CartScreen({
             <motion.div
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-5 flex items-center justify-between gap-4 px-5 py-4 rounded-2xl border border-pink-100 bg-gradient-to-r from-pink-50 to-purple-50 shadow-sm"
+              className="mt-5 flex items-center justify-between gap-4 px-5 py-4 rounded-2xl border border-red-100 bg-gradient-to-r from-red-50 to-orange-50/50 shadow-sm"
             >
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-pink-100 flex items-center justify-center shrink-0">
-                  <Lock className="w-4 h-4 text-pink-500" />
+                <div className="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center shrink-0">
+                  <Lock className="w-4 h-4 text-red-600" />
                 </div>
                 <div>
                   <p className="text-sm font-black text-gray-800">Sign in to save your cart</p>
@@ -93,7 +93,7 @@ export default function CartScreen({
               <button
                 onClick={() => navigate('/login', { state: { message: 'Sign in to save your cart and proceed to checkout.' } })}
                 className="shrink-0 text-xs font-black uppercase tracking-wider px-4 py-2 rounded-xl text-white shadow-sm active:scale-95 transition-all cursor-pointer"
-                style={{ background: 'linear-gradient(135deg, #ec4899, #8b5cf6)' }}
+                style={{ background: 'linear-gradient(135deg, #dc2626, #991b1b)' }}
               >
                 Sign In
               </button>
@@ -107,7 +107,7 @@ export default function CartScreen({
             animate={{ opacity: 1, y: 0 }}
             className="text-center py-24 border-2 border-dashed border-gray-200 rounded-[32px] px-6 bg-white shadow-sm max-w-2xl mx-auto"
           >
-            <div className="w-24 h-24 bg-pink-50 text-pink-500 rounded-full flex items-center justify-center mx-auto mb-8">
+            <div className="w-24 h-24 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-8">
               <ShoppingBag className="w-10 h-10" />
             </div>
             <h3 className="text-2xl sm:text-3xl font-black mb-3 tracking-tight">Your cart is empty</h3>
@@ -145,7 +145,7 @@ export default function CartScreen({
                         />
                       </div>
                       <div className="space-y-2 flex-1 min-w-0">
-                        <h4 className="font-bold text-gray-900 text-lg leading-snug line-clamp-1 hover:text-pink-600 transition-colors cursor-pointer" onClick={() => navigate(`/product/${item.productId}`)}>
+                        <h4 className="font-bold text-gray-900 text-lg leading-snug line-clamp-1 hover:text-red-600 transition-colors cursor-pointer" onClick={() => navigate(`/product/${item.productId}`)}>
                           {item.productName}
                         </h4>
 
@@ -163,7 +163,7 @@ export default function CartScreen({
                           )}
                         </div>
 
-                        <p className="text-pink-600 font-black text-lg pt-1">₹{itemPrice.toFixed(2)}</p>
+                        <p className="text-red-600 font-black text-lg pt-1">₹{itemPrice.toFixed(2)}</p>
                       </div>
                     </div>
 
@@ -174,7 +174,7 @@ export default function CartScreen({
                         <button
                           onClick={() => handleQuantityChange(item.id, item.quantity, -1)}
                           disabled={isUpdating}
-                          className="w-8 h-8 rounded-xl bg-white hover:text-pink-500 border border-transparent hover:border-gray-100 active:scale-95 shadow-sm transition-all flex items-center justify-center font-black text-gray-500 cursor-pointer disabled:opacity-50"
+                          className="w-8 h-8 rounded-xl bg-white hover:text-red-600 border border-transparent hover:border-gray-100 active:scale-95 shadow-sm transition-all flex items-center justify-center font-black text-gray-500 cursor-pointer disabled:opacity-50"
                         >
                           <Minus className="w-3.5 h-3.5" />
                         </button>
@@ -182,7 +182,7 @@ export default function CartScreen({
                         <button
                           onClick={() => handleQuantityChange(item.id, item.quantity, 1)}
                           disabled={isUpdating}
-                          className="w-8 h-8 rounded-xl bg-white hover:text-pink-500 border border-transparent hover:border-gray-100 active:scale-95 shadow-sm transition-all flex items-center justify-center font-black text-gray-500 cursor-pointer disabled:opacity-50"
+                          className="w-8 h-8 rounded-xl bg-white hover:text-red-600 border border-transparent hover:border-gray-100 active:scale-95 shadow-sm transition-all flex items-center justify-center font-black text-gray-500 cursor-pointer disabled:opacity-50"
                         >
                           <Plus className="w-3.5 h-3.5" />
                         </button>
@@ -227,7 +227,7 @@ export default function CartScreen({
                 </div>
 
                 {shipping > 0 && (
-                  <div className="text-[11px] text-pink-500 font-bold leading-normal bg-pink-50/60 border border-pink-100/60 p-3 rounded-2xl flex items-start gap-2">
+                  <div className="text-[11px] text-red-600 font-bold leading-normal bg-red-50/60 border border-red-100/60 p-3 rounded-2xl flex items-start gap-2">
                     <Info className="w-4 h-4 shrink-0 mt-0.5" />
                     <span>Add ₹{(100 - subtotal).toFixed(2)} more to unlock FREE shipping!</span>
                   </div>
@@ -237,7 +237,7 @@ export default function CartScreen({
 
                 <div className="flex justify-between items-baseline text-base font-black text-gray-900">
                   <span>Order Total</span>
-                  <span className="text-2xl text-pink-600">₹{total.toFixed(2)}</span>
+                  <span className="text-2xl text-red-600">₹{total.toFixed(2)}</span>
                 </div>
               </div>
 
@@ -246,7 +246,7 @@ export default function CartScreen({
                 size="lg"
                 fullWidth
                 onClick={onCheckout}
-                className="rounded-2xl font-black uppercase tracking-wider text-xs bg-pink-500 hover:bg-pink-400 border border-pink-400/50 py-4 shadow-[0_4px_12px_rgba(236,72,153,0.2)] hover:shadow-[0_8px_20px_rgba(236,72,153,0.3)] transition-all duration-300 active:scale-[0.98] cursor-pointer !bg-pink-500 text-white w-full flex items-center justify-center gap-2"
+                className="rounded-2xl font-black uppercase tracking-wider text-xs bg-red-600 hover:bg-red-700 border border-red-500/50 py-4 shadow-[0_4px_12px_rgba(220,38,38,0.2)] hover:shadow-[0_8px_20px_rgba(220,38,38,0.3)] transition-all duration-300 active:scale-[0.98] cursor-pointer !bg-red-600 text-white w-full flex items-center justify-center gap-2"
               >
                 Proceed to Checkout
               </Button>

@@ -61,6 +61,30 @@ const menuItems = [
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="12" y1="18" x2="12" y2="12" /><line x1="9" y1="15" x2="15" y2="15" />
       </svg>
     ),
+  },
+  {
+    title: 'Frequently Asked Questions',
+    path: '/admin/settings/faqs',
+    description: 'Manage, edit, or create FAQs and answers for all customer store categories.',
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+        <line x1="12" y1="17" x2="12.01" y2="17" />
+      </svg>
+    ),
+  },
+  {
+    title: 'Banner Management',
+    path: '/admin/settings/banners',
+    description: 'Control, design, upload and reorder homepage hero promotional banners.',
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+        <line x1="8" y1="21" x2="16" y2="21" />
+        <line x1="12" y1="17" x2="12" y2="21" />
+      </svg>
+    ),
   }
 ];
 
@@ -134,7 +158,7 @@ export default function BusinessSettings() {
                 className="text-lg font-bold mb-2 transition-colors duration-300"
                 style={{ fontFamily: FONTS.heading, color: COLORS.text }}
               >
-                <span className="group-hover:text-pink-600 transition-colors duration-300">{item.title}</span>
+                <span className="group-hover:text-red-600 transition-colors duration-300">{item.title}</span>
               </h3>
               <p className="text-sm leading-relaxed" style={{ color: COLORS.textLight }}>
                 {item.description}
@@ -147,7 +171,7 @@ export default function BusinessSettings() {
                 Configure {item.title}
               </span>
               <div
-                className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-50 group-hover:bg-pink-50 transition-colors duration-300 transform group-hover:translate-x-1"
+                className="w-8 h-8 rounded-full flex items-center justify-center bg-gray-50 group-hover:bg-red-50 transition-colors duration-300 transform group-hover:translate-x-1"
                 style={{ color: COLORS.primary }}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

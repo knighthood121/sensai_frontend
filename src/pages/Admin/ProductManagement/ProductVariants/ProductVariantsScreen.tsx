@@ -78,7 +78,7 @@ export default function ProductVariantsScreen(props: VariantScreenProps) {
             variant="primary"
             size="md"
             onClick={onOpenCreate}
-            className="shadow-lg shadow-pink-500/30 hover:-translate-y-0.5 transition-transform"
+            className="shadow-lg shadow-red-500/20 hover:-translate-y-0.5 transition-transform"
           >
             + Add Variant
           </Button>
@@ -213,7 +213,7 @@ export default function ProductVariantsScreen(props: VariantScreenProps) {
           <button
             type="button"
             onClick={onAddCreateRow}
-            className="w-full py-3 border-2 border-dashed rounded-2xl text-sm font-bold text-gray-400 hover:text-pink-500 hover:border-pink-300 transition-colors cursor-pointer"
+            className="w-full py-3 border-2 border-dashed rounded-2xl text-sm font-bold text-gray-400 hover:text-red-600 hover:border-red-300 transition-colors cursor-pointer"
             style={{ borderColor: COLORS.border }}
           >
             + Add Another Variant
@@ -410,7 +410,7 @@ function ProductSelector({
             onChange={(e) => onSearchChange(e.target.value)}
             rightElement={
               isSearching ? (
-                <div className="w-4 h-4 border-2 border-pink-300 border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-red-500 border-t-transparent rounded-full animate-spin" />
               ) : (
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="11" cy="11" r="8" />
@@ -431,7 +431,7 @@ function ProductSelector({
                   key={product.id}
                   type="button"
                   onClick={() => onSelectProduct(product as any)}
-                  className="w-full flex items-center gap-4 px-5 py-4 hover:bg-pink-50/50 transition-colors cursor-pointer border-b last:border-0 text-left"
+                  className="w-full flex items-center gap-4 px-5 py-4 hover:bg-red-50/50 transition-colors cursor-pointer border-b last:border-0 text-left"
                   style={{ borderColor: COLORS.border }}
                 >
                   <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-100 shrink-0 border" style={{ borderColor: COLORS.border }}>
@@ -632,7 +632,7 @@ function VariantsTable({
                     </div>
                   </td>
                   <td className="px-5 py-4">
-                    <span className="font-mono text-xs font-bold text-pink-600 bg-pink-50 px-2.5 py-1 rounded border border-pink-100">
+                    <span className="font-mono text-xs font-bold text-red-600 bg-red-50 px-2.5 py-1 rounded border border-red-100">
                       {v.sku}
                     </span>
                   </td>
@@ -661,7 +661,7 @@ function VariantsTable({
                       <button
                         type="button"
                         onClick={() => onEdit(v)}
-                        className="px-3 py-1.5 rounded-lg text-xs font-bold text-pink-600 hover:bg-pink-50 transition-colors cursor-pointer"
+                        className="px-3 py-1.5 rounded-lg text-xs font-bold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                         title="Edit Variant"
                       >
                         Edit

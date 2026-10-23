@@ -1,6 +1,6 @@
 import { COLORS, FONTS } from '../../../../constant/style';
-import logo from '../../../../assets/logo.png';
 import Button from '../../../../components/common/Button';
+import TaxInvoice from '../../../../components/common/TaxInvoice';
 import {
   Loader2,
   AlertCircle,
@@ -9,14 +9,9 @@ import {
   FileText,
   Printer,
   Download,
-  X,
   ChevronLeft,
   ChevronRight,
   CreditCard,
-  MapPin,
-  User,
-  Calendar,
-  Hash,
   ExternalLink,
   Receipt,
   Filter,
@@ -167,22 +162,19 @@ function InvoiceDetailModal({
   orderDetail,
   isDetailLoading,
   onClose,
-  onPrint,
-  formatDate,
-  formatDateTime,
 }: {
   orderDetail: AdminOrderDetail | undefined;
   isDetailLoading: boolean;
   onClose: () => void;
-  onPrint: () => void;
-  formatDate: (d: string) => string;
-  formatDateTime: (d: string) => string;
+  onPrint?: () => void;
+  formatDate?: (d: string) => string;
+  formatDateTime?: (d: string) => string;
 }) {
   if (isDetailLoading) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm print:bg-white print:backdrop-blur-none">
         <div className="bg-white rounded-2xl shadow-2xl p-10 flex flex-col items-center gap-4 max-w-md">
-          <Loader2 className="w-10 h-10 text-pink-500 animate-spin" />
+          <Loader2 className="w-10 h-10 text-red-600 animate-spin" />
           <p className="text-sm text-gray-500" style={{ fontFamily: FONTS.main }}>Loading invoice details…</p>
         </div>
       </div>
@@ -192,239 +184,56 @@ function InvoiceDetailModal({
   if (!orderDetail) return null;
 
   const order = orderDetail;
-  const invoiceNumber = `INV-${order.orderNumber}`;
+  const orderDate = new Date(order.createdAt);
+  const orderYear = orderDate.getFullYear();
+  const nextYearShort = (orderYear + 1).toString().slice(2);
+  const invoiceNumber = `INV/${orderYear.toString().slice(2)}-${nextYearShort}/${order.orderNumber}`;
+
+  const invoiceItems = order.items?.map((item) => ({
+    id: item.id,
+    productName: item.productName,
+    sku: item.size ? `${item.productName.slice(0, 4).toUpperCase()}-${item.size}` : 'ZOMM-LC-TL-0144',
+    hsnCode: '82079090',
+    quantity: item.quantity,
+    unitPrice: item.unitPrice,
+    totalPrice: item.totalPrice,
+    unit: 'NOS',
+  })) || [];
+
+  const buyer = {
+    fullName: order.address?.fullName || order.customer?.name || 'Valued Customer',
+    companyName: (order as any).companyName || order.address?.fullName || 'Shigan Industries Private Limited',
+    addressLine1: order.address?.addressLine1 || 'Shyam Udyog Parisar, Alier',
+    addressLine2: order.address?.addressLine2 || 'Bhangrola Road, Manesar, Gurugram',
+    city: order.address?.city || 'Manesar',
+    state: order.address?.state || 'Haryana',
+    postalCode: order.address?.postalCode || '122052',
+    phone: order.address?.phone || order.customer?.phone || '+91-9870517217',
+    email: order.customer?.email || '',
+    gstin: (order as any).gstin || '06AAZCS7666J1ZA',
+    pan: (order as any).pan || 'AAZCS7666J',
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm print:bg-white print:backdrop-blur-none print:static print:inset-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-2 sm:p-4 print:p-0 print:static print:bg-white print:backdrop-blur-none">
       {/* Close overlay */}
       <div className="absolute inset-0 print:hidden" onClick={onClose} />
 
-      {/* Invoice content */}
       <div
-        className="relative bg-white rounded-2xl shadow-2xl max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto print:max-h-none print:overflow-visible print:shadow-none print:rounded-none print:mx-0 print:max-w-none"
-        style={{ fontFamily: FONTS.main }}
+        className="relative bg-white rounded-3xl shadow-2xl max-w-4xl w-full max-h-[92vh] overflow-y-auto print:max-h-none print:overflow-visible print:shadow-none print:rounded-none print:w-full print:m-0 z-10"
         id="printable-invoice"
       >
-        {/* Close button (hidden when printing) */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors print:hidden"
-        >
-          <X className="w-4 h-4 text-gray-500" />
-        </button>
-
-        <div className="p-8 print:p-6">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-8 pb-6 border-b border-gray-200">
-            <div className="flex items-center gap-3">
-              <img src={logo} alt="sensai" className="h-12 w-auto object-contain" />
-              <div>
-                <p className="text-xs text-gray-500">Precision Fasteners & Workshop Tools</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <h3 className="text-lg font-bold text-gray-900" style={{ fontFamily: FONTS.heading }}>INVOICE</h3>
-              <p className="text-sm font-semibold text-pink-600 mt-1">{invoiceNumber}</p>
-              <p className="text-xs text-gray-500 mt-1">Date: {formatDate(order.createdAt)}</p>
-            </div>
-          </div>
-
-          {/* Billing Info */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-            {/* Customer / Bill To */}
-            <div className="bg-gray-50 rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <User className="w-4 h-4 text-pink-500" />
-                <span className="text-xs font-bold uppercase tracking-wider text-gray-500">Bill To</span>
-              </div>
-              <p className="text-sm font-semibold text-gray-900">{order.address?.fullName || order.customer?.name || 'N/A'}</p>
-              <p className="text-xs text-gray-500">{order.customer?.email || ''}</p>
-              {order.address ? (
-                <>
-                  <p className="text-xs text-gray-500">{order.address.addressLine1}</p>
-                  {order.address.addressLine2 && <p className="text-xs text-gray-500">{order.address.addressLine2}</p>}
-                  <p className="text-xs text-gray-500">
-                    {order.address.city}, {order.address.state} - {order.address.postalCode}
-                  </p>
-                  <p className="text-xs text-gray-500">Phone: {order.address.phone}</p>
-                </>
-              ) : (
-                order.customer?.phone && <p className="text-xs text-gray-500">Phone: {order.customer.phone}</p>
-              )}
-            </div>
-
-            {/* Shipping Address */}
-            <div className="bg-gray-50 rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <MapPin className="w-4 h-4 text-pink-500" />
-                <span className="text-xs font-bold uppercase tracking-wider text-gray-500">Ship To</span>
-              </div>
-              {order.address ? (
-                <>
-                  <p className="text-sm font-semibold text-gray-900">{order.address.fullName}</p>
-                  <p className="text-xs text-gray-500">{order.address.addressLine1}</p>
-                  {order.address.addressLine2 && <p className="text-xs text-gray-500">{order.address.addressLine2}</p>}
-                  <p className="text-xs text-gray-500">
-                    {order.address.city}, {order.address.state} - {order.address.postalCode}
-                  </p>
-                  <p className="text-xs text-gray-500">Phone: {order.address.phone}</p>
-                </>
-              ) : (
-                <p className="text-xs text-gray-400 italic">No address on file</p>
-              )}
-            </div>
-          </div>
-
-          {/* Order Info Bar */}
-          <div className="flex flex-wrap gap-3 mb-6">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 text-xs text-gray-600">
-              <Hash className="w-3.5 h-3.5" />
-              <span className="font-medium">Order:</span> {order.orderNumber}
-            </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 text-xs text-gray-600">
-              <Calendar className="w-3.5 h-3.5" />
-              <span className="font-medium">Date:</span> {formatDateTime(order.createdAt)}
-            </div>
-            <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold ${getPaymentBadge(order.paymentMethod === 'RAZORPAY' ? 'Razorpay' : 'Cash on Delivery')}`}>
-              <CreditCard className="w-3.5 h-3.5" />
-              {order.paymentMethod === 'RAZORPAY' ? 'Razorpay' : 'COD'}
-            </div>
-            <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold ${getOrderStatusBadgeStyle(order.status)}`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${getOrderStatusDotStyle(order.status)}`} />
-              Fulfillment: {order.status}
-            </div>
-          </div>
-
-          {/* Items Table */}
-          <div className="border border-gray-200 rounded-xl overflow-hidden mb-6">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-gray-50/80">
-                  <th className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500">#</th>
-                  <th className="text-left px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500">Product</th>
-                  <th className="text-center px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500 hidden sm:table-cell">Variant</th>
-                  <th className="text-center px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500">Qty</th>
-                  <th className="text-right px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500">Unit Price</th>
-                  <th className="text-right px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-500">Total</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {order.items?.map((item, idx) => (
-                  <tr key={item.id} className="hover:bg-gray-50/50">
-                    <td className="px-4 py-3 text-gray-400 text-xs">{idx + 1}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        {item.productImage && (
-                          <img
-                            src={item.productImage}
-                            alt={item.productName}
-                            className="w-10 h-10 rounded-lg object-cover border border-gray-100 print:w-8 print:h-8"
-                          />
-                        )}
-                        <div>
-                          <p className="font-medium text-gray-900 text-xs">{item.productName}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-center hidden sm:table-cell">
-                      <div className="flex items-center justify-center gap-1">
-                        {item.size && (
-                          <span className="px-1.5 py-0.5 rounded bg-gray-100 text-[10px] font-medium text-gray-600">{item.size}</span>
-                        )}
-                        {item.color && (
-                          <span className="px-1.5 py-0.5 rounded bg-gray-100 text-[10px] font-medium text-gray-600">{item.color}</span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-center text-gray-700 font-medium">{item.quantity}</td>
-                    <td className="px-4 py-3 text-right text-gray-700">₹{item.unitPrice.toLocaleString('en-IN')}</td>
-                    <td className="px-4 py-3 text-right font-semibold text-gray-900">₹{item.totalPrice.toLocaleString('en-IN')}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Price Breakdown */}
-          <div className="flex justify-end mb-8">
-            <div className="w-full sm:w-72 space-y-2">
-              <div className="flex justify-between text-sm text-gray-600">
-                <span>Subtotal</span>
-                <span>₹{order.subtotal.toLocaleString('en-IN')}</span>
-              </div>
-              {order.discountAmount > 0 && (
-                <div className="flex justify-between text-sm text-emerald-600">
-                  <span>Discount {order.couponCode ? `(${order.couponCode})` : ''}</span>
-                  <span>-₹{order.discountAmount.toLocaleString('en-IN')}</span>
-                </div>
-              )}
-              <div className="flex justify-between text-sm text-gray-600">
-                <span>Shipping</span>
-                <span>{order.shippingCharges > 0 ? `₹${order.shippingCharges.toLocaleString('en-IN')}` : 'FREE'}</span>
-              </div>
-              {order.taxAmount > 0 && (
-                <div className="flex justify-between text-sm text-gray-600">
-                  <span>Tax</span>
-                  <span>₹{order.taxAmount.toLocaleString('en-IN')}</span>
-                </div>
-              )}
-              <div className="flex justify-between text-base font-bold text-gray-900 pt-2 border-t border-gray-200">
-                <span>Grand Total</span>
-                <span style={{ color: COLORS.primary }}>₹{order.totalAmount.toLocaleString('en-IN')}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Payment Details */}
-          {order.payment && (
-            <div className="bg-gradient-to-r from-gray-50 to-pink-50/30 rounded-xl p-4 mb-6 border border-gray-100">
-              <div className="flex items-center gap-2 mb-3">
-                <CreditCard className="w-4 h-4 text-pink-500" />
-                <span className="text-xs font-bold uppercase tracking-wider text-gray-500">Payment Details</span>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                <div>
-                  <p className="text-gray-400 font-medium">Method</p>
-                  <p className="text-gray-800 font-semibold">{order.payment.paymentMethod === 'RAZORPAY' ? 'Razorpay' : 'COD'}</p>
-                </div>
-                <div>
-                  <p className="text-gray-400 font-medium">Status</p>
-                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${order.payment.status === 'SUCCESS' ? 'bg-emerald-50 text-emerald-700' :
-                      order.payment.status === 'PENDING' ? 'bg-amber-50 text-amber-700' :
-                        order.payment.status === 'FAILED' ? 'bg-rose-50 text-rose-700' :
-                          'bg-purple-50 text-purple-700'
-                    }`}>
-                    {order.payment.status}
-                  </span>
-                </div>
-                <div>
-                  <p className="text-gray-400 font-medium">Amount</p>
-                  <p className="text-gray-800 font-semibold">₹{order.payment.amount.toLocaleString('en-IN')}</p>
-                </div>
-                {order.payment.transactionId && (
-                  <div>
-                    <p className="text-gray-400 font-medium">Transaction ID</p>
-                    <p className="text-gray-800 font-semibold text-[10px] break-all">{order.payment.transactionId}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Footer / Actions */}
-          <div className="flex items-center justify-between pt-4 border-t border-gray-200 print:hidden">
-            <p className="text-xs text-gray-400">Thank you for shopping with Sansei!</p>
-            <div className="flex gap-2">
-              <Button variant="outline" size="md" onClick={onClose}>
-                Close
-              </Button>
-              <Button variant="primary" size="md" onClick={onPrint}>
-                <Printer className="w-4 h-4 mr-1.5" />
-                Print Invoice
-              </Button>
-            </div>
-          </div>
-        </div>
+        <TaxInvoice
+          invoiceNumber={invoiceNumber}
+          invoiceDate={orderDate}
+          poNumber={`PO-PC/${orderYear.toString().slice(2)}-${nextYearShort}/${order.orderNumber}`}
+          poDate={new Date(orderDate.getTime() - 30 * 24 * 60 * 60 * 1000)}
+          buyer={buyer}
+          items={invoiceItems}
+          subtotal={order.subtotal}
+          totalAmount={order.totalAmount}
+          onClose={onClose}
+        />
       </div>
     </div>
   );
@@ -465,7 +274,8 @@ export default function InvoiceGenerationScreen({
 
   return (
     <div style={{ fontFamily: FONTS.main, color: COLORS.text }}>
-      {/* Back button */}
+      <div className={showInvoiceModal ? 'print:hidden' : ''}>
+        {/* Back button */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-4">
           <button
@@ -511,7 +321,7 @@ export default function InvoiceGenerationScreen({
               placeholder="Search by order number or customer name..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-pink-500/20 focus:border-pink-400 transition-all"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all"
               style={{ fontFamily: FONTS.main }}
             />
           </div>
@@ -524,7 +334,7 @@ export default function InvoiceGenerationScreen({
                 key={tab.value}
                 onClick={() => onPaymentStatusFilterChange(tab.value)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${paymentStatusFilter === tab.value
-                    ? 'bg-white text-pink-600 shadow-sm'
+                    ? 'bg-white text-red-600 shadow-sm'
                     : 'text-gray-500 hover:text-gray-700'
                   }`}
               >
@@ -549,8 +359,8 @@ export default function InvoiceGenerationScreen({
       {/* Empty State */}
       {!isLoading && !isError && invoices.length === 0 && (
         <div className="bg-white border rounded-2xl p-12 text-center" style={{ borderColor: COLORS.border }}>
-          <div className="w-16 h-16 bg-pink-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Receipt className="w-8 h-8 text-pink-400" />
+          <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Receipt className="w-8 h-8 text-red-500" />
           </div>
           <h3 className="text-lg font-bold text-gray-800 mb-2" style={{ fontFamily: FONTS.heading }}>No invoices found</h3>
           <p className="text-sm text-gray-500 max-w-sm mx-auto">
@@ -573,7 +383,7 @@ export default function InvoiceGenerationScreen({
                       type="checkbox"
                       checked={allSelected}
                       onChange={onSelectAll}
-                      className="w-4 h-4 rounded border-gray-300 text-pink-500 focus:ring-pink-500 cursor-pointer"
+                      className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer"
                       disabled={isLoading}
                     />
                   </th>
@@ -605,7 +415,7 @@ export default function InvoiceGenerationScreen({
                           type="checkbox"
                           checked={selectedIds.has(invoice.id)}
                           onChange={() => onToggleSelect(invoice.id)}
-                          className="w-4 h-4 rounded border-gray-300 text-pink-500 focus:ring-pink-500 cursor-pointer"
+                          className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer"
                         />
                       </td>
 
@@ -621,7 +431,7 @@ export default function InvoiceGenerationScreen({
                       <td className="px-5 py-4">
                         <button
                           onClick={() => onGoToOrderDetails(invoice.id)}
-                          className="text-pink-600 hover:text-pink-700 hover:underline font-medium text-sm inline-flex items-center gap-1"
+                          className="text-red-600 hover:text-red-700 hover:underline font-medium text-sm inline-flex items-center gap-1"
                         >
                           #{invoice.orderNumber}
                           <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -679,7 +489,7 @@ export default function InvoiceGenerationScreen({
                           {invoice.status === 'Generated' ? (
                             <button
                               onClick={() => onViewInvoice(invoice.id)}
-                              className="inline-flex items-center gap-1.5 text-pink-600 hover:text-pink-700 font-medium text-sm transition-colors"
+                              className="inline-flex items-center gap-1.5 text-red-600 hover:text-red-700 font-medium text-sm transition-colors"
                             >
                               <Download className="w-3.5 h-3.5" />
                               Download
@@ -703,7 +513,7 @@ export default function InvoiceGenerationScreen({
                           ) : (
                             <button
                               onClick={() => onViewInvoice(invoice.id)}
-                              className="inline-flex items-center gap-1.5 text-purple-600 hover:text-purple-700 font-medium text-sm transition-colors"
+                              className="inline-flex items-center gap-1.5 text-red-600 hover:text-red-700 font-medium text-sm transition-colors"
                             >
                               <FileText className="w-3.5 h-3.5" />
                               View
@@ -760,6 +570,8 @@ export default function InvoiceGenerationScreen({
         </div>
       )}
 
+      </div>
+
       {/* Invoice Detail Modal */}
       {showInvoiceModal && (
         <InvoiceDetailModal
@@ -771,58 +583,6 @@ export default function InvoiceGenerationScreen({
           formatDateTime={formatDateTime}
         />
       )}
-
-      {/* Print styles (injected) */}
-      <style>{`
-        @media print {
-          body > *:not(#printable-invoice) {
-            display: none !important;
-          }
-          .print\\:hidden {
-            display: none !important;
-          }
-          .print\\:bg-white {
-            background: white !important;
-          }
-          .print\\:static {
-            position: static !important;
-          }
-          .print\\:shadow-none {
-            box-shadow: none !important;
-          }
-          .print\\:rounded-none {
-            border-radius: 0 !important;
-          }
-          .print\\:max-h-none {
-            max-height: none !important;
-          }
-          .print\\:overflow-visible {
-            overflow: visible !important;
-          }
-          .print\\:mx-0 {
-            margin-left: 0 !important;
-            margin-right: 0 !important;
-          }
-          .print\\:max-w-none {
-            max-width: none !important;
-          }
-          .print\\:p-6 {
-            padding: 1.5rem !important;
-          }
-          .print\\:inset-auto {
-            inset: auto !important;
-          }
-          .print\\:backdrop-blur-none {
-            backdrop-filter: none !important;
-          }
-          .print\\:w-8 {
-            width: 2rem !important;
-          }
-          .print\\:h-8 {
-            height: 2rem !important;
-          }
-        }
-      `}</style>
     </div>
   );
 }

@@ -5,3 +5,4 @@ export { default as PaymentGateway } from './PaymentGateway/PaymentGatewayScreen
 export { default as ReportsAnalytics } from './ReportsAnalytics/ReportsAnalyticsScreen';
 export { default as ShippingCharges } from './ShippingCharges/ShippingChargesScreen';
 export { default as TaxSettings } from './TaxSettings/TaxSettingsScreen';
+export { default as FaqManagement } from './FaqManagement/FaqManagementScreen';

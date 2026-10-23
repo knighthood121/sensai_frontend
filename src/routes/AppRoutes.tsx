@@ -9,11 +9,12 @@ import {
   Orders,
   ProductDetail,
   Profile,
+  JoinUs,
 } from '../pages/User';
 import { useAppSelector } from '../app/hooks';
 import { Dashboard } from '../pages/Admin';
 import BulkInquiry from '../pages/User/BulkInquiry';
-import { AboutPage, FaqPage } from '../pages/User/InfoPages';
+import { AboutPage, FaqPage, PrivacyPolicyPage, TermsPage } from '../pages/User/InfoPages';
 import BulkInquiriesAdmin from '../pages/Admin/BulkInquiries';
 import {
   ProductManagement,
@@ -53,6 +54,7 @@ import {
   ReportsAnalytics,
   ShippingCharges,
   TaxSettings,
+  FaqManagement,
 } from '../pages/Admin';
 import ProtectedRoute from './ProtectedRoute';
 import Sidebar from '../components/layout/Sidebar';
@@ -74,18 +76,22 @@ function AdminRouteWrapper() {
   };
 
   return (
-    <div className="min-h-screen flex" style={{ backgroundColor: '#F8F9FB', color: COLORS.text, fontFamily: FONTS.main }}>
-      <Sidebar
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        isMinimized={isMinimized}
-        onToggleMinimize={toggleMinimize}
-      />
+    <div className="min-h-screen flex print:block print:min-h-0 print:bg-white" style={{ backgroundColor: '#F8F9FB', color: COLORS.text, fontFamily: FONTS.main }}>
+      <div className="print:hidden">
+        <Sidebar
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+          isMinimized={isMinimized}
+          onToggleMinimize={toggleMinimize}
+        />
+      </div>
 
-      <div className={`flex-1 flex flex-col min-h-screen overflow-hidden transition-all duration-300 ease-in-out ${isMinimized ? 'lg:ml-[80px]' : 'lg:ml-[260px]'}`}>
-        <Navbar onMenuClick={() => setSidebarOpen(true)} isSidebarMinimized={isMinimized} />
+      <div className={`flex-1 flex flex-col min-h-screen overflow-hidden transition-all duration-300 ease-in-out print:ml-0 print:min-h-0 print:overflow-visible ${isMinimized ? 'lg:ml-[80px]' : 'lg:ml-[260px]'}`}>
+        <div className="print:hidden">
+          <Navbar onMenuClick={() => setSidebarOpen(true)} isSidebarMinimized={isMinimized} />
+        </div>
 
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-6 overflow-y-auto print:p-0 print:overflow-visible">
           <Outlet />
         </main>
       </div>
@@ -131,6 +137,12 @@ export default function AppRoutes() {
         <Route path="/bulk-inquiry" element={<BulkInquiry />} />
         <Route path="/faqs" element={<FaqPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/privacy" element={<PrivacyPolicyPage />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
+        <Route path="/terms-and-conditions" element={<TermsPage />} />
+        <Route path="/join-us" element={<JoinUs />} />
+        <Route path="/join" element={<Navigate to="/join-us" replace />} />
 
         {/* Customer Routes (Protected) */}
         <Route path="/wishlist" element={<CustomerProtectedRoute><Wishlist /></CustomerProtectedRoute>} />
@@ -180,6 +192,8 @@ export default function AppRoutes() {
           <Route path="settings/reports" element={<ReportsAnalytics />} />
           <Route path="settings/shipping" element={<ShippingCharges />} />
           <Route path="settings/tax" element={<TaxSettings />} />
+          <Route path="settings/faqs" element={<FaqManagement />} />
+          <Route path="settings/banners" element={<BannerManagement />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" />} />

@@ -1,6 +1,16 @@
 @import "tailwindcss";
 
 @theme {
+  --color-primary: #dc2626;
+  --color-primary-light: #fee2e2;
+  --color-primary-dark: #991b1b;
+  --color-brand-red: #dc2626;
+  --color-brand-dark: #111111;
+
+  --font-sans: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-heading: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-montserrat: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
   --animate-marquee: marquee 30s linear infinite;
   --animate-float: float 6s ease-in-out infinite;
 
@@ -30,4 +40,108 @@
 .marquee-mask {
   mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
   -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+
+/* Global Font Configuration - Montserrat across entire website */
+html,
+body {
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* Universal Print Styles */
+@media print {
+  /* Hide all non-printable navigation, buttons, and chrome */
+  nav,
+  aside,
+  header,
+  footer,
+  .print\:hidden,
+  [aria-label="Close menu"],
+  button:not(.allow-print) {
+    display: none !important;
+  }
+
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  #root {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Prevent admin layout containers from clipping print */
+  .min-h-screen,
+  [class*="overflow-"],
+  main {
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+  }
+
+  /* Modal backdrops when printing */
+  .fixed.inset-0.z-50 {
+    position: static !important;
+    inset: auto !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  #printable-invoice {
+    position: static !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+    max-height: none !important;
+    background: transparent !important;
+  }
+
+  #printable-tax-invoice {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 2mm !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 8mm 6mm;
+  }
 }

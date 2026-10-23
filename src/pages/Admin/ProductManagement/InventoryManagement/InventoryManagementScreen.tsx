@@ -161,7 +161,7 @@ export default function InventoryManagementScreen({
         <div className="space-y-6">
           {isDashboardLoading ? (
             <div className="bg-white rounded-2xl border shadow-sm p-16 flex flex-col items-center justify-center" style={{ borderColor: COLORS.border }}>
-              <Loader2 className="w-10 h-10 text-pink-500 animate-spin mb-4" />
+              <Loader2 className="w-10 h-10 text-red-600 animate-spin mb-4" />
               <p className="text-gray-400 font-bold uppercase tracking-wider text-xs">Loading summary...</p>
             </div>
           ) : isDashboardError ? (
@@ -217,7 +217,7 @@ export default function InventoryManagementScreen({
                     max={100}
                     value={threshold}
                     onChange={(e) => setThreshold(Number(e.target.value))}
-                    className="w-20 px-3 py-1.5 border border-gray-250 rounded-xl text-center font-bold text-sm outline-none focus:border-pink-500 focus:ring-1 focus:ring-pink-500"
+                    className="w-20 px-3 py-1.5 border border-gray-250 rounded-xl text-center font-bold text-sm outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"
                   />
                 </div>
               </div>
@@ -239,7 +239,7 @@ export default function InventoryManagementScreen({
                   <div className="flex-1 overflow-x-auto">
                     {isLowStockLoading ? (
                       <div className="py-20 flex flex-col items-center justify-center">
-                        <Loader2 className="w-8 h-8 text-pink-500 animate-spin mb-3" />
+                        <Loader2 className="w-8 h-8 text-red-600 animate-spin mb-3" />
                         <p className="text-xs text-gray-400 font-bold uppercase">Loading alerts...</p>
                       </div>
                     ) : lowStockVariants.length === 0 ? (
@@ -289,7 +289,7 @@ export default function InventoryManagementScreen({
                                     color: item.color,
                                     productName: item.productName,
                                   })}
-                                  className="text-pink-500 hover:text-pink-600 font-bold text-xs hover:underline flex items-center justify-end gap-1 cursor-pointer"
+                                  className="text-red-600 hover:text-red-700 font-bold text-xs hover:underline flex items-center justify-end gap-1 cursor-pointer"
                                 >
                                   Logs <ExternalLink size={12} />
                                 </button>
@@ -306,7 +306,7 @@ export default function InventoryManagementScreen({
                 <div className="bg-white border rounded-2xl shadow-sm overflow-hidden flex flex-col" style={{ borderColor: COLORS.border }}>
                   <div className="px-6 py-4 border-b border-gray-100 bg-gray-55/30">
                     <h3 className="font-bold text-base text-gray-900 flex items-center gap-2">
-                      <FileClock size={18} className="text-pink-500" /> Recent Actions Summary
+                      <FileClock size={18} className="text-red-600" /> Recent Actions Summary
                     </h3>
                   </div>
 
@@ -370,7 +370,7 @@ export default function InventoryManagementScreen({
           {/* Audit Logs Table */}
           {isLogsLoading ? (
             <div className="bg-white rounded-2xl border shadow-sm p-16 flex flex-col items-center justify-center" style={{ borderColor: COLORS.border }}>
-              <Loader2 className="w-10 h-10 text-pink-500 animate-spin mb-4" />
+              <Loader2 className="w-10 h-10 text-red-600 animate-spin mb-4" />
               <p className="text-gray-400 font-bold uppercase tracking-wider text-xs">Loading audit logs...</p>
             </div>
           ) : isLogsError ? (
@@ -440,7 +440,7 @@ export default function InventoryManagementScreen({
                                 color: log.variantColor || 'N/A',
                                 productName: log.productName || 'Product',
                               })}
-                              className="text-pink-500 hover:text-pink-600 font-bold text-xs hover:underline flex items-center justify-end gap-1 cursor-pointer"
+                              className="text-red-600 hover:text-red-700 font-bold text-xs hover:underline flex items-center justify-end gap-1 cursor-pointer"
                             >
                               Audit <ExternalLink size={12} />
                             </button>
@@ -527,7 +527,7 @@ export default function InventoryManagementScreen({
             <div className="p-8 space-y-6 flex-1 overflow-y-auto">
               {isVariantLogsLoading ? (
                 <div className="py-16 flex flex-col items-center justify-center">
-                  <Loader2 className="w-8 h-8 text-pink-500 animate-spin mb-3" />
+                  <Loader2 className="w-8 h-8 text-red-600 animate-spin mb-3" />
                   <p className="text-xs text-gray-405 font-bold uppercase tracking-wider">Loading variant logs...</p>
                 </div>
               ) : !variantLogsData?.data || variantLogsData.data.logs.length === 0 ? (
@@ -566,7 +566,7 @@ export default function InventoryManagementScreen({
                           <div key={log.id} className="relative pl-6">
                             {/* Connector dot */}
                             <span className={`absolute -left-[7px] top-1.5 w-3.5 h-3.5 rounded-full border-2 bg-white ${
-                              index === 0 ? 'border-pink-500 scale-110 shadow-sm' : 'border-gray-300'
+                              index === 0 ? 'border-red-600 scale-110 shadow-sm' : 'border-gray-300'
                             }`} />
                             
                             <div className="flex justify-between items-start gap-4">
@@ -595,7 +595,7 @@ export default function InventoryManagementScreen({
                                   {log.previousStock} &rarr; <span className="text-gray-900">{log.newStock}</span>
                                 </p>
                                 {log.reference && (
-                                  <p className="text-[9px] font-bold text-pink-500 font-mono mt-1 uppercase bg-pink-50 border border-pink-100/50 px-2 py-0.5 rounded-md inline-block">
+                                  <p className="text-[9px] font-bold text-red-600 font-mono mt-1 uppercase bg-red-50 border border-red-100/50 px-2 py-0.5 rounded-md inline-block">
                                     Ref: {log.reference}
                                   </p>
                                 )}

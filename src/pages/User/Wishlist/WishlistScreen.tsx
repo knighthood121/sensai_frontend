@@ -71,7 +71,7 @@ export default function WishlistScreen() {
       <div className="min-h-screen flex flex-col bg-[#FAFAFC]" style={{ fontFamily: FONTS.main }}>
         <Navbar />
         <div className="flex-1 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-red-600"></div>
         </div>
         <Footer />
       </div>
@@ -81,8 +81,8 @@ export default function WishlistScreen() {
   return (
     <div className="min-h-screen flex flex-col bg-[#FAFAFC] relative overflow-hidden" style={{ fontFamily: FONTS.main, color: COLORS.text }}>
       {/* Decorative background blobs */}
-      <div className="absolute top-[-8%] left-[-5%] w-[500px] h-[500px] bg-gradient-to-tr from-pink-200/8 to-purple-200/8 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-gradient-to-br from-indigo-200/8 to-emerald-100/8 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-[-8%] left-[-5%] w-[500px] h-[500px] bg-gradient-to-tr from-red-200/8 to-rose-200/8 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-gradient-to-br from-red-100/10 to-stone-100/10 rounded-full blur-[140px] pointer-events-none" />
 
       <Navbar />
 
@@ -91,7 +91,7 @@ export default function WishlistScreen() {
         {/* Breadcrumb Navigation & Title */}
         <div className="mb-10 sm:mb-14">
           <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-4">
-            <button onClick={() => navigate('/')} className="hover:text-pink-500 transition-colors cursor-pointer">Home</button>
+            <button onClick={() => navigate('/')} className="hover:text-red-600 transition-colors cursor-pointer">Home</button>
             <ChevronRight className="w-3 h-3" />
             <span className="text-gray-600">My Wishlist</span>
           </div>
@@ -116,7 +116,7 @@ export default function WishlistScreen() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center py-24 border-2 border-dashed border-gray-200 rounded-[32px] px-6 bg-white shadow-sm max-w-2xl mx-auto"
           >
-            <div className="w-24 h-24 bg-pink-50 text-pink-500 rounded-full flex items-center justify-center mx-auto mb-8">
+            <div className="w-24 h-24 bg-red-50 text-red-600 rounded-full flex items-center justify-center mx-auto mb-8">
               <Heart className="w-10 h-10" />
             </div>
             <h3 className="text-2xl sm:text-3xl font-black mb-3 tracking-tight">Your wishlist is empty</h3>
@@ -166,7 +166,7 @@ export default function WishlistScreen() {
                     {/* Info */}
                     <div className="space-y-2 px-1 text-left">
                       <h4
-                        className="font-bold text-gray-900 group-hover:text-pink-600 transition-colors line-clamp-2 leading-snug cursor-pointer"
+                        className="font-bold text-gray-900 group-hover:text-red-600 transition-colors line-clamp-2 leading-snug cursor-pointer"
                         onClick={() => navigate(`/product/${item.productId}`)}
                       >
                         {item.productName}
@@ -198,7 +198,7 @@ export default function WishlistScreen() {
                       <div className="flex items-baseline gap-2 pt-1">
                         {discountPrice !== null ? (
                           <>
-                            <span className="text-lg font-black text-pink-600">₹{discountPrice}</span>
+                            <span className="text-lg font-black text-red-600">₹{discountPrice}</span>
                             <span className="text-xs text-gray-450 line-through font-semibold">₹{basePrice}</span>
                           </>
                         ) : (
@@ -214,7 +214,7 @@ export default function WishlistScreen() {
                       variant="primary"
                       size="sm"
                       fullWidth
-                      className="rounded-2xl font-black uppercase tracking-wider text-[10px] bg-pink-500 hover:bg-pink-400 border border-pink-400/50 py-3 transition-all duration-300 shadow-[0_4px_12px_rgba(236,72,153,0.2)] hover:shadow-[0_8px_20px_rgba(236,72,153,0.3)] active:scale-[0.98] cursor-pointer !bg-pink-500 text-white flex items-center justify-center gap-2"
+                      className="rounded-2xl font-black uppercase tracking-wider text-[10px] bg-red-600 hover:bg-red-700 border border-red-500/50 py-3 transition-all duration-300 shadow-[0_4px_12px_rgba(220,38,38,0.2)] hover:shadow-[0_8px_20px_rgba(220,38,38,0.3)] active:scale-[0.98] cursor-pointer !bg-red-600 text-white flex items-center justify-center gap-2"
                       onClick={() => handleAddToCart(item)}
                     >
                       <ShoppingCart className="w-3.5 h-3.5" />

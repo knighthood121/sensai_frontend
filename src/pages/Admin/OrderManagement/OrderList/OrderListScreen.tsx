@@ -158,7 +158,7 @@ export default function OrderListScreen() {
               style={{ color: COLORS.textLight }}
             />
             <input
-              className="w-full pl-11 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-all focus:ring-4 focus:ring-pink-100 bg-white"
+              className="w-full pl-11 pr-4 py-2.5 rounded-xl border text-sm outline-none transition-all focus:ring-4 focus:ring-red-100 bg-white"
               style={{ borderColor: COLORS.border }}
               placeholder="Search orders by ID, customer..."
               value={searchTerm}
@@ -216,7 +216,7 @@ export default function OrderListScreen() {
       {/* Orders table */}
       {isLoading ? (
         <div className="bg-white rounded-2xl border shadow-sm p-16 flex flex-col items-center justify-center" style={{ borderColor: COLORS.border }}>
-          <Loader2 className="w-10 h-10 text-pink-500 animate-spin mb-4" />
+          <Loader2 className="w-10 h-10 text-red-600 animate-spin mb-4" />
           <p className="text-gray-400 font-bold uppercase tracking-wider text-xs">Loading orders...</p>
         </div>
       ) : isError ? (
@@ -233,7 +233,7 @@ export default function OrderListScreen() {
               <thead>
                 <tr className="bg-gray-50/50 border-b border-gray-200 transition-colors">
                   <th className="px-5 py-4 w-12 text-left">
-                    <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-pink-500 focus:ring-pink-500 cursor-pointer" />
+                    <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer" />
                   </th>
                   <th className="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest text-gray-500">Order ID</th>
                   <th className="text-left px-5 py-4 text-[11px] font-bold uppercase tracking-widest hidden sm:table-cell text-gray-500">Date</th>
@@ -249,10 +249,10 @@ export default function OrderListScreen() {
                   orders.map((order) => (
                     <tr key={order.id} className="hover:bg-gray-50 transition-colors group">
                       <td className="px-5 py-4">
-                        <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-pink-500 focus:ring-pink-500 cursor-pointer" />
+                        <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer" />
                       </td>
                       <td
-                        className="px-5 py-4 font-bold text-sm text-gray-900 group-hover:text-pink-600 transition-colors cursor-pointer hover:underline"
+                        className="px-5 py-4 font-bold text-sm text-gray-900 group-hover:text-red-600 transition-colors cursor-pointer hover:underline"
                         onClick={() => navigate('/admin/orders/details', { state: { orderId: order.id } })}
                       >
                         {order.orderNumber}
@@ -279,7 +279,7 @@ export default function OrderListScreen() {
                             value={order.status}
                             onChange={(e) => handleStatusChange(order.id, order.status, e.target.value as OrderStatus)}
                             disabled={isUpdating || !VALID_TRANSITIONS[order.status] || VALID_TRANSITIONS[order.status].length === 0}
-                            className={`appearance-none pl-3.5 pr-8 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider outline-none cursor-pointer border-0 transition-all hover:ring-2 focus:ring-2 focus:ring-pink-500/20 disabled:cursor-not-allowed disabled:opacity-80 ${getStatusBadgeStyle(order.status)}`}
+                            className={`appearance-none pl-3.5 pr-8 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider outline-none cursor-pointer border-0 transition-all hover:ring-2 focus:ring-2 focus:ring-red-500/20 disabled:cursor-not-allowed disabled:opacity-80 ${getStatusBadgeStyle(order.status)}`}
                           >
                             <option value={order.status}>{order.status}</option>
                             {VALID_TRANSITIONS[order.status]?.map((statusOption) => (
@@ -298,7 +298,7 @@ export default function OrderListScreen() {
                       <td className="px-5 py-4 text-right">
                         <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
-                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-pink-600 focus:outline-none focus:ring-2 focus:ring-pink-500/20 cursor-pointer"
+                            className="p-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-400 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-500/20 cursor-pointer"
                             onClick={() => navigate('/admin/orders/details', { state: { orderId: order.id } })}
                             title="View Details"
                           >
@@ -315,7 +315,7 @@ export default function OrderListScreen() {
                   <tr>
                     <td colSpan={8} className="px-5 py-16 text-center">
                       <div
-                        className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center text-pink-500"
+                        className="w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center text-red-600"
                         style={{ backgroundColor: COLORS.primary + '12' }}
                       >
                         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

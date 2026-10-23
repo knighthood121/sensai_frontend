@@ -25,19 +25,19 @@ export default function FlashSaleScreen() {
           <h1 className="text-2xl font-bold" style={{ fontFamily: FONTS.heading }}>Flash Sales</h1>
           <p className="text-sm text-gray-500 mt-1">Configure time-limited sales and special events.</p>
         </div>
-        <Button variant="primary" size="md" className="shadow-lg shadow-pink-500/30 hover:-translate-y-0.5 transition-transform">
+        <Button variant="primary" size="md" className="shadow-lg shadow-red-500/20 hover:-translate-y-0.5 transition-transform">
           + Schedule Sale
         </Button>
       </div>
       
-      <div className="bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl p-8 text-white shadow-lg relative overflow-hidden">
+      <div className="bg-gradient-to-br from-[#DC2626] to-[#991B1B] rounded-2xl p-8 text-white shadow-lg relative overflow-hidden">
         <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white opacity-10 rounded-full blur-2xl"></div>
         <div className="relative z-10">
           <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/20 backdrop-blur-md mb-4">
             Upcoming Event
           </span>
           <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: FONTS.heading }}>Diwali Mega Sale</h2>
-          <p className="text-pink-100 max-w-lg mb-6">Flat 40% OFF across all categories. Starts in 2 days.</p>
+          <p className="text-red-100 max-w-lg mb-6">Flat 40% OFF across all categories. Starts in 2 days.</p>
           
           <div className="flex gap-4">
              <div className="bg-white/10 backdrop-blur-md px-4 py-2 rounded-xl text-center">
