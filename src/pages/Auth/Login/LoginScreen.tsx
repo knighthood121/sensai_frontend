@@ -110,7 +110,7 @@ export default function LoginScreen({ onBackClick, onSignupClick, onSubmit, onGo
         <div className="mb-10 text-center">
           <img 
             src={logo} 
-            alt="sensai" 
+            alt="sansai" 
             className="h-20 w-auto mx-auto mb-5 cursor-pointer hover:opacity-85 transition-opacity object-contain"
             onClick={onBackClick}
           />
@@ -120,7 +120,7 @@ export default function LoginScreen({ onBackClick, onSignupClick, onSubmit, onGo
           >
             Welcome Back
           </h2>
-          <p className="font-medium opacity-50">Log in to your sensai account</p>
+          <p className="font-medium opacity-50">Log in to your sansai account</p>
         </div>
 
         {message && (

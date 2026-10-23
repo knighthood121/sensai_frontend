@@ -45,7 +45,7 @@ export default function JoinUsScreen() {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const requirements = `
-[SENSAI PARTNERSHIP APPLICATION]
+[SANSAI PARTNERSHIP APPLICATION]
 Business Type: ${formData.businessType}
 City & State: ${formData.cityState}
 Estimated Monthly Volume: ${formData.monthlyRequirement}
@@ -93,7 +93,7 @@ Partner Message / Areas of Interest: ${formData.message || 'General inquiry for 
             {/* Eyebrow Badge */}
             <div className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-4 py-1.5 text-xs font-bold text-red-400 mb-6 tracking-wide">
               <Handshake size={16} className="text-red-500" />
-              <span>JOIN THE SENSAI NETWORK</span>
+              <span>JOIN THE SANSAI NETWORK</span>
             </div>
 
             {/* Main Title */}
@@ -104,7 +104,7 @@ Partner Message / Areas of Interest: ${formData.message || 'General inquiry for 
 
             {/* Subtitle */}
             <p className="mx-auto mt-6 max-w-3xl text-sm leading-7 text-gray-300 sm:text-base sm:leading-8">
-              Whether you are an industrial distributor, hardware retailer, manufacturing workshop, or CNC contractor, partner with Sensai to access precision-engineered HSS drill bits, taps, and custom tooling solutions with factory-direct margins and guaranteed nationwide fulfillment.
+              Whether you are an industrial distributor, hardware retailer, manufacturing workshop, or CNC contractor, partner with Sansai to access precision-engineered HSS drill bits, taps, and custom tooling solutions with factory-direct margins and guaranteed nationwide fulfillment.
             </p>
 
             {/* Quick CTAs */}
@@ -116,7 +116,7 @@ Partner Message / Areas of Interest: ${formData.message || 'General inquiry for 
                 Apply for Partnership ↓
               </a>
               <a
-                href="https://wa.me/9654996005?text=Hello%20Sensai%20Team%2C%20I%20would%20like%20to%20partner%20with%20the%20Sensai%20Network."
+                href="https://wa.me/9654996005?text=Hello%20Sansai%20Team%2C%20I%20would%20like%20to%20partner%20with%20the%20Sansai%20Network."
                 target="_blank"
                 rel="noreferrer"
                 className="border border-neutral-700 bg-neutral-900/80 hover:bg-neutral-800 hover:border-gray-500 text-white px-7 py-3.5 text-sm font-bold transition-all"
@@ -142,13 +142,13 @@ Partner Message / Areas of Interest: ${formData.message || 'General inquiry for 
           </div>
         </section>
 
-        {/* ─── Why Partner with Sensai? (Pillars) ─── */}
+        {/* ─── Why Partner with Sansai? (Pillars) ─── */}
         <section className="py-16 sm:py-22 bg-[#fafafa]">
           <div className="mx-auto max-w-[1500px] px-5 lg:px-8">
             <div className="text-center max-w-3xl mx-auto">
               <p className="text-xs font-bold uppercase tracking-widest text-red-600">Built for Enduring Success</p>
               <h2 className="mt-2 text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">
-                Why Industry Leaders Choose Sensai
+                Why Industry Leaders Choose Sansai
               </h2>
               <p className="mt-3 text-sm text-gray-600 leading-relaxed">
                 We combine Swiss manufacturing precision with Indian manufacturing agility, providing partners with the competitive edge required in today's demanding metalworking market.
@@ -211,7 +211,7 @@ Partner Message / Areas of Interest: ${formData.message || 'General inquiry for 
             <div className="max-w-3xl">
               <p className="text-xs font-bold uppercase tracking-widest text-red-600">Tailored For Your Business Model</p>
               <h2 className="mt-2 text-3xl font-black tracking-tight text-gray-900 sm:text-4xl">
-                Who Can Join the Sensai Network?
+                Who Can Join the Sansai Network?
               </h2>
               <p className="mt-2 text-sm text-gray-600">
                 We offer structured partnership programs aligned with your business structure and market demands:
@@ -310,7 +310,7 @@ Partner Message / Areas of Interest: ${formData.message || 'General inquiry for 
                 </div>
                 <h3 className="text-2xl font-bold text-white">Application Received Successfully!</h3>
                 <p className="mt-3 text-sm text-gray-300 leading-relaxed">
-                  Thank you for applying to join the Sensai Network. Our partner development manager will review your submission and connect with you shortly on WhatsApp / Phone.
+                  Thank you for applying to join the Sansai Network. Our partner development manager will review your submission and connect with you shortly on WhatsApp / Phone.
                 </p>
                 <div className="mt-6 flex flex-wrap justify-center gap-4">
                   <button
@@ -469,7 +469,7 @@ Partner Message / Areas of Interest: ${formData.message || 'General inquiry for 
 
                 <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-neutral-800 pt-6">
                   <p className="text-xs text-gray-400">
-                    By submitting this application, you agree to receive commercial quotes and partner documentation from Sensai.
+                    By submitting this application, you agree to receive commercial quotes and partner documentation from Sansai.
                   </p>
                   <button
                     disabled={isLoading}
@@ -499,7 +499,7 @@ Partner Message / Areas of Interest: ${formData.message || 'General inquiry for 
             <div className="space-y-4">
               {[
                 {
-                  q: 'What is the minimum initial order value to join the Sensai Network?',
+                  q: 'What is the minimum initial order value to join the Sansai Network?',
                   a: 'We offer flexible entry tiers for both regional retail stockists and manufacturing workshops. Starter partner orders begin from ₹25,000, allowing you to test sample demand and stock fast-moving sizes with low initial capital commitment.',
                 },
                 {
@@ -507,8 +507,8 @@ Partner Message / Areas of Interest: ${formData.message || 'General inquiry for 
                   a: 'Qualified distributors maintaining committed quarterly volume targets receive designated territory exclusivity, ensuring all local inquiries and direct customer web referrals in your postal circle are routed to your dealership.',
                 },
                 {
-                  q: 'Can Sensai manufacture custom non-standard drill bits or machine taps?',
-                  a: 'Yes. Sensai specializes in tailor-made tooling including extra-long parallel shanks, custom step drill diameters, specific pitch thread taps, and special carbide geometries built to customer engineering drawings.',
+                  q: 'Can Sansai manufacture custom non-standard drill bits or machine taps?',
+                  a: 'Yes. Sansai specializes in tailor-made tooling including extra-long parallel shanks, custom step drill diameters, specific pitch thread taps, and special carbide geometries built to customer engineering drawings.',
                 },
                 {
                   q: 'What quality certifications and documentation are supplied with orders?',
@@ -570,7 +570,7 @@ Partner Message / Areas of Interest: ${formData.message || 'General inquiry for 
               </a>
 
               <a
-                href="mailto:sales@sensai.in?subject=Sensai%20Partner%20Inquiry"
+                href="mailto:sales@sansai.in?subject=Sansai%20Partner%20Inquiry"
                 className="bg-white p-5 border border-gray-200 hover:border-blue-600 transition-colors flex items-center gap-3.5 text-left"
               >
                 <div className="h-10 w-10 rounded-full bg-blue-50 text-blue-600 grid place-items-center shrink-0">
@@ -578,7 +578,7 @@ Partner Message / Areas of Interest: ${formData.message || 'General inquiry for 
                 </div>
                 <div>
                   <p className="text-[11px] font-bold text-gray-500 uppercase">Partner Email</p>
-                  <p className="text-sm font-black text-gray-900">sales@sensai.in</p>
+                  <p className="text-sm font-black text-gray-900">sales@sansai.in</p>
                 </div>
               </a>
             </div>

@@ -1,23 +1,29 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   ArrowUpDown,
   ChevronDown,
+  Heart,
   HelpCircle,
   Loader2,
   Package,
   Search,
+  ShoppingCart,
   X,
 } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Navbar from '../../../components/layout/Navbar';
 import Footer from '../../../components/layout/Footer';
 import { useToast } from '../../../components/common/Toast';
+import { useAppSelector } from '../../../app/hooks';
 import {
   useListCategoriesQuery,
   useListProductsQuery,
   useListSubCategoriesQuery,
+  useLazyGetProductDetailsQuery,
 } from '../../../service/productsApi';
 import { useToggleWishlistMutation } from '../../../service/wishlistApi';
+import { useAddToCartMutation } from '../../../service/cartApi';
+import { addGuestCartItem } from '../../../utils/guestCart';
 import type { Product } from '../../../types/Product.type';
 
 type CatalogNode = {
@@ -55,9 +61,17 @@ export default function CategoryBrowse() {
     categorySlug?: string;
     subCategorySlug?: string;
   }>();
+  const [searchParams] = useSearchParams();
+  const urlSearch = searchParams.get('search') || '';
 
   // Filter & Search states
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(urlSearch);
+
+  useEffect(() => {
+    const q = searchParams.get('search') || '';
+    setSearchTerm(q);
+  }, [searchParams]);
+
   const [selectedProductType, setSelectedProductType] = useState<string | null>(
     subCategorySlug || null,
   );
@@ -67,6 +81,12 @@ export default function CategoryBrowse() {
   const [showNotice, setShowNotice] = useState(true);
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortAsc, setSortAsc] = useState(true);
+  const [addingProductId, setAddingProductId] = useState<number | null>(null);
+
+  // Auth & Cart
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const [addToCart] = useAddToCartMutation();
+  const [triggerGetProductDetails] = useLazyGetProductDetailsQuery();
 
   // Wishlist mutation
   const [toggleWishlist] = useToggleWishlistMutation();
@@ -197,6 +217,57 @@ export default function CategoryBrowse() {
       showToast('Product added to wish list!', 'success');
     } catch {
       showToast('Added to wish list!', 'success');
+    }
+  };
+
+  const handleAddToCart = async (product: Product) => {
+    setAddingProductId(product.id);
+    try {
+      let variants = product.variants || [];
+      if (!variants || variants.length === 0) {
+        try {
+          const detailRes = await triggerGetProductDetails(product.id).unwrap();
+          variants = detailRes.data?.variants || [];
+        } catch {
+          // fallback
+        }
+      }
+
+      const variant = variants[0];
+      const sellingPrice = Number(product.sellingPrice ?? product.discountPrice ?? product.basePrice ?? 150);
+
+      if (!isAuthenticated) {
+        addGuestCartItem({
+          productId: product.id,
+          variantId: variant?.id || -(product.id),
+          quantity: 1,
+          productName: product.name,
+          slug: product.slug || '',
+          image: product.images?.find((img) => img.isPrimary)?.imageUrl || product.images?.[0]?.imageUrl || null,
+          price: Number(product.basePrice ?? sellingPrice),
+          discountPrice: product.discountPrice ? Number(product.discountPrice) : null,
+          sellingPrice,
+          size: variant?.size || 'Standard',
+          color: variant?.color || 'Default',
+          sku: variant?.sku || product.sku || `SKU-${product.id}`,
+          stock: variant?.stock || 50,
+          itemTotal: sellingPrice,
+        });
+        showToast('Added to cart!');
+        return;
+      }
+
+      await addToCart({
+        productId: product.id,
+        variantId: variant?.id || 1,
+        quantity: 1,
+      }).unwrap();
+      showToast('Added to cart!');
+    } catch (err: any) {
+      console.error(err);
+      showToast(err?.data?.message || 'Failed to add item to cart.', 'error');
+    } finally {
+      setAddingProductId(null);
     }
   };
 
@@ -369,19 +440,30 @@ export default function CategoryBrowse() {
 
           {/* ================= RIGHT MAIN CONTENT ================= */}
           <section className="flex-1 min-w-0 w-full">
-            {/* Search Input Bar */}
-            <div className="relative w-full">
+            {/* Modern Search Input Bar (No red block) */}
+            <div className="group relative flex items-center bg-gray-50/90 hover:bg-gray-100/70 focus-within:bg-white border border-gray-200 focus-within:border-gray-400 focus-within:ring-2 focus-within:ring-gray-100 rounded-full h-11 w-full px-4 transition-all duration-200 shadow-2xs">
               <Search
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
                 size={18}
+                className="text-gray-400 shrink-0 mr-3 transition-colors group-focus-within:text-gray-700"
+                strokeWidth={2}
               />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search by Name or by SKU"
-                className="h-11 sm:h-12 w-full rounded border border-[#2b88d8]/80 bg-white pl-10 pr-4 text-sm text-gray-800 placeholder:text-gray-400 focus:border-[#0275b8] focus:outline-none focus:ring-1 focus:ring-[#0275b8] shadow-xs"
+                placeholder="Search products by Name, SKU, Brand or Material..."
+                className="w-full min-w-0 bg-transparent text-sm text-gray-800 placeholder:text-gray-400 outline-none font-normal"
               />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setSearchTerm('')}
+                  className="p-1 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer shrink-0 ml-2"
+                  title="Clear search"
+                >
+                  <X size={16} />
+                </button>
+              )}
             </div>
 
             {/* Active Filter Pills Bar */}
@@ -430,7 +512,7 @@ export default function CategoryBrowse() {
               </div>
             ) : (
               <div className="mt-6 overflow-x-auto min-w-full">
-                <div className="min-w-[880px]">
+                <div className="min-w-[960px]">
                   {/* Table Header Row */}
                   <div className="border-b border-gray-200 pb-3 text-xs font-semibold text-gray-700">
                     <div className="grid grid-cols-12 items-center gap-4">
@@ -468,7 +550,7 @@ export default function CategoryBrowse() {
                         </button>
                       </div>
                       <div className="col-span-2 text-center font-semibold text-gray-600">
-                        Add to Wish List
+                        Add to Cart & Wishlist
                       </div>
                     </div>
                   </div>
@@ -576,17 +658,33 @@ export default function CategoryBrowse() {
                               {getNormSize(product)}
                             </div>
 
-                            {/* Column 6: Add to Wish List */}
-                            <div className="col-span-2 flex justify-center">
+                            {/* Column 6: Actions (Add to Cart & Add to Wish List) */}
+                            <div className="col-span-2 flex flex-col items-center justify-center gap-1.5 px-1">
+                              <button
+                                type="button"
+                                disabled={addingProductId === product.id}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddToCart(product);
+                                }}
+                                className="w-full max-w-[140px] flex items-center justify-center gap-1.5 rounded bg-red-600 hover:bg-red-700 px-3 py-1.5 text-xs font-bold text-white shadow-xs transition cursor-pointer whitespace-nowrap active:scale-95 disabled:opacity-60"
+                                title="Add to cart"
+                              >
+                                <ShoppingCart size={13} strokeWidth={2} />
+                                <span>{addingProductId === product.id ? 'Adding...' : 'Add to cart'}</span>
+                              </button>
+
                               <button
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleToggleWishlist(product.id);
                                 }}
-                                className="rounded bg-[#2f78b8] px-4 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-[#25639a] cursor-pointer whitespace-nowrap active:scale-95"
+                                className="w-full max-w-[140px] flex items-center justify-center gap-1.5 rounded bg-[#2f78b8] hover:bg-[#25639a] px-3 py-1.5 text-xs font-semibold text-white shadow-xs transition cursor-pointer whitespace-nowrap active:scale-95"
+                                title="Add to wish list"
                               >
-                                Add to wish list
+                                <Heart size={13} />
+                                <span>Add to wish list</span>
                               </button>
                             </div>
                           </div>

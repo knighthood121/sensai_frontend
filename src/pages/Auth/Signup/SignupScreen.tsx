@@ -75,7 +75,7 @@ export default function SignupScreen({ onBackClick, onSubmit, error, isLoading =
         <div className="mb-8 text-center">
           <img 
             src={logo} 
-            alt="sensai" 
+            alt="sansai" 
             className="h-20 w-auto mx-auto mb-5 cursor-pointer hover:opacity-85 transition-opacity object-contain"
             onClick={onBackClick}
           />
@@ -85,7 +85,7 @@ export default function SignupScreen({ onBackClick, onSubmit, error, isLoading =
           >
             Create Account
           </h2>
-          <p className="font-medium opacity-50">Join sensai and start shopping</p>
+          <p className="font-medium opacity-50">Join sansai and start shopping</p>
         </div>
 
         {error && (

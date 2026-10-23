@@ -12,7 +12,7 @@ export default function BulkInquiriesAdmin() {
 
   return <section className="space-y-6">
     <div className="flex flex-wrap items-center justify-between gap-4">
-      <div><p className="text-xs font-bold uppercase tracking-[.18em] text-red-600">Sales leads</p><h1 className="mt-1 text-3xl font-black text-gray-950">Bulk/Custom Inquiries</h1><p className="mt-2 text-sm text-gray-500">Requests submitted through the sensai storefront.</p></div>
+      <div><p className="text-xs font-bold uppercase tracking-[.18em] text-red-600">Sales leads</p><h1 className="mt-1 text-3xl font-black text-gray-950">Bulk/Custom Inquiries</h1><p className="mt-2 text-sm text-gray-500">Requests submitted through the sansai storefront.</p></div>
       <button onClick={() => refetch()} className="flex items-center gap-2 rounded-lg border bg-white px-4 py-2 text-sm font-bold"><RefreshCw size={16} />Refresh</button>
     </div>
     <div className="flex flex-wrap gap-2">{(['ALL', ...statuses] as const).map(status => <button key={status} onClick={() => setFilter(status)} className={`rounded-full px-4 py-2 text-xs font-bold ${filter === status ? 'bg-red-600 text-white' : 'bg-white text-gray-600'}`}>{status}</button>)}</div>

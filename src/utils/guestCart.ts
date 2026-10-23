@@ -17,13 +17,20 @@ export function getGuestCart(): GuestCartItem[] {
 
 export function saveGuestCart(items: GuestCartItem[]): void {
   localStorage.setItem(GUEST_CART_KEY, JSON.stringify(items));
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('sensai_guest_cart_updated'));
+  }
 }
 
 export function clearGuestCart(): void {
   localStorage.removeItem(GUEST_CART_KEY);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('sensai_guest_cart_updated'));
+  }
 }
 
 /** Add or increment an item in guest cart. Returns updated cart. */
+
 export function addGuestCartItem(
   newItem: Omit<GuestCartItem, 'id'>
 ): GuestCartItem[] {

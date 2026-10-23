@@ -30,8 +30,8 @@ export const INITIAL_FAQS: FaqItem[] = [
     id: 'order-1',
     category: 'order-process',
     categoryLabel: 'Order Process',
-    question: 'How do I place an order on Sensai?',
-    answer: `Ordering from Sensai is fast and straightforward:
+    question: 'How do I place an order on Sansai?',
+    answer: `Ordering from Sansai is fast and straightforward:
 
 1. Explore our catalog of precision drill bits and cutting tools by category or search.
 2. Select your tool variant (diameter, shank type, coating, and quantity) and click 'Add to Cart' or 'Buy Now'.
@@ -55,7 +55,7 @@ Once an order has been marked as 'Packed' or 'Shipped', it cannot be cancelled d
     category: 'order-process',
     categoryLabel: 'Order Process',
     question: 'How can I track the live status of my order?',
-    answer: `Sensai provides real-time 5-stage shipment tracking for every order:
+    answer: `Sansai provides real-time 5-stage shipment tracking for every order:
 
 1. Order Confirmed ➔ 2. Processing ➔ 3. Shipped ➔ 4. Out for Delivery ➔ 5. Delivered
 
@@ -78,7 +78,7 @@ Visit our 'Bulk / Custom Inquiry' page to upload technical drawings, CAD specifi
     id: 'payment-1',
     category: 'payment-methods',
     categoryLabel: 'Payment Methods',
-    question: 'What payment options are accepted on Sensai?',
+    question: 'What payment options are accepted on Sansai?',
     answer: `We provide a wide range of convenient and secure payment methods:
 
 • UPI & QR: Google Pay, PhonePe, Paytm, BHIM, and all UPI apps.
@@ -104,7 +104,7 @@ When entering your delivery pin code during checkout, the COD option will automa
     question: 'Are my online transactions safe and encrypted?',
     answer: `Absolutely. All digital payments are handled through RBI-licensed, PCI-DSS Level 1 compliant payment gateways with 256-bit SSL encryption.
 
-Sensai never stores your card CVV, ATM pins, or net banking passwords. Every transaction is authenticated via 3D Secure OTP directly with your issuing bank.`,
+Sansai never stores your card CVV, ATM pins, or net banking passwords. Every transaction is authenticated via 3D Secure OTP directly with your issuing bank.`,
     isActive: true,
   },
   {
@@ -168,7 +168,7 @@ You can also coordinate directly with the delivery agent or contact our support 
     id: 'returns-1',
     category: 'returns-refunds',
     categoryLabel: 'Returns & Refunds',
-    question: "What is Sensai's return and replacement policy?",
+    question: "What is Sansai's return and replacement policy?",
     answer: `We provide a transparent 7-Day Return & Replacement Policy from the date of delivery.
 
 If an item arrives damaged, defective, functionally impaired, or does not match the ordered specifications (size, diameter, shank type), you are eligible for an immediate free replacement or full refund.`,
@@ -215,7 +215,7 @@ Simply click 'Problem with Order' on your order card and choose 'Exchange for di
     category: 'gst-invoice',
     categoryLabel: 'GST Invoice Queries',
     question: 'Can I claim GST input tax credit (B2B) for my business purchases?',
-    answer: `Yes, 100%! Sensai issues legitimate, GST-compliant tax invoices with proper HSN codes (e.g., 8207 for drill bits & cutting tools) and itemized CGST/SGST/IGST breakdown.
+    answer: `Yes, 100%! Sansai issues legitimate, GST-compliant tax invoices with proper HSN codes (e.g., 8207 for drill bits & cutting tools) and itemized CGST/SGST/IGST breakdown.
 
 Registered businesses, proprietorships, and enterprises can claim full input tax credit (ITC) on all orders.`,
     isActive: true,
@@ -261,8 +261,8 @@ However, if your order was placed within the current calendar month, please cont
     id: 'warranty-1',
     category: 'warranty-info',
     categoryLabel: 'Warranty Information',
-    question: 'Do Sensai tools and drill bits come with a warranty?',
-    answer: `Yes! All Sensai precision cutting tools, drill bits, and hole saws come with a Manufacturer's Guarantee against metallurgical and manufacturing defects.
+    question: 'Do Sansai tools and drill bits come with a warranty?',
+    answer: `Yes! All Sansai precision cutting tools, drill bits, and hole saws come with a Manufacturer's Guarantee against metallurgical and manufacturing defects.
 
 Each batch is precision-ground and hardness-tested to meet rigorous industrial tolerance standards (HRC hardness testing and concentricity checks).`,
     isActive: true,
@@ -303,7 +303,7 @@ Not covered (Normal wear & tear):
     category: 'warranty-info',
     categoryLabel: 'Warranty Information',
     question: 'How can I maximize tool life and cutting performance?',
-    answer: `To get the highest longevity and cleanest cuts from your Sensai tooling:
+    answer: `To get the highest longevity and cleanest cuts from your Sansai tooling:
 
 • Match tool material to workpiece: Use HSS-Co (Cobalt) for stainless steel and tough alloys; use carbide-tipped bits for masonry and stone.
 • Use cutting fluid / coolant: Continuous lubrication prevents heat buildup, preventing flutes from softening.

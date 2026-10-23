@@ -172,7 +172,7 @@ export function AboutPage() {
           <div className="absolute top-0 right-0 w-80 h-80 bg-red-600/20 rounded-full blur-3xl pointer-events-none" />
           <div className="relative z-10 max-w-2xl mx-auto space-y-4">
             <h3 className="text-2xl sm:text-3xl font-black" style={{ fontFamily: FONTS.heading }}>
-              Empower Your Workshop with Sensai Tooling
+              Empower Your Workshop with Sansai Tooling
             </h3>
             <p className="text-gray-300 text-sm sm:text-base leading-relaxed">
               Explore our comprehensive catalog of drill bits, taps, and cutting solutions, or talk with our engineering sales desk for wholesale quotes.

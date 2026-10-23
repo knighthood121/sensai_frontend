@@ -1,7 +1,7 @@
 import { getCategoryTheme } from '../../constant/categoryThemes';
-import { type FormEvent, useState } from 'react';
+import { type FormEvent, useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ChevronDown, LayoutDashboard, LogOut, Menu, Search, ShoppingCart, UserRound, X } from 'lucide-react';
+import { ChevronDown, LayoutDashboard, LogIn, LogOut, Menu, Pencil, Search, ShoppingCart, UserRound, X } from 'lucide-react';
 import { useAppSelector } from '../../app/hooks';
 import { useLogoutMutation } from '../../service/authApi';
 import { useGetCartQuery } from '../../service/cartApi';
@@ -25,6 +25,7 @@ export default function Navbar({ onLoginClick, onMenuClick, isSidebarMinimized }
   const { isAuthenticated, user } = useAppSelector(state => state.auth);
   const [logout] = useLogoutMutation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [activeMenu, setActiveMenu] = useState<MenuName>(null);
   const [search, setSearch] = useState('');
   const { data: cartData } = useGetCartQuery(undefined, { skip: !isAuthenticated || isAdminRoute });
@@ -32,13 +33,38 @@ export default function Navbar({ onLoginClick, onMenuClick, isSidebarMinimized }
   const { data: productResponse } = useListProductsQuery({ limit: 100 }, { skip: isAdminRoute });
   const categories = categoryResponse?.data || [];
   const products = productResponse?.data || [];
+  const [localGuestCount, setLocalGuestCount] = useState(() =>
+    !isAuthenticated ? getGuestCart().reduce((sum, item) => sum + item.quantity, 0) : 0
+  );
+
+  useEffect(() => {
+    const updateCount = () => {
+      setLocalGuestCount(getGuestCart().reduce((sum, item) => sum + item.quantity, 0));
+    };
+    window.addEventListener('sensai_guest_cart_updated', updateCount);
+    window.addEventListener('storage', updateCount);
+    return () => {
+      window.removeEventListener('sensai_guest_cart_updated', updateCount);
+      window.removeEventListener('storage', updateCount);
+    };
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const q = params.get('search');
+    if (q !== null) {
+      setSearch(q);
+    }
+  }, [location.search]);
+
   const apiCartCount = cartData?.data?.totalItems || 0;
-  const guestCartCount = !isAuthenticated ? getGuestCart().reduce((sum, item) => sum + item.quantity, 0) : 0;
+  const guestCartCount = !isAuthenticated ? localGuestCount : 0;
   const cartCount = isAuthenticated ? apiCartCount : guestCartCount;
 
   const go = (path: string) => {
     setActiveMenu(null);
     setMobileOpen(false);
+    setMobileSearchOpen(false);
     navigate(path);
   };
 
@@ -53,7 +79,15 @@ export default function Navbar({ onLoginClick, onMenuClick, isSidebarMinimized }
   const submitSearch = (event: FormEvent) => {
     event.preventDefault();
     const value = search.trim();
-    go(value ? `/?search=${encodeURIComponent(value)}#shop` : '/#shop');
+    if (!value) return;
+    setMobileSearchOpen(false);
+    setMobileOpen(false);
+    if (location.pathname.startsWith('/category/')) {
+      navigate(`${location.pathname}?search=${encodeURIComponent(value)}`);
+    } else {
+      const defaultCategory = categories[0]?.slug || 'flat-end-mill';
+      go(`/category/${defaultCategory}?search=${encodeURIComponent(value)}`);
+    }
   };
 
   if (isAdminRoute) {
@@ -62,7 +96,7 @@ export default function Navbar({ onLoginClick, onMenuClick, isSidebarMinimized }
         <div className="flex h-full items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-3">
             <button onClick={onMenuClick} className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 lg:hidden" aria-label="Open menu"><Menu size={22} /></button>
-            <div><p className="text-xs font-bold uppercase tracking-[0.18em] text-red-600">sensai commerce</p><h1 className="text-base font-extrabold text-gray-950">Admin workspace</h1></div>
+            <div><p className="text-xs font-bold uppercase tracking-[0.18em] text-red-600">sansai commerce</p><h1 className="text-base font-extrabold text-gray-950">Admin workspace</h1></div>
           </div>
           <div className="flex items-center gap-3">
             <div className="hidden text-right sm:block"><p className="text-sm font-bold text-gray-900">{user?.name || 'Administrator'}</p><p className="text-xs text-gray-500">{user?.email || 'Store operations'}</p></div>
@@ -81,8 +115,8 @@ export default function Navbar({ onLoginClick, onMenuClick, isSidebarMinimized }
       <div className="border-b border-gray-200">
         <div className="mx-auto flex h-[92px] max-w-[1500px] items-center gap-5 px-5 lg:h-[126px] lg:px-8">
           <button onClick={() => setMobileOpen(true)} className="rounded-md p-2 text-gray-900 xl:hidden" aria-label="Open navigation"><Menu size={24} /></button>
-          <button onClick={() => go('/')} className="flex shrink-0 items-center" aria-label="sensai Home">
-            <img src={logo} alt="sensai" className="h-16 w-auto object-contain transition-opacity hover:opacity-90 sm:h-20 lg:h-24" />
+          <button onClick={() => go('/')} className="flex shrink-0 items-center" aria-label="sansai Home">
+            <img src={logo} alt="sansai" className="h-16 w-auto object-contain transition-opacity hover:opacity-90 sm:h-20 lg:h-24" />
           </button>
 
           <nav className="mx-auto hidden items-center gap-7 text-[15px] font-medium tracking-wide text-gray-800 xl:flex">
@@ -95,14 +129,142 @@ export default function Navbar({ onLoginClick, onMenuClick, isSidebarMinimized }
             <button onClick={() => go('/join-us')} className={location.pathname === '/join-us' ? 'border-b-2 border-red-600 py-1 font-semibold text-red-600' : 'py-1 hover:text-red-600 transition-colors'}>Join us</button>
           </nav>
 
-          <div className="ml-auto flex items-center gap-1 sm:gap-3">
-            {user?.role === 'ADMIN' && <button onClick={() => go('/admin/dashboard')} className="hidden p-2 text-gray-700 hover:text-red-600 sm:block"><LayoutDashboard size={23} /></button>}
-            <button onClick={() => setMobileOpen(true)} className="hidden p-2 text-black hover:text-red-600 sm:block" title="Search"><Search size={28} strokeWidth={1.4} /></button>
-            <button onClick={() => isAuthenticated ? go('/profile') : onLoginClick ? onLoginClick() : go('/login')} className="p-2 text-black hover:text-red-600"><UserRound size={29} strokeWidth={1.4} /></button>
-            <button onClick={() => go('/cart')} className="relative p-2 text-black hover:text-red-600" title="Cart"><ShoppingCart size={29} strokeWidth={1.4} />{cartCount > 0 && <CountBadge value={cartCount} />}</button>
+          <div className="ml-auto flex items-center gap-2 sm:gap-5">
+            {user?.role === 'ADMIN' && (
+              <button
+                onClick={() => go('/admin/dashboard')}
+                className="hidden p-1.5 text-gray-700 hover:text-red-600 sm:block transition-colors"
+                title="Admin Dashboard"
+              >
+                <LayoutDashboard size={21} />
+              </button>
+            )}
+            
+            {/* Modern Sleek Search Bar (Clean pill design, no red block) */}
+            <form
+              onSubmit={submitSearch}
+              className="group relative hidden sm:flex items-center bg-gray-100/70 hover:bg-gray-100 focus-within:bg-white border border-gray-200/80 focus-within:border-gray-300 focus-within:ring-2 focus-within:ring-gray-100 rounded-full h-8.5 w-40 md:w-52 lg:w-60 xl:w-64 px-3 transition-all duration-200 shadow-2xs shrink-0"
+            >
+              <button
+                type="submit"
+                className="text-gray-400 group-focus-within:text-gray-700 hover:text-gray-900 transition-colors cursor-pointer shrink-0 mr-2"
+                title="Search"
+                aria-label="Search products"
+              >
+                <Search size={15} strokeWidth={2} />
+              </button>
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search products..."
+                className="w-full min-w-0 bg-transparent py-1 text-xs text-gray-800 placeholder:text-gray-400 outline-none font-normal"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch('')}
+                  className="text-gray-400 hover:text-gray-600 transition-colors cursor-pointer shrink-0 ml-1"
+                  title="Clear search"
+                >
+                  <X size={13} />
+                </button>
+              )}
+            </form>
+
+            {/* Mobile Search Toggle */}
+            <button
+              onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+              className="sm:hidden p-1.5 text-gray-800 hover:text-red-600 transition-colors cursor-pointer"
+              title="Search"
+              aria-label="Toggle search"
+            >
+              {mobileSearchOpen ? <X size={20} /> : <Search size={20} strokeWidth={1.8} />}
+            </button>
+
+            {!isAuthenticated ? (
+              <div className="flex items-center gap-3 sm:gap-5">
+                <button
+                  onClick={() => onLoginClick ? onLoginClick() : go('/login')}
+                  className="flex items-center gap-1.5 text-sm font-semibold text-gray-900 hover:text-red-600 transition-colors py-1 cursor-pointer"
+                  title="Log in"
+                >
+                  <LogIn size={18} strokeWidth={1.8} />
+                  <span>Log in</span>
+                </button>
+
+                <button
+                  onClick={() => go('/signup')}
+                  className="flex items-center gap-1.5 text-sm font-semibold text-gray-900 hover:text-red-600 transition-colors py-1 cursor-pointer"
+                  title="Register"
+                >
+                  <Pencil size={16} strokeWidth={1.8} />
+                  <span>Register</span>
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-3 sm:gap-4">
+                <button
+                  onClick={() => go('/profile')}
+                  className="flex items-center gap-1.5 text-sm font-semibold text-gray-900 hover:text-red-600 transition-colors py-1 cursor-pointer"
+                  title="My Account"
+                >
+                  <UserRound size={19} strokeWidth={1.8} />
+                  <span className="hidden md:inline">{user?.name?.split(' ')[0] || 'Account'}</span>
+                </button>
+
+                <button
+                  onClick={handleLogout}
+                  className="p-1 text-gray-500 hover:text-red-600 transition-colors cursor-pointer"
+                  title="Log out"
+                >
+                  <LogOut size={18} />
+                </button>
+              </div>
+            )}
+
+            {/* Shopping Cart Button */}
+            <button
+              onClick={() => go('/cart')}
+              className="flex items-center gap-1.5 text-sm font-semibold text-gray-900 hover:text-red-600 transition-colors py-1 cursor-pointer ml-1 sm:ml-2"
+              title="Cart"
+            >
+              <ShoppingCart size={20} strokeWidth={1.8} />
+              <span className="whitespace-nowrap">({cartCount}) Items</span>
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Mobile Inline Search Bar (Image 2 style, drops down when search icon clicked on mobile) */}
+      {mobileSearchOpen && (
+        <div className="border-b border-gray-200 bg-white px-4 py-2 sm:hidden">
+          <form
+            onSubmit={submitSearch}
+            className="flex items-center bg-gray-100/80 focus-within:bg-white border border-gray-200 focus-within:border-gray-300 focus-within:ring-2 focus-within:ring-gray-100 rounded-full h-9 w-full px-3 transition-all"
+          >
+            <Search size={15} className="text-gray-400 shrink-0 mr-2" strokeWidth={2} />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search products..."
+              autoFocus
+              className="w-full min-w-0 bg-transparent text-xs sm:text-sm text-gray-800 placeholder:text-gray-400 outline-none font-normal"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch('')}
+                className="text-gray-400 hover:text-gray-600 shrink-0 ml-1 cursor-pointer"
+                title="Clear"
+              >
+                <X size={14} />
+              </button>
+            )}
+          </form>
+        </div>
+      )}
 
       {activeMenu === 'shop' && (
         <div
@@ -185,7 +347,7 @@ export default function Navbar({ onLoginClick, onMenuClick, isSidebarMinimized }
             {/* Bottom Quick-Bar */}
             <div className="mt-8 flex flex-wrap items-center justify-between border-t border-gray-100 pt-4 text-xs text-gray-500">
               <span className="font-medium text-gray-700">
-                Sensai Precision CNC & Industrial Tooling • Carbide & High-Speed Steel
+                Sansai Precision CNC & Industrial Tooling • Carbide & High-Speed Steel
               </span>
               <button
                 onClick={() => go('/#shop')}
@@ -220,11 +382,64 @@ export default function Navbar({ onLoginClick, onMenuClick, isSidebarMinimized }
       <button className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} aria-label="Close menu" />
       <aside className="absolute inset-y-0 left-0 w-[88%] max-w-sm overflow-y-auto bg-white p-6 shadow-2xl">
         <div className="flex items-center justify-between">
-          <button onClick={() => go('/')} className="flex items-center" aria-label="sensai Home"><img src={logo} alt="sensai" className="h-12 w-auto object-contain" /></button>
+          <button onClick={() => go('/')} className="flex items-center" aria-label="sansai Home"><img src={logo} alt="sansai" className="h-12 w-auto object-contain" /></button>
           <button onClick={() => setMobileOpen(false)} className="p-2" aria-label="Close menu"><X size={22} /></button>
         </div>
-        <form onSubmit={submitSearch} className="mt-7 flex overflow-hidden border border-gray-300"><input value={search} onChange={event => setSearch(event.target.value)} placeholder="Search products" className="min-w-0 flex-1 px-3 py-3 text-sm outline-none" /><button className="bg-red-600 hover:bg-red-700 px-4 text-white"><Search size={18} /></button></form>
+        <form onSubmit={submitSearch} className="mt-7 flex items-center bg-gray-100/80 focus-within:bg-white border border-gray-200 focus-within:border-gray-300 rounded-full h-10 px-3.5 transition-all">
+          <Search size={16} className="text-gray-400 shrink-0 mr-2" strokeWidth={2} />
+          <input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search products..."
+            className="min-w-0 flex-1 bg-transparent text-sm text-gray-800 placeholder:text-gray-400 outline-none font-normal"
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch('')}
+              className="text-gray-400 hover:text-gray-600 shrink-0 cursor-pointer"
+            >
+              <X size={14} />
+            </button>
+          )}
+        </form>
         <div className="mt-7 border-t border-gray-100">
+          {!isAuthenticated ? (
+            <div className="flex items-center gap-3 border-b border-gray-100 py-3.5">
+              <button
+                onClick={() => go('/login')}
+                className="flex items-center gap-1.5 text-sm font-bold text-gray-900 hover:text-red-600 cursor-pointer"
+              >
+                <LogIn size={17} /> Log in
+              </button>
+              <span className="text-gray-300">|</span>
+              <button
+                onClick={() => go('/signup')}
+                className="flex items-center gap-1.5 text-sm font-bold text-gray-900 hover:text-red-600 cursor-pointer"
+              >
+                <Pencil size={15} /> Register
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between border-b border-gray-100 py-3.5">
+              <button
+                onClick={() => go('/profile')}
+                className="flex items-center gap-1.5 text-sm font-bold text-gray-900 hover:text-red-600 cursor-pointer"
+              >
+                <UserRound size={17} /> {user?.name || 'My Account'}
+              </button>
+              <button
+                onClick={handleLogout}
+                className="text-xs font-bold text-red-600 hover:underline cursor-pointer"
+              >
+                Log out
+              </button>
+            </div>
+          )}
+          <button onClick={() => go('/cart')} className="flex items-center justify-between w-full border-b border-gray-100 py-3.5 text-left text-sm font-bold text-gray-900 hover:text-red-600">
+            <span className="flex items-center gap-2"><ShoppingCart size={17} /> Shopping Cart</span>
+            <span className="text-xs text-red-600 font-bold">({cartCount}) Items</span>
+          </button>
           <button onClick={() => go('/')} className="block w-full border-b border-gray-100 py-3.5 text-left text-sm font-medium hover:text-red-600">Home</button>
           <p className="border-b border-gray-100 py-3.5 text-sm font-bold">Shop</p>
           {categories.map((category: any) => <button key={category.id} onClick={() => go(`/category/${category.slug}`)} className="block w-full border-b border-gray-100 py-3 pl-4 text-left text-sm text-gray-600 hover:text-red-600">{category.name}</button>)}
@@ -245,8 +460,4 @@ function NavMenuButton({ label, open, onClick }: { label: string; open: boolean;
 
 function DropdownPanel({ children, onLeave }: { children: React.ReactNode; onLeave: () => void }) {
   return <div onMouseLeave={onLeave} className="absolute inset-x-0 top-full border-b border-gray-200 bg-white shadow-lg"><div className="mx-auto flex max-w-[1450px] flex-col items-start gap-5 px-8 py-9 text-base text-gray-700">{children}</div></div>;
-}
-
-function CountBadge({ value }: { value: number }) {
-  return <span className="absolute right-0 top-0 grid h-4 min-w-4 place-items-center rounded-full bg-red-600 px-1 text-[9px] font-black text-white">{value > 99 ? '99+' : value}</span>;
 }

@@ -41,7 +41,7 @@ export default function DashboardScreen() {
     <section className="relative overflow-hidden rounded-xl bg-[#17171A] px-6 py-7 text-white sm:px-8">
       <div className="absolute -right-12 -top-16 h-56 w-56 rounded-full bg-red-600/30 blur-3xl"/>
       <div className="relative flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-        <div><p className="text-[10px] font-black tracking-[.2em] text-red-400">SENSAI OPERATIONS</p><h2 className="mt-2 text-2xl font-black sm:text-3xl">Store overview</h2><p className="mt-2 text-sm text-gray-400">Live commerce, customer and inventory performance.</p></div>
+        <div><p className="text-[10px] font-black tracking-[.2em] text-red-400">SANSAI OPERATIONS</p><h2 className="mt-2 text-2xl font-black sm:text-3xl">Store overview</h2><p className="mt-2 text-sm text-gray-400">Live commerce, customer and inventory performance.</p></div>
         <button onClick={()=>refetch()} disabled={isFetching} className="flex w-fit items-center gap-2 rounded-md border border-white/15 bg-white/5 px-4 py-2 text-xs font-bold hover:bg-white/10"><RefreshCw size={14} className={isFetching?'animate-spin':''}/> Refresh data</button>
       </div>
     </section>

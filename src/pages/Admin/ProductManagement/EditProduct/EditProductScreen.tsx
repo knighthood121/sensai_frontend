@@ -229,7 +229,7 @@ export default function EditProductScreen({
               required
               disabled={isLoading}
             />
-            <Input label="Brand / Manufacturer" placeholder="e.g. Bosch, sensai" value={brand} onChange={(e) => setBrand(e.target.value)} disabled={isLoading} />
+            <Input label="Brand / Manufacturer" placeholder="e.g. Bosch, sansai" value={brand} onChange={(e) => setBrand(e.target.value)} disabled={isLoading} />
             <Input label="Material" placeholder="e.g. Stainless Steel 304" value={material} onChange={(e) => setMaterial(e.target.value)} disabled={isLoading} />
             <Input label="Finish / Coating" placeholder="e.g. Zinc plated" value={finish} onChange={(e) => setFinish(e.target.value)} disabled={isLoading} />
             <Input label="Dimensions" placeholder="e.g. M4 × 20 mm" value={dimensions} onChange={(e) => setDimensions(e.target.value)} disabled={isLoading} />

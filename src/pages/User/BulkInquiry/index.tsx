@@ -379,7 +379,7 @@ export default function BulkInquiry() {
           <form onSubmit={submit} className="mx-auto max-w-6xl">
             <h2 className="text-3xl font-normal">Request a bulk quote</h2>
             <p className="mt-3 text-sm text-gray-600">
-              Complete the form and the request will appear immediately in the sensai admin dashboard.
+              Complete the form and the request will appear immediately in the sansai admin dashboard.
             </p>
             <div className="mt-9 grid gap-6 md:grid-cols-2">
               <Field label="Name" name="name" required />
@@ -422,7 +422,7 @@ export default function BulkInquiry() {
             </button>
             {submitted && (
               <p className="mt-4 text-sm font-medium text-emerald-700">
-                Your inquiry has been submitted successfully. The sensai team can now review it in the dashboard.
+                Your inquiry has been submitted successfully. The sansai team can now review it in the dashboard.
               </p>
             )}
           </form>
@@ -436,13 +436,13 @@ export default function BulkInquiry() {
               <Phone size={19} className="text-red-600" />
               +91 90000 00000
             </a>
-            <a href="mailto:sales@sensai.in" className="flex items-center gap-3 hover:text-red-600 transition-colors">
+            <a href="mailto:sales@sansai.in" className="flex items-center gap-3 hover:text-red-600 transition-colors">
               <Mail size={19} className="text-red-600" />
-              sales@sensai.in
+              sales@sansai.in
             </a>
             <p className="flex items-center gap-3">
               <MapPin size={19} className="text-red-600" />
-              sensai, India
+              sansai, India
             </p>
           </div>
         </section>

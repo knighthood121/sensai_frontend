@@ -164,14 +164,14 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
             onClick={() => handleNavigate('/')}
           >
             <div className="w-10 h-10 rounded-xl overflow-hidden bg-white flex items-center justify-center p-1 transition-transform duration-300 group-hover:scale-105 shadow-md">
-              <img src={logo} alt="sensai" className="w-full h-full object-contain" />
+              <img src={logo} alt="sansai" className="w-full h-full object-contain" />
             </div>
             {!isMinimized && (
               <span
                 className="font-black text-xl tracking-tight transition-colors duration-300 text-white"
                 style={{ fontFamily: FONTS.heading }}
               >
-                sensai
+                sansai
               </span>
             )}
           </div>
