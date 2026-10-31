@@ -63,7 +63,7 @@ export default function BannerManagementScreen() {
 
   // Synchronize DB Banners into state when backend responds
   useEffect(() => {
-    if (dbBannersData?.data && Array.isArray(dbBannersData.data) && dbBannersData.data.length > 0) {
+    if (Array.isArray(dbBannersData?.data)) {
       const converted: BannerItem[] = dbBannersData.data.map((b) => ({
         id: String(b.id),
         title: b.title,
@@ -369,122 +369,135 @@ export default function BannerManagementScreen() {
 
       {/* ─── LIVE HERO BANNER PREVIEW (EXACT REFERENCE DESIGN) ─── */}
       <div className="mb-8 bg-white rounded-2xl border shadow-sm p-6" style={{ borderColor: COLORS.border }}>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <h2 className="text-sm font-bold uppercase tracking-wider text-gray-700">
-              Live Storefront Preview
-            </h2>
-            <span className="text-xs text-gray-400">
-              (Viewing: <span className="font-semibold text-gray-800">{previewBanner?.title.split('\n')[0]}</span>)
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500 font-medium">Select to preview:</span>
-            <select
-              value={previewBanner?.id}
-              onChange={(e) => setPreviewBannerId(e.target.value)}
-              className="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 bg-gray-50 font-medium text-gray-700 focus:outline-none"
-            >
-              {banners.map((b, i) => (
-                <option key={b.id} value={b.id}>
-                  #{i + 1} - {b.title.split('\n')[0]} ({b.status})
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Live Banner Render Frame */}
-        <div
-          className="relative w-full rounded-xl overflow-hidden border border-gray-200 shadow-md select-none"
-          style={{
-            height: 'clamp(240px, 28vw, 360px)',
-          }}
-        >
-          {/* Background Image */}
-          {previewBanner?.image ? (
-            <img
-              src={previewBanner.image}
-              alt={previewBanner.title}
-              className="absolute inset-0 w-full h-full object-cover object-center"
-            />
-          ) : (
-            <div className="absolute inset-0 w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-              No banner image selected
-            </div>
-          )}
-
-          {/* Diagonal Frosted Light Polygon */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                'linear-gradient(90deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.82) 42%, rgba(255,255,255,0.45) 60%, rgba(255,255,255,0) 100%)',
-              clipPath: 'polygon(0 0, 64% 0, 46% 100%, 0 100%)',
-              backdropFilter: 'blur(1.5px)',
-              WebkitBackdropFilter: 'blur(1.5px)',
-            }}
-          />
-
-          {/* Text Content */}
-          <div className="relative z-10 h-full max-w-[1200px] mx-auto px-6 sm:px-10 flex flex-col justify-center">
-            <div className="max-w-[480px]">
-              <h3
-                className="text-xl sm:text-2xl md:text-3xl font-normal tracking-tight text-[#17171a] leading-[1.18] whitespace-pre-line"
-                style={{ fontFamily: "'Montserrat', sans-serif" }}
-              >
-                {previewBanner.title}
-              </h3>
-              <div className="mt-3 sm:mt-4">
-                <span
-                  className="inline-flex items-center gap-1.5 text-xs sm:text-sm md:text-base font-medium"
-                  style={{ color: previewBanner.accentColor || '#1e73be' }}
-                >
-                  <span>{previewBanner.subtitle || previewBanner.ctaText}</span>
-                  <span className="font-bold text-xs">&gt;</span>
+        {previewBanner ? (
+          <>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <h2 className="text-sm font-bold uppercase tracking-wider text-gray-700">
+                  Live Storefront Preview
+                </h2>
+                <span className="text-xs text-gray-400">
+                  (Viewing: <span className="font-semibold text-gray-800">{previewBanner.title.split('\n')[0]}</span>)
                 </span>
               </div>
-            </div>
-          </div>
 
-          {/* Bottom-Right Iconic Motif: Dynamic Navigation Slashes (////) */}
-          <div className="absolute bottom-0 right-0 z-20 pointer-events-none">
-            <div
-              className="min-w-[120px] h-20 relative px-4"
-              style={{
-                background:
-                  'linear-gradient(135deg, transparent 40%, rgba(30, 41, 59, 0.45) 85%, rgba(15, 23, 42, 0.65) 100%)',
-                clipPath: 'polygon(100% 0, 0 100%, 100% 100%)',
-              }}
-            >
-              <div className="absolute bottom-2.5 right-4 flex items-center gap-1.5 pointer-events-auto">
-                {banners.map((b, idx) => {
-                  const isActive = b.id === previewBanner?.id;
-                  return (
-                    <button
-                      key={b.id || idx}
-                      type="button"
-                      onClick={() => setPreviewBannerId(b.id)}
-                      className="cursor-pointer focus:outline-none transition-transform hover:scale-125 p-0.5"
-                      title={`Preview #${idx + 1}: ${b.title.split('\n')[0]}`}
-                    >
-                      <span
-                        className={`block w-1 sm:w-1.5 h-5 sm:h-6 rounded-xs transition-all ${
-                          isActive
-                            ? 'bg-[#38bdf8] shadow-[0_0_8px_rgba(56,189,248,0.9)] scale-y-110'
-                            : 'bg-white/80 hover:bg-white'
-                        }`}
-                        style={{ transform: 'skewX(-28deg)' }}
-                      />
-                    </button>
-                  );
-                })}
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500 font-medium">Select to preview:</span>
+                <select
+                  value={previewBanner.id}
+                  onChange={(e) => setPreviewBannerId(e.target.value)}
+                  className="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 bg-gray-50 font-medium text-gray-700 focus:outline-none"
+                >
+                  {banners.map((b, i) => (
+                    <option key={b.id} value={b.id}>
+                      #{i + 1} - {b.title.split('\n')[0]} ({b.status})
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
+
+            {/* Live Banner Render Frame */}
+            <div
+              className="relative w-full rounded-xl overflow-hidden border border-gray-200 shadow-md select-none"
+              style={{
+                height: 'clamp(240px, 28vw, 360px)',
+              }}
+            >
+              {/* Background Image */}
+              {previewBanner.image ? (
+                <img
+                  src={previewBanner.image}
+                  alt={previewBanner.title}
+                  className="absolute inset-0 w-full h-full object-cover object-center"
+                />
+              ) : (
+                <div className="absolute inset-0 w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+                  No banner image selected
+                </div>
+              )}
+
+              {/* Diagonal Frosted Light Polygon */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background:
+                    'linear-gradient(90deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.82) 42%, rgba(255,255,255,0.45) 60%, rgba(255,255,255,0) 100%)',
+                  clipPath: 'polygon(0 0, 64% 0, 46% 100%, 0 100%)',
+                  backdropFilter: 'blur(1.5px)',
+                  WebkitBackdropFilter: 'blur(1.5px)',
+                }}
+              />
+
+              {/* Text Content */}
+              <div className="relative z-10 h-full max-w-[1200px] mx-auto px-6 sm:px-10 flex flex-col justify-center">
+                <div className="max-w-[480px]">
+                  <h3
+                    className="text-xl sm:text-2xl md:text-3xl font-normal tracking-tight text-[#17171a] leading-[1.18] whitespace-pre-line"
+                    style={{ fontFamily: "'Montserrat', sans-serif" }}
+                  >
+                    {previewBanner.title}
+                  </h3>
+                  <div className="mt-3 sm:mt-4">
+                    <span
+                      className="inline-flex items-center gap-1.5 text-xs sm:text-sm md:text-base font-medium"
+                      style={{ color: previewBanner.accentColor || '#1e73be' }}
+                    >
+                      <span>{previewBanner.subtitle || previewBanner.ctaText}</span>
+                      <span className="font-bold text-xs">&gt;</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom-Right Iconic Motif: Dynamic Navigation Slashes (////) */}
+              <div className="absolute bottom-0 right-0 z-20 pointer-events-none">
+                <div
+                  className="min-w-[120px] h-20 relative px-4"
+                  style={{
+                    background:
+                      'linear-gradient(135deg, transparent 40%, rgba(30, 41, 59, 0.45) 85%, rgba(15, 23, 42, 0.65) 100%)',
+                    clipPath: 'polygon(100% 0, 0 100%, 100% 100%)',
+                  }}
+                >
+                  <div className="absolute bottom-2.5 right-4 flex items-center gap-1.5 pointer-events-auto">
+                    {banners.map((b, idx) => {
+                      const isActive = b.id === previewBanner.id;
+                      return (
+                        <button
+                          key={b.id || idx}
+                          type="button"
+                          onClick={() => setPreviewBannerId(b.id)}
+                          className="cursor-pointer focus:outline-none transition-transform hover:scale-125 p-0.5"
+                          title={`Preview #${idx + 1}: ${b.title.split('\n')[0]}`}
+                        >
+                          <span
+                            className={`block w-1 sm:w-1.5 h-5 sm:h-6 rounded-xs transition-all ${
+                              isActive
+                                ? 'bg-[#38bdf8] shadow-[0_0_8px_rgba(56,189,248,0.9)] scale-y-110'
+                                : 'bg-white/80 hover:bg-white'
+                            }`}
+                            style={{ transform: 'skewX(-28deg)' }}
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="py-12 text-center">
+            <h2 className="text-lg font-bold text-gray-900">No banner to preview</h2>
+            <p className="mt-2 text-sm text-gray-500">Add a banner to see the storefront preview.</p>
+            <Button variant="primary" size="md" onClick={handleOpenAdd} className="mt-4">
+              <Plus className="w-4 h-4 mr-1.5" />
+              Add New Banner
+            </Button>
           </div>
-        </div>
+        )}
       </div>
 
       {/* ─── Filters & Search Bar ─── */}
@@ -533,7 +546,7 @@ export default function BannerManagementScreen() {
       {/* ─── Banner Cards Grid ─── */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredBanners.map((banner, index) => {
-          const isSelectedForPreview = banner.id === previewBanner.id;
+          const isSelectedForPreview = banner.id === previewBanner?.id;
 
           return (
             <div
