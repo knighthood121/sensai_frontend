@@ -1,444 +1,123 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, no-constant-binary-expression -- catalog data is shared with the existing API layer */
-import { useState, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
-import {
-  ArrowRight, BadgeCheck, Bolt, Boxes, Check, ChevronRight, CircleDot,
-  Drill, Gauge, Headphones, Heart, Hexagon, Nut, PackageCheck,
-  ShieldCheck, Sparkles, Star, Truck, Wrench, X,
-} from 'lucide-react';
+import { useEffect, useState, type CSSProperties, type KeyboardEvent } from 'react';
+import { Link, useLocation, useSearchParams } from 'react-router-dom';
+import { ArrowRight, Building2, CarFront, ChevronRight, Headphones, Pill, Plane, ShieldCheck, Truck } from 'lucide-react';
 import Navbar from '../../../components/layout/Navbar';
 import Footer from '../../../components/layout/Footer';
-import HeroBanner from '../../../components/common/HeroBanner';
-import { useToast } from '../../../components/common/Toast';
-import type { LandingPageScreenProps } from './index';
+import ProductImage from '../../../components/common/ProductImage';
+import { useGetHomeQuery } from '../../../service/homeApi';
+import { useListProductsQuery } from '../../../service/productsApi';
+import type { Product } from '../../../types/Product.type';
+import { getCatalogPrice } from '../../../utils/catalogProduct';
+import PrecisionHero from './PrecisionHero';
+import './PrecisionHome.css';
 
-type CatalogItem = {
-  id: number;
-  name: string;
-  price: number;
-  oldPrice?: number;
-  kind: 'bolt' | 'screw' | 'nut' | 'washer' | 'bearing' | 'tool' | 'kit';
-  badge?: string;
-  rating?: number;
-  image?: string;
-};
-
-const testimonials = [
-  ['Harish M.', 'Super fast delivery and each size was labelled clearly. The quality is excellent.'],
-  ['Akash R.', 'Exactly the fasteners I needed for my workshop project. Great assortment and value.'],
-  ['Nitin S.', 'The dimensions are accurate and the finish is clean. I will order again.'],
-  ['Priya K.', 'Helpful support, secure packing and no missing pieces in the kit.'],
+const benefits = [
+  { icon: ShieldCheck, title: 'Uncompromising Quality', description: 'We deliver high-quality cutting tools engineered for precision and long service life.' },
+  { icon: Truck, title: 'Fast & Reliable Delivery', description: 'We ensure your order reaches you on time, keeping your operations running without downtime.' },
+  { icon: Headphones, title: 'Customer Support', description: 'Our knowledgeable team is always ready to help you choose the right solution for your machining needs.' },
+];
+const industries = [
+  { icon: CarFront, name: 'Automobile' }, { icon: Plane, name: 'Aviation' },
+  { icon: Pill, name: 'Pharmaceutical' }, { icon: Building2, name: 'Construction' },
 ];
 
-const money = (value: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(value);
-const categorySlug = (name: string) =>
-  name.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+function productPrice(product: Product) {
+  const price = getCatalogPrice(product);
+  return price === null ? 'Price on request' : price.toLocaleString('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 });
+}
 
-const kindFromName = (value: string): CatalogItem['kind'] => {
-  const name = value.toLowerCase();
-  if (/tool|drill|grinder|abrasive|brush|tap/.test(name)) return 'tool';
-  if (/bearing/.test(name)) return 'bearing';
-  if (/washer|spring|circlip|clamp/.test(name)) return 'washer';
-  if (/nut|insert|spacer|coupler|fitting/.test(name)) return 'nut';
-  if (/bolt|pin|rod|profile/.test(name)) return 'bolt';
-  if (/pack|kit|box|storage|safety|glue|tape|paint/.test(name)) return 'kit';
-  return 'screw';
-};
+function ToolDrawing() {
+  return <svg className="precision-cta__drawing" viewBox="0 0 600 360" fill="none" aria-hidden="true"><g stroke="currentColor" strokeWidth="1.2">
+    <circle cx="355" cy="242" r="118" /><circle cx="355" cy="242" r="105" /><circle cx="355" cy="242" r="86" /><circle cx="355" cy="242" r="66" /><circle cx="355" cy="242" r="27" />
+    <path d="m-40 350 294-124m187-125 192-85M460 173l173-82M343 124l16-114 59-32 63 72-22 133-72 35-9-79-35-15ZM365 122l15-78 28-14 33 32-16 104-29 12-1-44-30-12Z" />
+    <path d="M237 242h236M355 124v236m-19-117 38-2m-20-19 2 40m-81-110 23 21m117 140 21 21M254 300l28-18m148-98 28-17" />
+    <path strokeDasharray="7 7" d="M355 66v294M174 242h362M260 162l185 160" /><path d="m260 154-18-26 50-29 10 30M234 223l-23-4-1 42 25-2m18 50-18 18 36 31 15-23M430 326l15 19 30-42-18-12" />
+  </g></svg>;
+}
 
-export default function LandingPageScreen(p: LandingPageScreenProps) {
-  const navigate = useNavigate();
-  const { showToast } = useToast();
-  const [sent, setSent] = useState(false);
-  const [showNewsletterModal, setShowNewsletterModal] = useState(false);
-  const [newsletterEmail, setNewsletterEmail] = useState('');
-  const visibleCategories = (p.categories || []).map((category) => ({
-    name: category.name,
-    slug: category.slug || categorySlug(category.name),
-    kind: kindFromName(category.name),
-    image: category.image || undefined,
-  }));
+export default function LandingPageScreen() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const home = useGetHomeQuery(undefined, { refetchOnMountOrArgChange: true, refetchOnFocus: true, pollingInterval: 60000 });
+  const categories = home.data?.data?.categories ?? [];
+  const requestedCategory = searchParams.get('operation');
+  const category = categories.find((item) => item.slug === requestedCategory) ?? categories[0];
+  const productQuery = useListProductsQuery({ categoryId: category?.id, page: 1, limit: 5, sortBy: 'createdAt', sortOrder: 'desc' }, { skip: home.isLoading, refetchOnMountOrArgChange: true, refetchOnFocus: true });
+  const products = productQuery.currentData?.data ?? [];
+  const [featured, ...remaining] = products;
+  const categoryPath = category ? `/category/${category.slug}` : '/catalog';
+  const [horizontalTabs, setHorizontalTabs] = useState(() => window.matchMedia('(max-width: 680px)').matches);
 
-  const liveItems: CatalogItem[] = (p.displayProducts || [])
-    .filter((product) => Number(product.id) < 9990)
-    .map((product) => ({
-      id: product.id,
-      name: product.name,
-      price: Number(product.sellingPrice ?? product.discountPrice ?? product.basePrice ?? 0),
-      oldPrice:
-        Number(product.basePrice || 0) >
-          Number(product.sellingPrice ?? product.discountPrice ?? product.basePrice ?? 0)
-          ? Number(product.basePrice)
-          : undefined,
-      kind: kindFromName(`${product.category?.name || ''} ${product.name}`),
-      badge: product.isBestSeller ? 'BESTSELLER' : product.isNewArrival ? 'NEW' : undefined,
-      rating: Number(product.averageRating || 0),
-      image: product.images?.find((image: any) => image.isPrimary)?.imageUrl || product.images?.[0]?.imageUrl,
-    }));
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 680px)');
+    const update = () => setHorizontalTabs(query.matches);
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
 
-  const productsFor = (matcher: RegExp, count: number) => {
-    const matches = liveItems.filter((item) => matcher.test(`${item.name} ${item.kind}`));
-    return matches.slice(0, count);
+  useEffect(() => {
+    if (!location.hash) return;
+    const frame = requestAnimationFrame(() => document.getElementById(location.hash.slice(1))?.scrollIntoView());
+    return () => cancelAnimationFrame(frame);
+  }, [location.hash]);
+
+  const selectCategory = (slug: string) => {
+    const next = new URLSearchParams(searchParams);
+    next.set('operation', slug);
+    setSearchParams(next, { replace: true, preventScrollReset: true });
   };
-  const homepageSpecialtyBits = productsFor(/flat wood|masonry|glass|tile|tap/i, 8);
-  const openCatalogItem = (item: CatalogItem) => {
-    navigate(`/product/${item.id}`);
+  const handleTabKey = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+    let next = index;
+    if (event.key === 'ArrowDown' || event.key === 'ArrowRight') next = (index + 1) % categories.length;
+    else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') next = (index + categories.length - 1) % categories.length;
+    else if (event.key === 'Home') next = 0;
+    else if (event.key === 'End') next = categories.length - 1;
+    else return;
+    event.preventDefault();
+    selectCategory(categories[next].slug);
+    document.getElementById(`operation-${categories[next].id}`)?.focus();
   };
+  const productImage = (product: Product) => product.images?.find((image) => image.isPrimary) ?? product.images?.[0];
+  const renderProduct = (product: Product) => <Link className="precision-product-card" key={product.id} to={`/product/${product.id}`}>
+    <div className="precision-product-card__image"><ProductImage src={productImage(product)?.imageUrl} alt={productImage(product)?.altText || product.name} /></div>
+    <div className="precision-product-card__label"><h3>{product.name}</h3><ArrowRight size={22} aria-hidden="true" /></div>
+    <p className="precision-product-card__price">{productPrice(product)}</p>
+  </Link>;
 
-  const handleNewsletterSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (!newsletterEmail.trim()) {
-      showToast('Please enter your email address.', 'error');
-      return;
-    }
-    showToast('Thank you for subscribing to the Walter newsletter!', 'success');
-    setNewsletterEmail('');
-    setShowNewsletterModal(false);
-  };
-
-  return (
-    <div className="min-h-screen bg-white font-sans text-[#17171a]">
-      <Navbar onLoginClick={p.onLoginClick} />
-      <main>
-
-        {/* ─── High-Precision Swiss Tooling Hero Banner (Matching Reference Design) ─── */}
-        <HeroBanner banners={p.banners && p.banners.length > 0 ? p.banners : []} />
-
-        {/* <section className="border-b border-gray-200 bg-white py-14 sm:py-20">
-          <div className="mx-auto grid max-w-[1600px] grid-cols-3 items-center gap-10 px-6 text-center font-black text-gray-500 sm:grid-cols-6">
-            {['DELHIVERY', 'adomberg', 'PHILIPS', 'ZOHO', 'ULTRAVIOLETTE', 'ATHER'].map((brand, index) => <span key={brand} className={`${index === 0 ? 'font-mono' : ''} text-base tracking-tight sm:text-xl lg:text-3xl`}>{brand}</span>)}
-          </div>
-        </section> */}
-
-        <section id="categories-grid" className="py-16 sm:py-20 bg-white">
-          <div className="mx-auto max-w-[1500px] px-6 lg:px-8">
-            {/* <h2 className="text-4xl font-normal tracking-tight sm:text-5xl lg:text-[58px]">Drill Bits and Taps</h2> */}
-            <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-5 lg:gap-6">
-              {visibleCategories.map((category, index) => (
-                <button
-                  key={category.slug}
-                  onClick={() => navigate(`/category/${category.slug}`)}
-                  className="group flex flex-col items-center text-center cursor-pointer focus:outline-none"
-                >
-                  <span className="mb-4 block text-center text-lg font-normal text-gray-900 transition-colors group-hover:text-black sm:text-xl lg:text-[22px]">
-                    {category.name}
-                  </span>
-                  <span className="mx-auto flex aspect-square w-full items-center justify-center overflow-hidden bg-black p-6 transition duration-300 group-hover:scale-[1.02] sm:p-8">
-                    {category.image ? (
-                      <img
-                        src={category.image}
-                        alt={category.name}
-                        className="h-full w-full object-contain"
-                      />
-                    ) : (
-                      <CategorySymbol kind={category.kind} index={index} />
-                    )}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {false && <>
-          <section className="relative min-h-[390px] overflow-hidden bg-[#faf8f8] sm:min-h-[470px]">
-            <img src="/images/mechanical-hero.png" alt="Mechanical fasteners and a cordless drill" className="absolute inset-0 h-full w-full object-cover object-[66%_center]" />
-            <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/72 to-transparent" />
-            <div className="relative mx-auto flex min-h-[390px] max-w-7xl items-center px-5 py-14 sm:min-h-[470px] lg:px-8">
-              <div className="max-w-xl">
-                <p className="text-[11px] font-black uppercase tracking-[.22em] text-red-600">India's fastener & tools store</p>
-                <h1 className="mt-4 text-4xl font-black leading-[.96] tracking-[-.04em] sm:text-6xl">Built to hold.<br /><span className="text-red-600">Made to last.</span></h1>
-                <p className="mt-5 max-w-md text-sm leading-7 text-gray-600 sm:text-base">Precision screws, nuts, bolts, bearings and workshop tools—carefully selected and delivered across India.</p>
-                <div className="mt-7 flex flex-wrap gap-3">
-                  <button onClick={() => document.getElementById('shop')?.scrollIntoView({ behavior: 'smooth' })} className="flex items-center gap-2 bg-red-600 px-6 py-3 text-sm font-extrabold text-white transition hover:bg-red-700">Shop fasteners <ArrowRight size={16} /></button>
-                  <button onClick={() => document.getElementById('categories-grid')?.scrollIntoView({ behavior: 'smooth' })} className="border border-gray-900 bg-white/80 px-6 py-3 text-sm font-extrabold">Explore categories</button>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section className="border-y border-gray-200 bg-white py-7">
-            <p className="text-center text-[9px] font-black uppercase tracking-[.22em] text-gray-400">Trusted by industry leaders</p>
-            <div className="mx-auto mt-5 grid max-w-5xl grid-cols-3 items-center gap-5 px-5 text-center text-sm font-black tracking-tight text-gray-400 sm:grid-cols-6">
-              {['UST', 'METRIX', 'hyperpure', 'DELHIVERY', 'adember', 'PHILIPS'].map((brand) => <span key={brand}>{brand}</span>)}
-            </div>
-          </section>
-
-          <section id="categories-grid" className="py-14 sm:py-16">
-            <div className="mx-auto max-w-7xl px-5 lg:px-8">
-              <h2 className="text-2xl font-black tracking-tight sm:text-3xl">Drill Bits and Taps</h2>
-              <p className="mt-2 text-sm text-gray-500">Everything for making, fixing and building—organized so you can find it fast.</p>
-              <div className="mt-8 grid grid-cols-3 gap-x-3 gap-y-8 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-9">
-                {visibleCategories.map((category) => (
-                  <button key={category.slug} onClick={() => navigate(`/category/${category.slug}`)} className="group text-center">
-                    <span className="mx-auto grid h-16 w-16 place-items-center rounded-full border border-gray-200 bg-[#fafafa] text-gray-700 transition group-hover:-translate-y-1 group-hover:border-red-400 group-hover:text-red-600 group-hover:shadow-md sm:h-20 sm:w-20"><HardwareIcon kind={category.kind} size={30} /></span>
-                    <b className="mt-2.5 block text-[11px] leading-4">{category.name}</b>
-                    <small className="text-[8px] text-gray-400">Click here →</small>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </section>
-
-        </>}
-        <section className="bg-gray-50 py-14">
-          <div className="mx-auto max-w-7xl px-5 lg:px-8">
-            <div className="text-center"><h2 className="text-xl font-black">Let customers speak for us</h2><p className="mt-1 text-xs text-gray-400">from 1,200+ verified reviews</p></div>
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {testimonials.map(([name, copy]) => <article key={name} className="bg-white p-5 shadow-sm"><div className="flex text-amber-400">{[0, 1, 2, 3, 4].map(i => <Star key={i} size={12} fill="currentColor" />)}</div><p className="mt-3 text-xs leading-5 text-gray-600">“{copy}”</p><b className="mt-4 block text-xs">{name}</b><small className="flex items-center gap-1 text-[9px] text-emerald-600"><BadgeCheck size={11} /> Verified buyer</small></article>)}
-            </div>
-          </div>
-        </section>
-
-        {/* ─── Walter Newsletter & Registration Section (Image 2) ─── */}
-        <section className="bg-black text-white py-14 sm:py-20 lg:py-24 border-y border-neutral-900">
-          <div className="mx-auto max-w-[1500px] px-6 lg:px-12">
-            <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-0">
-              
-              {/* Left Column: Walter Newsletter */}
-              <div className="flex flex-col items-center text-center justify-center lg:px-12">
-                <p className="text-[#3d7f35] font-semibold text-lg sm:text-xl tracking-normal">
-                  Walter Newsletter
-                </p>
-                <h2 className="mt-2 text-2xl sm:text-3xl lg:text-[32px] font-bold text-white tracking-tight">
-                  Make sure you stay up to date!
-                </h2>
-                <p className="mt-6 max-w-lg text-xs sm:text-[14px] leading-relaxed text-white">
-                  With the Walter newsletter, you&apos;ll be able find out everything you need to know about Walter, our products, our services and current trends in the industry.
-                  <br className="hidden sm:inline" />
-                  {' '}Register now and find out more.
-                </p>
-                <button
-                  onClick={() => setShowNewsletterModal(true)}
-                  className="mt-8 bg-[#3d7f35] hover:bg-[#32692c] text-white px-8 py-3 text-sm sm:text-base font-semibold transition-colors duration-200 cursor-pointer"
-                >
-                  Sign up now
-                </button>
-              </div>
-
-              {/* Vertical Dotted Divider for Desktop */}
-              <div className="hidden lg:block absolute left-1/2 top-2 bottom-2 w-[1px] border-r border-dotted border-gray-600 -translate-x-1/2 pointer-events-none" />
-
-              {/* Right Column: User Registration */}
-              <div className="flex flex-col items-center justify-center lg:px-12 border-t border-dotted border-gray-700 pt-10 lg:border-t-0 lg:pt-0">
-                <h2 className="text-2xl sm:text-3xl lg:text-[32px] font-bold text-white tracking-tight text-center">
-                  Not a user yet? Register now!
-                </h2>
-
-                <div className="mt-8 w-full max-w-xl">
-                  <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
-                    {/* "Why register?" */}
-                    <div className="sm:w-[35%] sm:text-right pt-1 sm:pt-4">
-                      <span className="text-white text-xl sm:text-2xl font-normal whitespace-nowrap">
-                        Why register?
-                      </span>
-                    </div>
-
-                    {/* Dotted line between Why register and bullet list */}
-                    <div className="hidden sm:block w-[1px] border-r border-dotted border-gray-500 self-stretch my-1" />
-
-                    {/* Bullet list */}
-                    <div className="sm:w-[65%] text-left">
-                      <p className="text-xs sm:text-[13px] text-white leading-relaxed">
-                        As a registered user of the Walter web platform, you can log in directly and immediately benefit from exclusive content and advantages such as:
-                      </p>
-                      <ul className="mt-3 space-y-1.5 text-xs sm:text-[13px] text-white">
-                        <li className="flex items-start gap-2">
-                          <span className="text-gray-300 select-none text-[10px] mt-0.5">▸</span>
-                          <span>Free access to product data</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-gray-300 select-none text-[10px] mt-0.5">▸</span>
-                          <span>Download of Walter white papers</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-gray-300 select-none text-[10px] mt-0.5">▸</span>
-                          <span>Extended functions of the Walter online catalogue</span>
-                        </li>
-                      </ul>
-
-                      {/* Log in and Register buttons */}
-                      <div className="mt-8 flex flex-wrap items-center gap-4">
-                        <button
-                          onClick={() => navigate('/login')}
-                          className="bg-[#3d7f35] hover:bg-[#32692c] text-white px-8 py-2.5 text-sm sm:text-base font-semibold transition-colors duration-200 cursor-pointer"
-                        >
-                          Log in
-                        </button>
-                        <button
-                          onClick={() => navigate('/signup')}
-                          className="border border-[#3d7f35] text-[#4ea843] hover:text-white hover:bg-[#3d7f35] px-8 py-2.5 text-sm sm:text-base font-semibold transition-colors duration-200 cursor-pointer"
-                        >
-                          Register
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-            </div>
-          </div>
-        </section>
-
-        <ProductSection id="shop" title="Specialty Drill Bits & Taps" eyebrow="BUILT FOR EVERY MATERIAL" items={homepageSpecialtyBits} onOpen={openCatalogItem} />
-
-        <section className="bg-[#111214] py-14 text-white">
-          <div className="mx-auto max-w-7xl px-5 lg:px-8">
-            <h2 className="text-2xl font-black">Blog posts</h2>
-            <div className="mt-7 grid gap-5 md:grid-cols-3">
-              {[
-                ['Choose the right bit', 'How to Select the Right Drill Bit', 'Match the drill bit to metal, wood, masonry, glass or tile.', '/images/drill-bits/hss-drill-bit.png'],
-                ['Drill wood cleanly', 'A Practical Guide to Flat Wood Bits', 'Choose the correct spade-bit size and make cleaner holes in wood.', '/images/drill-bits/flat-wood-drill-bit.png'],
-                ['Drill tough surfaces', 'Tips for Masonry, Glass and Tile', 'Use the right tip, speed and pressure for brittle or abrasive materials.', '/images/drill-bits/masonry-drill-bit.png'],
-              ].map(([tag, title, copy, image]) => <article key={title} className="overflow-hidden border border-white/10 bg-[#1b1c20]"><div className="aspect-[16/8] overflow-hidden bg-white"><img src={image} alt={title} className="h-full w-full object-contain" /></div><div className="p-5"><small className="font-black uppercase tracking-widest text-red-500">{tag}</small><h3 className="mt-2 text-lg font-extrabold leading-6">{title}</h3><p className="mt-3 text-xs leading-5 text-gray-400">{copy}</p><button className="mt-5 flex items-center gap-2 text-xs font-bold text-red-500 hover:text-red-400">Read article <ArrowRight size={13} /></button></div></article>)}
-            </div>
-          </div>
-        </section>
-
-        <section className="mx-auto grid max-w-7xl grid-cols-2 border-x border-gray-200 md:grid-cols-4">
-          {[[ShieldCheck, 'Best price'], [PackageCheck, 'No MOQ'], [Truck, 'Fast shipping'], [Sparkles, 'Best quality']].map(([Icon, title]: any) => <div key={title} className="border-b border-r border-gray-200 py-9 text-center"><Icon className="mx-auto text-red-600" size={31} /><b className="mt-3 block text-xs">{title}</b></div>)}
-        </section>
-
-        <section id="bulk-inquiry" className="bg-[#17171a] py-16 text-white">
-          <div className="mx-auto grid max-w-5xl gap-10 px-5 lg:grid-cols-[.85fr_1.15fr] lg:px-8">
-            <div><p className="text-xs font-black tracking-[.2em] text-red-500">FOR BULK ORDERS</p><h2 className="mt-3 text-3xl font-black">Found your part?<br />Tell us the quantity.</h2><p className="mt-4 text-sm leading-7 text-gray-300">Share your specifications or bill of materials and our team will reply with availability and pricing.</p><p className="mt-6 flex gap-3 text-sm text-gray-300"><Headphones className="text-red-500" size={20} /> Real support from product specialists</p></div>
-            <form onSubmit={(event: FormEvent<HTMLFormElement>) => { event.preventDefault(); setSent(true); event.currentTarget.reset(); }} className="grid gap-3 sm:grid-cols-2">
-              <input required placeholder="Your full name" className="bg-white/10 px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-red-500" />
-              <input required type="email" placeholder="Email address" className="bg-white/10 px-4 py-3 text-sm outline-none focus:ring-1 focus:ring-red-500" />
-              <input placeholder="Phone number" className="bg-white/10 px-4 py-3 text-sm outline-none sm:col-span-2" />
-              <textarea required rows={4} placeholder="Part, size, material and quantity required" className="bg-white/10 px-4 py-3 text-sm outline-none sm:col-span-2" />
-              <button className="bg-red-600 hover:bg-red-700 px-5 py-3 text-sm font-extrabold sm:col-span-2 transition-colors">Send requirement</button>
-              {sent && <p className="flex gap-2 text-xs text-emerald-300 sm:col-span-2"><Check size={15} /> Thanks—your requirement has been recorded.</p>}
-            </form>
-          </div>
-        </section>
-      </main>
-
-      {/* Newsletter Signup Modal */}
-      {showNewsletterModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-          <div className="relative w-full max-w-md border border-neutral-700 bg-[#121316] p-6 sm:p-8 text-white shadow-2xl">
-            <button
-              onClick={() => setShowNewsletterModal(false)}
-              className="absolute right-4 top-4 text-gray-400 hover:text-white cursor-pointer"
-              aria-label="Close"
-            >
-              <X size={20} />
-            </button>
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#3d7f35]">
-              Walter Newsletter
-            </p>
-            <h3 className="mt-2 text-xl font-bold text-white">
-              Make sure you stay up to date!
-            </h3>
-            <p className="mt-2 text-xs leading-relaxed text-gray-300">
-              With the Walter newsletter, you&apos;ll be able find out everything you need to know about Walter, our products, our services and current trends in the industry.
-            </p>
-            <form onSubmit={handleNewsletterSubmit} className="mt-5 space-y-4">
-              <div>
-                <label className="block text-[11px] font-medium text-gray-300 mb-1">
-                  Email address
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={newsletterEmail}
-                  onChange={(e) => setNewsletterEmail(e.target.value)}
-                  placeholder="you@company.com"
-                  className="w-full bg-[#1e2025] border border-neutral-700 px-3.5 py-2.5 text-sm text-white placeholder-gray-500 outline-none focus:border-[#3d7f35]"
-                />
-              </div>
-              <div className="flex items-center justify-end gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowNewsletterModal(false)}
-                  className="px-4 py-2 text-xs font-medium text-gray-400 hover:text-white cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="bg-[#3d7f35] hover:bg-[#32692c] px-6 py-2.5 text-xs font-bold text-white transition-colors cursor-pointer"
-                >
-                  Subscribe
-                </button>
-              </div>
-            </form>
+  return <div className="precision-home" id="top">
+    <a className="precision-skip-link" href="#main-content">Skip to content</a>
+    <Navbar />
+    <main id="main-content">
+      <PrecisionHero banners={home.data?.data?.banners ?? []} loading={home.isLoading} error={home.isError} onRetry={() => void home.refetch()} />
+      <section className="precision-statement" aria-labelledby="precision-statement-heading"><div className="precision-container">
+        <h2 id="precision-statement-heading">Precision. <span>Durability.</span> Reliability.</h2><p>Dependable cutting tools for demanding machining operations.</p>
+      </div></section>
+      <section className="precision-products" id="products" aria-labelledby="precision-products-heading"><div className="precision-container">
+        <div className="precision-products__heading"><div><p className="precision-eyebrow">Our Products</p><h2 id="precision-products-heading" className="precision-section-heading">The right tool. Every operation.</h2></div><Link to="/catalog" className="precision-text-link">All products <ArrowRight size={18} /></Link></div>
+        <div className={`precision-showcase${categories.length ? '' : ' precision-showcase--no-tabs'}`}>
+          {categories.length > 0 && <div className="precision-operation-tabs" role="tablist" aria-label="Product categories" aria-orientation={horizontalTabs ? 'horizontal' : 'vertical'}>
+            {categories.map((item, index) => <button type="button" role="tab" id={`operation-${item.id}`} key={item.id} aria-selected={category?.id === item.id} aria-controls="precision-product-panel" tabIndex={category?.id === item.id ? 0 : -1} className={category?.id === item.id ? 'is-selected' : ''} onClick={() => selectCategory(item.slug)} onKeyDown={(event) => handleTabKey(event, index)}>{item.name}<ChevronRight size={19} aria-hidden="true" /></button>)}
+          </div>}
+          <div className="precision-product-panel" id="precision-product-panel" role={category ? 'tabpanel' : undefined} aria-labelledby={category ? `operation-${category.id}` : 'precision-products-heading'} tabIndex={0} aria-busy={home.isLoading || productQuery.isFetching}>
+            {home.isLoading || productQuery.isFetching ? <div className="precision-products__state" role="status">Loading products?</div> : productQuery.isError ? <div className="precision-products__state" role="alert"><h3>Products could not be loaded.</h3><p>Please try again.</p><button className="precision-button" type="button" onClick={() => void productQuery.refetch()}>Retry products</button></div> : featured ? <>
+              <Link className="precision-featured-product" to={`/product/${featured.id}`}>
+                <div className="precision-featured-product__image"><ProductImage src={productImage(featured)?.imageUrl} alt={productImage(featured)?.altText || featured.name} /></div>
+                <div className="precision-featured-product__copy"><h3>{featured.name}</h3>{featured.shortDescription && <p>{featured.shortDescription}</p>}<p className="precision-product-card__price">{productPrice(featured)}</p><span className="precision-featured-product__link">View product <ArrowRight size={17} aria-hidden="true" /></span></div>
+              </Link>
+              {remaining.length > 0 && <div className="precision-product-grid" style={{ '--product-count': Math.min(4, remaining.length) } as CSSProperties} aria-label={`${category?.name ?? 'Latest'} products`}>{remaining.map(renderProduct)}</div>}
+            </> : <div className="precision-products__state" role="status"><h3>No products available{category ? ` in ${category.name}` : ''}.</h3><p>Explore the catalog or contact our team for help finding a tool.</p><Link to="/bulk-inquiry#inquiry-form" className="precision-text-link">Talk to our team <ArrowRight size={18} /></Link></div>}
           </div>
         </div>
-      )}
-
-      <Footer />
-    </div>
-  );
+        <div className="precision-products__more"><Link to={categoryPath} className="precision-button">View {category ? category.name : 'all products'} <ArrowRight size={18} /></Link></div>
+      </div></section>
+      <section className="precision-benefits" aria-labelledby="precision-benefits-heading"><div className="precision-container">
+        <h2 className="precision-eyebrow" id="precision-benefits-heading">Why Choose SANSEI</h2><div className="precision-benefit-list">{benefits.map(({ icon: Icon, title, description }) => <article className="precision-benefit" key={title}><Icon className="precision-benefit__icon" size={56} strokeWidth={1.6} aria-hidden="true" /><h3>{title}</h3><p>{description}</p></article>)}</div>
+      </div></section>
+      <section className="precision-industries" aria-labelledby="precision-industries-heading"><div className="precision-container">
+        <h2 className="precision-eyebrow" id="precision-industries-heading">Industries We Serve</h2><div className="precision-industry-grid">{industries.map(({ icon: Icon, name }) => <div className="precision-industry" key={name}><Icon size={43} strokeWidth={1.6} aria-hidden="true" /><h3>{name}</h3></div>)}</div>
+      </div></section>
+      <section className="precision-cta" aria-labelledby="precision-cta-heading"><ToolDrawing /><div className="precision-container precision-cta__content"><h2 id="precision-cta-heading">Ready to improve your<br />machining performance?</h2><Link to="/bulk-inquiry#inquiry-form" className="precision-button">Get Solutions</Link></div></section>
+    </main>
+    <Footer />
+  </div>;
 }
-
-function ProductSection({ id, dark = false, title, eyebrow, items, onOpen, compact = false }: { id?: string; dark?: boolean; title: string; eyebrow: string; items: CatalogItem[]; onOpen: (item: CatalogItem) => void; compact?: boolean }) {
-  return (
-    <section id={id} className={dark ? 'bg-[#111214] py-14 text-white' : 'bg-white py-14'}>
-      <div className="mx-auto max-w-7xl px-5 lg:px-8">
-        <p className="text-[9px] font-black tracking-[.22em] text-red-500">{eyebrow}</p>
-        <div className="mt-1 flex items-end justify-between gap-4">
-          <h2 className="text-2xl font-black sm:text-3xl">{title}</h2>
-          <button className="flex items-center gap-1 text-xs font-bold text-red-500 hover:text-red-400 transition-colors">View all <ChevronRight size={14} /></button>
-        </div>
-        <div className={`mt-8 grid grid-cols-2 gap-x-3 gap-y-8 sm:grid-cols-3 ${compact ? 'lg:grid-cols-4' : 'lg:grid-cols-5'}`}>
-          {items.map(item => <ProductCard key={item.id} item={item} dark={dark} onOpen={onOpen} compact={compact} />)}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function ProductCard({ item, dark, onOpen, compact }: { item: CatalogItem; dark: boolean; onOpen: (item: CatalogItem) => void; compact: boolean }) {
-  return (
-    <article className="group">
-      <button onClick={() => onOpen(item)} className={`relative grid w-full place-items-center overflow-hidden ${compact ? 'aspect-[4/3]' : 'aspect-square'} ${dark ? 'bg-[#f4f4f5]' : 'bg-gray-50'}`}>
-        <div className="absolute inset-3 border border-gray-200/70" />
-        {item.image ? (
-          <img src={item.image} alt={item.name} className="h-full w-full object-contain transition duration-300 group-hover:scale-[1.035]" />
-        ) : (
-          <ProductVisual kind={item.kind} />
-        )}
-        <span className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-white text-gray-500 shadow-sm"><Heart size={13} /></span>
-        {item.badge && <small className="absolute left-2 top-2 bg-red-600 px-2 py-1 text-[7px] font-black text-white">{item.badge}</small>}
-        <span className="absolute inset-x-2 bottom-2 translate-y-10 bg-black/90 py-2 text-[10px] font-bold text-white opacity-0 transition group-hover:translate-y-0 group-hover:opacity-100">Quick view</span>
-      </button>
-      <button onClick={() => onOpen(item)} className={`mt-3 line-clamp-2 min-h-10 text-left text-xs font-bold leading-5 ${dark ? 'text-gray-100' : 'text-gray-900'}`}>{item.name}</button>
-      <p className="mt-1 flex items-center gap-1 text-[10px] text-amber-400"><Star size={10} fill="currentColor" /> {item.rating || '4.8'} <span className="text-gray-500">(verified)</span></p>
-      <p className="mt-1.5 text-sm"><b>{money(item.price)}</b>{item.oldPrice && <small className="ml-2 text-gray-500 line-through">{money(item.oldPrice)}</small>}</p>
-      <div className={`mt-3 flex h-7 items-center justify-between border text-[10px] ${dark ? 'border-white/15' : 'border-gray-200'}`}><button className="h-full px-3">−</button><span>1</span><button className="h-full px-3">+</button></div>
-    </article>
-  );
-}
-
-
-function CategorySymbol({ kind, index }: { kind: CatalogItem['kind']; index: number }) {
-  if (index === 0) return <span className="relative block h-20 w-20 rounded-full border-[5px] border-white"><span className="absolute left-0 top-1/2 h-[10px] w-full -translate-y-1/2 bg-white" /></span>;
-  if (index === 1) return <span className="grid h-20 w-20 place-items-center rounded-full border-[5px] border-white text-white"><X size={52} strokeWidth={5} /></span>;
-  if (index === 2) return <span className="grid h-20 w-20 place-items-center rounded-full border-[5px] border-white text-white"><Hexagon size={44} fill="currentColor" /></span>;
-  if (index === 3) return <span className="relative block h-20 w-20 rounded-full border-[5px] border-white"><span className="absolute left-1/2 top-0 h-full w-[10px] -translate-x-1/2 bg-white" /><span className="absolute left-1/2 top-1/2 h-[10px] w-12 -translate-x-1/2 -translate-y-1/2 bg-white" /></span>;
-  if (index === 4) return <span className="grid h-20 w-20 place-items-center rounded-full border-[5px] border-white text-white"><Star size={48} fill="currentColor" strokeWidth={2} /></span>;
-  if (index === 5) return <Hexagon size={80} fill="currentColor" strokeWidth={1} className="text-white" />;
-  return <div className="text-white"><HardwareIcon kind={kind} size={70} /></div>;
-}
-
-function ProductVisual({ kind }: { kind: CatalogItem['kind'] }) {
-  if (kind === 'kit') return <div className="relative grid h-28 w-36 grid-cols-4 gap-1 rounded-lg border-4 border-gray-700 bg-slate-100 p-2 shadow-xl">{Array.from({ length: 12 }, (_, i) => <span key={i} className="grid place-items-center rounded-sm border border-gray-300 bg-white"><Nut size={11} className="text-gray-600" /></span>)}</div>;
-  if (kind === 'tool') return <div className="relative -rotate-6 text-blue-600 drop-shadow-xl"><Drill size={92} strokeWidth={1.45} /><span className="absolute -bottom-2 right-0 h-5 w-10 rounded bg-gray-900" /></div>;
-  if (kind === 'bearing') return <div className="relative grid h-24 w-24 place-items-center rounded-full border-[13px] border-slate-400 bg-white shadow-xl before:absolute before:inset-1 before:rounded-full before:border before:border-slate-300"><div className="h-9 w-9 rounded-full border-[7px] border-slate-500" /></div>;
-  return <div className="text-gray-600 drop-shadow-lg"><HardwareIcon kind={kind} size={86} /></div>;
-}
-
-function HardwareIcon({ kind, size = 24 }: { kind: CatalogItem['kind']; size?: number }) {
-  const props = { size, strokeWidth: 1.45 };
-  if (kind === 'bolt') return <Bolt {...props} />;
-  if (kind === 'screw') return <Wrench {...props} />;
-  if (kind === 'nut') return <Hexagon {...props} />;
-  if (kind === 'washer') return <CircleDot {...props} />;
-  if (kind === 'bearing') return <Gauge {...props} />;
-  if (kind === 'tool') return <Drill {...props} />;
-  return <Boxes {...props} />;
-}
-

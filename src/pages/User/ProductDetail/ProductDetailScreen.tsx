@@ -1,18 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- product and review records come from API response envelopes */
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
-  BadgeCheck, ChevronLeft, ChevronRight, Edit, Loader2,
-  PackageCheck, Share2, Star, ThumbsUp, Trash2, Truck, X,
+  BadgeCheck, Edit, Loader2,
+  Share2, Star, ThumbsUp, Trash2, X,
 } from 'lucide-react';
 import { FONTS } from '../../../constant/style';
 import Navbar from '../../../components/layout/Navbar';
 import Footer from '../../../components/layout/Footer';
+import ProductImage from '../../../components/common/ProductImage';
+import { selectedProductVariant } from '../../../utils/productSelection';
+import { getCartUnitPrice, getCatalogPrice, getVariantStock } from '../../../utils/catalogProduct';
+import type { ProductVariant } from '../../../types/Product.type';
 
 interface ProductDetailScreenProps {
   isProductLoading: boolean;
   isProductError: boolean;
   product: any;
+  variants: ProductVariant[];
   images: any[];
   relatedProducts: any[];
   videos: any[];
@@ -56,7 +61,7 @@ interface ProductDetailScreenProps {
 const money = (value: number) => new Intl.NumberFormat('en-IN', {
   style: 'currency',
   currency: 'INR',
-  maximumFractionDigits: 0,
+  maximumFractionDigits: 2,
 }).format(value);
 
 function Stars({ rating, size = 15 }: { rating: number; size?: number }) {
@@ -65,7 +70,7 @@ function Stars({ rating, size = 15 }: { rating: number; size?: number }) {
 
 export default function ProductDetailScreen(props: ProductDetailScreenProps) {
   const {
-    isProductLoading, isProductError, product, images, videos, relatedProducts,
+    isProductLoading, isProductError, product, variants, images, videos, relatedProducts,
     selectedImageIdx, setSelectedImageIdx, selectedSize, setSelectedSize,
     selectedColor, setSelectedColor, quantity, setQuantity, availableSizes,
     availableColors, handleAddToCart, handleBuyNow, isAuthenticated,
@@ -89,52 +94,37 @@ export default function ProductDetailScreen(props: ProductDetailScreenProps) {
     return <div className="min-h-screen bg-white" style={{ fontFamily: FONTS.main }}><Navbar /><div className="grid min-h-[55vh] place-items-center text-center"><div><h1 className="text-3xl font-medium">Product not found</h1><button onClick={() => navigate('/')} className="mt-5 bg-red-600 hover:bg-red-700 px-8 py-3 text-sm text-white transition-colors">Back to shop</button></div></div><Footer /></div>;
   }
 
-  const basePrice = Number(product.basePrice || 0);
-  const sellingPrice = Number(product.discountPrice ?? product.basePrice ?? 0);
+  const selectedVariant = selectedProductVariant(variants, selectedSize, selectedColor);
+  const basePrice = Number(product.basePrice);
+  const sellingPrice = selectedVariant ? getCartUnitPrice(product, selectedVariant) : null;
   const rating = Number(product.averageRating || 0);
-  const selectedVariant = (product.variants || []).find(
-    (variant: any) =>
-      (!selectedSize || variant.size === selectedSize) &&
-      (!selectedColor || variant.color === selectedColor),
-  ) || product.variants?.[0];
-  const stockCount = Math.max(
-    0,
-    Number(
-      selectedVariant
-        ? Number(selectedVariant.stock || 0) - Number(selectedVariant.reservedStock || 0)
-        : product.availableStock ?? product.totalStock ?? 0,
-    ),
-  );
+  const stockCount = selectedVariant ? getVariantStock(selectedVariant) : null;
+  const canPurchase = stockCount !== null && stockCount > 0 && sellingPrice !== null;
   const reviews = reviewsResponse?.data || [];
   const distribution = reviewsResponse?.ratingDistribution || { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
   const pagination = reviewsResponse?.pagination;
   const totalReviews = pagination?.total || product.reviewCount || 0;
-  const currentImage = images[selectedImageIdx]?.imageUrl || product.images?.[0]?.imageUrl || '/images/mechanical-hero.png';
+  const currentImage = images[selectedImageIdx]?.imageUrl || product.images?.[0]?.imageUrl;
   const specifications = [
     ['Material', product.material],
     ['Finish', product.finish],
     ['Dimensions', product.dimensions],
-    ['Pack', `${product.packQuantity || 1} ${product.unitOfMeasure || 'piece'}`],
+    ['Pack', product.packQuantity ? `${product.packQuantity} ${product.unitOfMeasure || ''}`.trim() : null],
   ].filter(([, value]) => value);
 
   const formatDate = (value: string) => new Date(value).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
 
   return <div className="min-h-screen bg-white text-[#242424]" style={{ fontFamily: FONTS.main }}>
     <Navbar />
-    <div className="relative flex h-[58px] items-center justify-center bg-[#121212] px-12 text-center text-xs tracking-[.05em] text-white sm:text-base">
-      <ChevronLeft className="absolute left-[10%] text-gray-500" size={18} />
-      Cash on Delivery is available on orders above ₹450 and below ₹800
-      <ChevronRight className="absolute right-[10%] text-gray-500" size={18} />
-    </div>
-
     <main className="mx-auto w-full max-w-[1500px] px-5 py-12 sm:px-8 lg:py-16">
+      <nav aria-label="Breadcrumb" className="mb-7 flex flex-wrap items-center gap-2 text-xs text-gray-500"><Link to="/catalog" className="hover:text-red-600">Products</Link>{product.category && <><span>/</span><Link to={`/category/${product.category.slug}`} className="hover:text-red-600">{product.category.name}</Link></>}<span>/</span><span aria-current="page">{product.name}</span></nav>
       <section className="grid items-start gap-10 lg:grid-cols-[1.05fr_.95fr] lg:gap-16 xl:gap-24">
         <div>
           <div className="aspect-square overflow-hidden bg-[#f5f5f5]">
-            <img src={currentImage} alt={product.name} className="h-full w-full object-cover" />
+            <ProductImage src={currentImage} alt={product.name} className="h-full w-full object-contain p-6" />
           </div>
           {images.length > 1 && <div className="mt-6 grid grid-cols-4 gap-3 sm:grid-cols-5">
-            {images.slice(0, 5).map((image, index) => <button key={image.id || image.imageUrl} onClick={() => setSelectedImageIdx(index)} className={`aspect-square overflow-hidden border ${selectedImageIdx === index ? 'border-red-600' : 'border-gray-200'}`}><img src={image.imageUrl} alt="" className="h-full w-full object-cover" /></button>)}
+            {images.slice(0, 5).map((image, index) => <button key={image.id || image.imageUrl} aria-label={`View product image ${index + 1}`} onClick={() => setSelectedImageIdx(index)} className={`aspect-square overflow-hidden border ${selectedImageIdx === index ? 'border-red-600' : 'border-gray-200'}`}><img src={image.imageUrl} alt="" className="h-full w-full object-cover" /></button>)}
           </div>}
           {videos.length > 0 && <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {videos.map((video) => <div key={video.id || video.videoUrl} className="overflow-hidden border border-gray-200 bg-black"><video src={video.videoUrl} poster={video.thumbnailUrl || undefined} controls preload="metadata" className="aspect-video w-full object-contain" /></div>)}
@@ -144,13 +134,13 @@ export default function ProductDetailScreen(props: ProductDetailScreenProps) {
         <div className="lg:sticky lg:top-44">
           <h1 className="max-w-2xl text-4xl font-normal leading-[1.15] tracking-[-.035em] sm:text-5xl">{product.name}</h1>
           <div className="mt-5 flex items-center gap-2"><Stars rating={rating} size={18} /><span className="text-sm text-gray-500">{totalReviews} reviews, average rating {rating.toFixed(1)}</span></div>
-          <p className="mt-5 text-xl">{money(sellingPrice)}</p>
-          {basePrice > sellingPrice && <p className="mt-1 text-sm text-gray-400 line-through">{money(basePrice)}</p>}
+          <p className="mt-5 text-xl">{sellingPrice === null ? 'Price on request' : money(sellingPrice)}</p>
+          {sellingPrice !== null && Number.isFinite(basePrice) && basePrice > sellingPrice && <p className="mt-1 text-sm text-gray-400 line-through">{money(basePrice)}</p>}
           <p className="mt-3 text-xs text-gray-500 underline underline-offset-4">Shipping calculated at checkout.</p>
           <p className="mt-5 text-sm font-semibold">Taxes calculated at checkout</p>
-          <div className={stockCount > 0 ? 'mt-5 inline-flex items-center gap-2 rounded-full border border-amber-400 bg-amber-50 px-3 py-1.5 text-sm font-bold text-amber-800' : 'mt-5 inline-flex items-center gap-2 rounded-full border border-red-300 bg-red-50 px-3 py-1.5 text-sm font-bold text-red-700'}>
-            <span className={stockCount > 0 ? 'h-3 w-3 rounded-full bg-amber-400' : 'h-3 w-3 rounded-full bg-red-500'} />
-            {stockCount > 0 ? `${stockCount} ${stockCount === 1 ? 'Piece' : 'Pieces'} in stock` : 'Out of stock'}
+          <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-gray-300 bg-gray-50 px-3 py-1.5 text-sm font-bold text-gray-800">
+            <span className={stockCount !== null && stockCount > 0 ? 'h-2 w-2 rounded-full bg-gray-900' : 'h-2 w-2 rounded-full bg-red-600'} />
+            {stockCount === null ? 'Availability on request' : stockCount > 0 ? `${stockCount} ${stockCount === 1 ? 'Piece' : 'Pieces'} in stock` : 'Out of stock'}
           </div>
 
           {availableSizes.length > 1 && <div className="mt-6"><p className="mb-2 text-xs text-gray-500">Size / Specification</p><div className="flex flex-wrap gap-2">{availableSizes.map(size => <button key={size} onClick={() => setSelectedSize(size)} className={`border px-4 py-2 text-xs ${selectedSize === size ? 'border-red-600 text-red-600' : 'border-gray-300'}`}>{size}</button>)}</div></div>}
@@ -158,22 +148,14 @@ export default function ProductDetailScreen(props: ProductDetailScreenProps) {
 
           <div className="mt-6">
             <p className="mb-2 text-xs text-gray-500">Quantity</p>
-            <div className="flex h-12 w-36 items-center justify-between border border-gray-400"><button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="h-full px-5 text-lg">−</button><span className="text-sm">{quantity}</span><button disabled={stockCount === 0 || quantity >= stockCount} onClick={() => setQuantity(Math.min(stockCount, quantity + 1))} className="h-full px-5 text-lg disabled:cursor-not-allowed disabled:text-gray-300">+</button></div>
+            <div className="flex h-12 w-36 items-center justify-between border border-gray-400"><button aria-label="Decrease quantity" disabled={quantity <= 1} onClick={() => setQuantity(Math.max(1, quantity - 1))} className="h-full px-5 text-lg disabled:text-gray-300">−</button><span className="text-sm">{quantity}</span><button aria-label="Increase quantity" disabled={!canPurchase || stockCount === null || quantity >= stockCount} onClick={() => stockCount !== null && setQuantity(Math.min(stockCount, quantity + 1))} className="h-full px-5 text-lg disabled:cursor-not-allowed disabled:text-gray-300">+</button></div>
           </div>
 
-          <div className="mt-6 space-y-4 text-sm leading-6 text-gray-600">
-            <p>Call / WhatsApp our Customer Support and Founders at <a href="tel:+919654996005" className="font-bold underline">+91 8867622930</a></p>
-            <p>For <b>bulk rates WhatsApp</b> us at <a href="https://wa.me/9654996005" className="font-bold underline">+91 8220974081</a></p>
-          </div>
+          <p className="mt-6 text-sm leading-6 text-gray-600">Need help with tool selection? <Link to={`/bulk-inquiry?${new URLSearchParams({ product: product.name }).toString()}#inquiry-form`} className="font-semibold text-red-600 underline">Contact our team</Link>.</p>
 
           <div className="mt-6 grid gap-3">
-            <button disabled={stockCount === 0} onClick={handleAddToCart} className="h-14 border border-gray-900 bg-white text-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:border-gray-300 disabled:text-gray-400">{stockCount > 0 ? 'Add to cart' : 'Out of stock'}</button>
-            <button disabled={stockCount === 0} onClick={handleBuyNow} className="h-14 bg-red-600 text-sm text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-gray-300">Buy It Now</button>
-          </div>
-
-          <div className="mt-4 border-2 border-red-600 p-5 text-center">
-            <p className="text-sm"><b>Free shipping</b> is only <b>Rs. 799.00</b> away!</p>
-            <div className="relative mt-5 h-2 rounded-full bg-gray-300"><div className="h-full w-[24%] rounded-full bg-gray-400" /><div className="absolute inset-x-0 -top-2 flex justify-between"><span className="grid h-6 w-6 place-items-center rounded-full border bg-white"><Truck size={13} /></span>{[1, 2, 3].map(item => <span key={item} className="grid h-6 w-6 place-items-center rounded-full border bg-white"><PackageCheck size={13} /></span>)}</div></div>
+            <button disabled={!canPurchase} onClick={handleAddToCart} className="h-14 border border-gray-900 bg-white text-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:border-gray-300 disabled:text-gray-400">{canPurchase ? 'Add to cart' : stockCount === 0 ? 'Out of stock' : 'Currently unavailable'}</button>
+            <button disabled={!canPurchase} onClick={handleBuyNow} className="h-14 bg-red-600 text-sm text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-gray-300">Buy It Now</button>
           </div>
 
           <div className="mt-8 space-y-5 text-sm leading-7 text-gray-600">
@@ -217,12 +199,12 @@ export default function ProductDetailScreen(props: ProductDetailScreenProps) {
         <h2 className="text-3xl font-normal">You may also like</h2>
         <div className="mt-8 grid grid-cols-2 gap-5 md:grid-cols-4">
           {relatedProducts.slice(0, 4).map((item: any) => {
-            const price = Number(item.discountPrice ?? item.basePrice ?? 0);
-            const image = item.images?.[0]?.imageUrl || '/images/mechanical-hero.png';
+            const price = getCatalogPrice(item);
+            const image = item.images?.[0]?.imageUrl;
             return <button key={item.id} onClick={() => navigate(`/product/${item.id}`)} className="text-left">
-              <div className="aspect-square overflow-hidden bg-gray-100"><img src={image} alt={item.name} className="h-full w-full object-cover transition duration-500 hover:scale-105" /></div>
+              <div className="aspect-square overflow-hidden bg-gray-100"><ProductImage src={image} alt={item.name} className="h-full w-full object-contain p-4 transition duration-500 hover:scale-105" /></div>
               <h3 className="mt-4 text-sm leading-5">{item.name}</h3>
-              <p className="mt-2 text-sm">{money(price)}</p>
+              <p className="mt-2 text-sm">{price === null ? 'Price on request' : money(price)}</p>
             </button>;
           })}
         </div>
@@ -251,11 +233,11 @@ function ReviewRow({ review, own = false, formatDate, onHelpful, onEdit, onDelet
     <div className="flex items-start justify-between gap-4">
       <div>
         <Stars rating={review.rating} size={16} />
-        <div className="mt-3 flex items-center gap-2 text-sm text-red-600"><span className="grid h-7 w-7 place-items-center border border-red-300">♙</span><b>{review.user?.name || (own ? 'Your review' : 'Verified customer')}</b>{review.verified && <span className="bg-red-600 px-1.5 py-0.5 text-[9px] font-bold text-white">Verified</span>}</div>
+        <div className="mt-3 flex items-center gap-2 text-sm text-red-600"><span className="grid h-7 w-7 place-items-center border border-red-300">♙</span><b>{review.user?.name || (own ? 'Your review' : 'Customer')}</b>{review.verified && <span className="bg-red-600 px-1.5 py-0.5 text-[9px] font-bold text-white">Verified</span>}</div>
       </div>
       <div className="flex items-center gap-3 text-xs text-gray-400"><span>{formatDate(review.createdAt)}</span>{own && onEdit && <button onClick={onEdit}><Edit size={14} /></button>}{own && onDelete && <button onClick={() => void onDelete(review.id)}><Trash2 size={14} /></button>}</div>
     </div>
-    <h4 className="mt-5 text-sm font-bold">{review.title || (review.rating >= 4 ? 'Excellent' : 'Customer review')}</h4>
+    <h4 className="mt-5 text-sm font-bold">{review.title || 'Customer review'}</h4>
     <p className="mt-3 max-w-5xl text-sm leading-6 text-gray-600">{review.comment || 'No written comment provided.'}</p>
     {review.images?.length > 0 && <div className="mt-4 flex gap-2">{review.images.map((image: string) => <img key={image} src={image} alt="" className="h-20 w-20 object-cover" />)}</div>}
     <button onClick={() => void onHelpful(review.id)} className="mt-4 flex items-center gap-2 text-xs text-gray-400"><ThumbsUp size={13} /> Helpful ({review.helpful || 0})</button>

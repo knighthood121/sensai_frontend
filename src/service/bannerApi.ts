@@ -1,18 +1,18 @@
 import { api } from './api';
 import { ENDPOINTS } from '../constant/urls';
+import type { Banner } from '../types/Home.type';
 
-export interface DbBanner {
-  id: number | string;
+export type DbBanner = Banner;
+
+export interface CreateBannerRequest {
   title: string;
   description?: string | null;
   imageUrl: string;
   linkUrl?: string | null;
-  isActive: boolean;
-  displayOrder: number;
+  isActive?: boolean;
+  displayOrder?: number;
   startDate?: string | null;
   endDate?: string | null;
-  createdAt?: string;
-  updatedAt?: string;
 }
 
 export interface BannerListResponse {
@@ -31,10 +31,10 @@ export const bannerApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getAdminBanners: builder.query<BannerListResponse, void>({
       query: () => ENDPOINTS.adminBanners.base,
-      providesTags: ['Banner', 'Home'],
+      providesTags: ['Banner'],
     }),
 
-    createBanner: builder.mutation<BannerSingleResponse, Partial<DbBanner>>({
+    createBanner: builder.mutation<BannerSingleResponse, CreateBannerRequest>({
       query: (body) => ({
         url: ENDPOINTS.adminBanners.base,
         method: 'POST',
@@ -43,7 +43,7 @@ export const bannerApi = api.injectEndpoints({
       invalidatesTags: ['Banner', 'Home'],
     }),
 
-    updateBanner: builder.mutation<BannerSingleResponse, { id: number | string; data: Partial<DbBanner> }>({
+    updateBanner: builder.mutation<BannerSingleResponse, { id: number | string; data: Partial<CreateBannerRequest> }>({
       query: ({ id, data }) => ({
         url: ENDPOINTS.adminBanners.byId(id),
         method: 'PUT',

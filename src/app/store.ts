@@ -1,4 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit';
+import { setupListeners } from '@reduxjs/toolkit/query';
 import { api } from '../service/api';
 import authReducer from '../Feature/Authentication/Slice';
 
@@ -12,6 +13,8 @@ export const store = configureStore({
       serializableCheck: false, // Turn off serializable check if necessary for file upload payloads
     }).concat(api.middleware),
 });
+
+setupListeners(store.dispatch);
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

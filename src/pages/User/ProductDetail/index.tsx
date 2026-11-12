@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../../../app/hooks';
 import { useGetProductDetailsQuery } from '../../../service/productsApi';
@@ -14,9 +14,16 @@ import {
 } from '../../../service/reviewApi';
 import { useToast } from '../../../components/common/Toast';
 import ProductDetailScreen from './ProductDetailScreen';
-import { addGuestCartItem } from '../../../utils/guestCart';
+import { addGuestCartItem, getGuestCart } from '../../../utils/guestCart';
+import { selectedProductVariant } from '../../../utils/productSelection';
+import { getCartUnitPrice, getCatalogImage, getVariantStock } from '../../../utils/catalogProduct';
 
 export default function ProductDetail() {
+  const { id } = useParams<{ id: string }>();
+  return <ProductDetailContent key={id} />;
+}
+
+function ProductDetailContent() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { showToast } = useToast();
@@ -80,17 +87,29 @@ export default function ProductDetail() {
   const [reviewComment, setReviewComment] = useState('');
   const [reviewImageInput, setReviewImageInput] = useState(''); // comma-separated image URLs
 
-  const availableSizes = Array.from(new Set(detailData?.variants?.map((s) => s.size) || []));
-  const availableColors = Array.from(new Set(detailData?.variants?.map((c) => c.color) || []));
+  const variants = useMemo(() => detailData?.variants || product?.variants || [], [detailData, product]);
+  const availableSizes = useMemo(() => Array.from(new Set(variants.map((variant) => variant.size))), [variants]);
+  const availableColors = useMemo(() => Array.from(new Set(variants.filter((variant) => variant.size === selectedSize).map((variant) => variant.color))), [variants, selectedSize]);
 
   useEffect(() => {
-    if (availableSizes.length > 0 && !selectedSize) {
-      setSelectedSize(availableSizes[0]);
+    if (variants.length > 0 && !selectedSize && !selectedColor) {
+      setSelectedSize(variants[0].size);
+      setSelectedColor(variants[0].color);
     }
-    if (availableColors.length > 0 && !selectedColor) {
-      setSelectedColor(availableColors[0]);
-    }
-  }, [availableSizes, availableColors, selectedSize, selectedColor]);
+  }, [variants, selectedSize, selectedColor]);
+
+  const selectSize = (size: string) => {
+    const option = variants.find((variant) => variant.size === size && variant.color === selectedColor)
+      || variants.find((variant) => variant.size === size);
+    setSelectedSize(size);
+    setSelectedColor(option?.color || '');
+    setQuantity(1);
+  };
+
+  const selectColor = (color: string) => {
+    setSelectedColor(color);
+    setQuantity(1);
+  };
 
   // Wishlist handler
   const handleWishlistToggle = async () => {
@@ -115,31 +134,42 @@ export default function ProductDetail() {
   const handleAddToCart = async () => {
     if (!product) return;
 
-    const variants = detailData?.variants || [];
-    const variant = variants.find((v: any) => v.size === selectedSize && v.color === selectedColor) || variants[0];
+    const variant = selectedProductVariant(variants, selectedSize, selectedColor);
 
     if (!variant?.id) {
       showToast('Product variants are unavailable.', 'error');
       return;
     }
 
+    const availableStock = getVariantStock(variant);
+    const existingQuantity = isAuthenticated ? 0 : getGuestCart().find((item) => item.productId === product.id && item.variantId === variant.id)?.quantity ?? 0;
+    if (!Number.isSafeInteger(quantity) || quantity < 1 || availableStock === null || quantity + existingQuantity > availableStock) {
+      showToast('The requested quantity is not available in stock.', 'error');
+      return;
+    }
+
+    const sellingPrice = getCartUnitPrice(product, variant);
+    if (sellingPrice === null) {
+      showToast('Pricing is unavailable. Please request a quote.', 'error');
+      return;
+    }
+
     if (!isAuthenticated) {
       // Guest user: save to localStorage cart
-      const sellingPrice = Number(variant.price ?? product.discountPrice ?? product.basePrice ?? 35);
       addGuestCartItem({
         productId: product.id,
         variantId: variant.id,
         quantity,
         productName: product.name,
         slug: product.slug,
-        image: detailData?.images?.[0]?.imageUrl || product.images?.[0]?.imageUrl || null,
-        price: Number(product.basePrice ?? sellingPrice),
-        discountPrice: product.discountPrice ? Number(product.discountPrice) : null,
+        image: getCatalogImage({ images: detailData?.images || product.images }),
+        price: Number(product.basePrice),
+        discountPrice: product.discountPrice == null ? null : Number(product.discountPrice),
         sellingPrice,
-        size: variant.size || 'M',
-        color: variant.color || 'Default',
-        sku: variant.sku || `${product.sku || 'sku'}-M`,
-        stock: variant.stock || 10,
+        size: variant.size,
+        color: variant.color,
+        sku: variant.sku,
+        stock: availableStock,
         itemTotal: sellingPrice * quantity,
       });
       showToast('Added to cart! Sign in to save your cart.');
@@ -147,7 +177,8 @@ export default function ProductDetail() {
     }
 
     try {
-      await addToCart({ productId: product.id, variantId: variant.id, quantity }).unwrap();
+      const response = await addToCart({ productId: product.id, variantId: variant.id, quantity }).unwrap();
+      if (!response.success) throw new Error('Cart update failed');
       showToast('Added to cart!');
     } catch (err: any) {
       const errMsg = err?.data?.message || 'Failed to add item to cart.';
@@ -163,11 +194,22 @@ export default function ProductDetail() {
       return;
     }
 
-    const variants = detailData?.variants || [];
-    const variant = variants.find((v: any) => v.size === selectedSize && v.color === selectedColor) || variants[0];
+    const variant = selectedProductVariant(variants, selectedSize, selectedColor);
 
     if (!variant?.id) {
       showToast('Product variants are unavailable.', 'error');
+      return;
+    }
+
+    const availableStock = getVariantStock(variant);
+    if (!Number.isSafeInteger(quantity) || quantity < 1 || availableStock === null || quantity > availableStock) {
+      showToast('The requested quantity is not available in stock.', 'error');
+      return;
+    }
+
+    const sellingPrice = getCartUnitPrice(product, variant);
+    if (sellingPrice === null) {
+      showToast('Pricing is unavailable. Please request a quote.', 'error');
       return;
     }
 
@@ -178,15 +220,15 @@ export default function ProductDetail() {
       quantity,
       productName: product.name,
       slug: product.slug,
-      image: detailData?.images?.[0]?.imageUrl || product.images?.[0]?.imageUrl || null,
-      sellingPrice: Number(variant.price ?? product.discountPrice ?? product.basePrice ?? 35),
-      price: Number(variant.price ?? product.basePrice ?? 35),
-      discountPrice: variant.price ? null : (product.discountPrice ? Number(product.discountPrice) : null),
-      size: variant.size || 'M',
-      color: variant.color || 'Default',
-      sku: variant.sku || `${product.sku || 'sku'}-M`,
-      stock: variant.stock || 10,
-      itemTotal: Number(variant.price ?? product.discountPrice ?? product.basePrice ?? 35) * quantity,
+      image: getCatalogImage({ images: detailData?.images || product.images }),
+      sellingPrice,
+      price: Number(product.basePrice),
+      discountPrice: product.discountPrice == null ? null : Number(product.discountPrice),
+      size: variant.size,
+      color: variant.color,
+      sku: variant.sku,
+      stock: availableStock,
+      itemTotal: sellingPrice * quantity,
     };
 
     sessionStorage.setItem('tempCheckoutItem', JSON.stringify(checkoutItem));
@@ -283,6 +325,7 @@ export default function ProductDetail() {
       isProductLoading={isProductLoading}
       isProductError={isProductError}
       product={product}
+      variants={variants}
       images={detailData?.images || product?.images || []}
       relatedProducts={detailData?.relatedProducts || []}
       videos={product?.videos || []}
@@ -290,9 +333,9 @@ export default function ProductDetail() {
       selectedImageIdx={selectedImageIdx}
       setSelectedImageIdx={setSelectedImageIdx}
       selectedSize={selectedSize}
-      setSelectedSize={setSelectedSize}
+      setSelectedSize={selectSize}
       selectedColor={selectedColor}
-      setSelectedColor={setSelectedColor}
+      setSelectedColor={selectColor}
       quantity={quantity}
       setQuantity={setQuantity}
       availableSizes={availableSizes}

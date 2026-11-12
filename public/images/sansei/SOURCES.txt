@@ -1,0 +1,16 @@
+SANSEI homepage assets
+
+hero.png, insert-gold.png, logo-light.png
+Generated with the built-in image-generation tool for the approved homepage.
+Hero prompt: A text-free, centered group of three gold carbide cutting inserts
+on neutral brushed steel, with dark negative space above for the page headline.
+Featured insert prompt: A single gold triangular carbide insert, matching the
+approved reference, on a transparent background.
+Logo prompt: Adapt the existing SANSEI logo to light silver/white for a dark
+background, preserving its red elements and identity, with transparency.
+
+The other product photographs were downloaded from Carbiforce's public
+operation image collections at https://carbiforce.com/landingpageImage/.
+Operation folders: turning, milling, drilling, threading, grooving.
+These are product-family illustrations; availability is determined by the
+existing catalog, with inquiry links for families not published there.

@@ -59,6 +59,8 @@ import {
 import ProtectedRoute from './ProtectedRoute';
 import Sidebar from '../components/layout/Sidebar';
 import Navbar from '../components/layout/Navbar';
+import Footer from '../components/layout/Footer';
+import '../components/layout/StorefrontShell.css';
 import { COLORS, FONTS } from '../constant/style';
 
 function AdminRouteWrapper() {
@@ -123,17 +125,27 @@ function ScrollToTop() {
   return null;
 }
 
+function StorefrontShell() {
+  return <div className="storefront-shell"><Outlet /></div>;
+}
+
+function AuthenticationLayout({ children }: { children: React.ReactNode }) {
+  return <><Navbar /><main className="storefront-auth">{children}</main><Footer /></>;
+}
+
 export default function AppRoutes() {
   return (
     <BrowserRouter>
       <ScrollToTop />
       <Routes>
+        <Route element={<StorefrontShell />}>
         <Route path="/" element={<LandingPage />} />
+        <Route path="/catalog" element={<CategoryBrowse />} />
         <Route path="/product/:id" element={<ProductDetail />} />
         <Route path="/category/:categorySlug" element={<CategoryBrowse />} />
         <Route path="/category/:categorySlug/:subCategorySlug" element={<CategoryBrowse />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<AuthenticationLayout><Login /></AuthenticationLayout>} />
+        <Route path="/signup" element={<AuthenticationLayout><Signup /></AuthenticationLayout>} />
         <Route path="/bulk-inquiry" element={<BulkInquiry />} />
         <Route path="/faqs" element={<FaqPage />} />
         <Route path="/about" element={<AboutPage />} />
@@ -150,6 +162,7 @@ export default function AppRoutes() {
         <Route path="/checkout" element={<CustomerProtectedRoute><Checkout /></CustomerProtectedRoute>} />
         <Route path="/orders" element={<CustomerProtectedRoute><Orders /></CustomerProtectedRoute>} />
         <Route path="/profile" element={<CustomerProtectedRoute><Profile /></CustomerProtectedRoute>} />
+        </Route>
 
         {/* Admin routes (protected) */}
         <Route path="/admin" element={<ProtectedRoute><AdminRouteWrapper /></ProtectedRoute>}>

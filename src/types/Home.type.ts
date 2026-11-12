@@ -1,4 +1,4 @@
-import type { CategorySummary, SubCategorySummary, ProductImage, ApiResponse } from './Product.type';
+import type { CategorySummary, SubCategorySummary, ProductImage, ProductVariant, ApiResponse } from './Product.type';
 
 export interface Banner {
   id: number;
@@ -24,7 +24,7 @@ export interface HomeSubCategory {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-  _count?: {
+  _count: {
     products: number;
   };
 }
@@ -40,7 +40,7 @@ export interface HomeCategory {
   createdAt: string;
   updatedAt: string;
   subcategories: HomeSubCategory[];
-  _count?: {
+  _count: {
     products: number;
     subcategories: number;
   };
@@ -48,6 +48,8 @@ export interface HomeCategory {
 
 export interface HomeProduct {
   id: number;
+  categoryId: number;
+  subCategoryId: number | null;
   name: string;
   slug: string;
   shortDescription: string | null;
@@ -61,12 +63,14 @@ export interface HomeProduct {
   totalViews: number;
   totalStock: number;
   availableStock: number;
+  isActive: boolean;
   isFeatured: boolean;
   isBestSeller: boolean;
   isNewArrival: boolean;
-  category: CategorySummary;
-  subCategory: SubCategorySummary | null;
+  category: Pick<CategorySummary, 'id' | 'name' | 'slug'>;
+  subCategory: Pick<SubCategorySummary, 'id' | 'name' | 'slug'> | null;
   images: ProductImage[];
+  variants: ProductVariant[];
 }
 
 export interface HomePageData {

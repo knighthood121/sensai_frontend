@@ -6,7 +6,14 @@ export const homeApi = api.injectEndpoints({
   endpoints: (builder) => ({
     getHome: builder.query<HomeResponse, void>({
       query: () => ENDPOINTS.home.base,
-      providesTags: ['Home'],
+      // Product and variant writes already invalidate these shared catalog tags.
+      // Subscribe home data too, including empty results that have no product IDs.
+      providesTags: [
+        'Home', 'Banner', 'Category', 'SubCategory',
+        { type: 'Product', id: 'LIST' },
+        { type: 'Variant', id: 'LIST' },
+      ],
+      keepUnusedDataFor: 0,
     }),
   }),
 });

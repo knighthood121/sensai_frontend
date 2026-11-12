@@ -1,999 +1,210 @@
-import { useState, useId } from 'react';
+import { useEffect, useId, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AlertCircle, ArrowLeft, CheckCircle2, Edit2, Eye, ImagePlus, Link as LinkIcon, LoaderCircle, MoveDown, MoveUp, Plus, RefreshCw, Trash2, Upload, X } from 'lucide-react';
 import { COLORS, FONTS } from '../../../../constant/style';
 import Button from '../../../../components/common/Button';
-import {
-  useBanners,
-  type BannerItem,
-  compressImageToDataUrl,
-  saveStoredBanners,
-} from '../../../../utils/bannerStorage';
-import {
-  useGetAdminBannersQuery,
-  useCreateBannerMutation,
-  useUpdateBannerMutation,
-  useDeleteBannerMutation,
-} from '../../../../service/bannerApi';
-import { useEffect } from 'react';
-import {
-  ArrowLeft,
-  Plus,
-  Edit2,
-  Trash2,
-  Eye,
-  MoveUp,
-  MoveDown,
-  Upload,
-  CheckCircle2,
-  AlertCircle,
-  X,
-  Layers,
-  Link as LinkIcon,
-  Palette,
-} from 'lucide-react';
+import { useGetAdminBannersQuery, useCreateBannerMutation, useUpdateBannerMutation, useDeleteBannerMutation, type CreateBannerRequest, type DbBanner } from '../../../../service/bannerApi';
+import { useUploadTempProductImagesMutation } from '../../../../service/productsApi';
 
+type BannerForm = { title: string; description: string; imageUrl: string; linkUrl: string; isActive: boolean; displayOrder: number; startDate: string; endDate: string };
+const emptyForm: BannerForm = { title: '', description: '', imageUrl: '', linkUrl: '/catalog', isActive: true, displayOrder: 1, startDate: '', endDate: '' };
+const inputClass = 'w-full rounded-xl border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-800 focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20 disabled:opacity-60';
 
-
-const PRESET_COLORS = [
-  { name: 'Tech Blue (Reference)', value: '#1e73be' },
-  { name: 'Sky Cyan', value: '#0284c7' },
-  { name: 'Brand Red', value: '#dc2626' },
-  { name: 'Precision Teal', value: '#0d9488' },
-  { name: 'Amber Gold', value: '#d97706' },
-  { name: 'Dark Slate', value: '#1e293b' },
-];
+function messageFrom(error: unknown, fallback: string) {
+  if (error && typeof error === 'object' && 'data' in error) {
+    const data = error.data;
+    if (data && typeof data === 'object' && 'message' in data && typeof data.message === 'string') return data.message;
+  }
+  return error instanceof Error ? error.message : fallback;
+}
+function requireSuccess(response: { success: boolean; message?: string }) {
+  if (!response.success) throw new Error(response.message || 'The server could not save this change.');
+}
+function localDateInput(value: string | null) {
+  if (!value) return '';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? '' : new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+}
+function validDestination(value: string) {
+  if (value.startsWith('/') && !value.startsWith('//') && !value.includes('\\')) return true;
+  try { return ['http:', 'https:'].includes(new URL(value).protocol); } catch { return false; }
+}
+function visibility(banner: DbBanner) {
+  if (!banner.isActive) return 'Inactive';
+  const now = Date.now();
+  if (banner.startDate && new Date(banner.startDate).getTime() > now) return 'Scheduled';
+  if (banner.endDate && new Date(banner.endDate).getTime() < now) return 'Expired';
+  return 'Active';
+}
 
 export default function BannerManagementScreen() {
   const navigate = useNavigate();
   const titleId = useId();
-  const {
-    banners,
-    addBanner,
-    updateBanner,
-    deleteBanner,
-    toggleBannerStatus,
-    reorderBanners,
-  } = useBanners();
+  const editorRef = useRef<HTMLDialogElement>(null);
+  const deleteRef = useRef<HTMLDialogElement>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
+  const busyRef = useRef(false);
+  const { data, isLoading, isFetching, isError, refetch } = useGetAdminBannersQuery(undefined, { refetchOnMountOrArgChange: true, refetchOnFocus: true });
+  const [createBanner] = useCreateBannerMutation();
+  const [updateBanner] = useUpdateBannerMutation();
+  const [deleteBanner] = useDeleteBannerMutation();
+  const [uploadImage] = useUploadTempProductImagesMutation();
+  const banners = data?.success ? [...data.data].sort((a, b) => a.displayOrder - b.displayOrder || new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) : [];
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [search, setSearch] = useState('');
+  const [previewId, setPreviewId] = useState<number | null>(null);
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const [form, setForm] = useState<BannerForm>(emptyForm);
+  const [pending, setPending] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const preview = banners.find(banner => banner.id === previewId) || banners[0];
+  const filtered = banners.filter(banner => (statusFilter === 'All' || visibility(banner) === statusFilter)
+    && `${banner.title} ${banner.description || ''} ${banner.linkUrl || ''}`.toLowerCase().includes(search.trim().toLowerCase()));
 
-  // Backend Database API hooks
-  const { data: dbBannersData } = useGetAdminBannersQuery();
-  const [createBannerMutation] = useCreateBannerMutation();
-  const [updateBannerMutation] = useUpdateBannerMutation();
-  const [deleteBannerMutation] = useDeleteBannerMutation();
-
-  // Synchronize DB Banners into state when backend responds
   useEffect(() => {
-    if (Array.isArray(dbBannersData?.data)) {
-      const converted: BannerItem[] = dbBannersData.data.map((b) => ({
-        id: String(b.id),
-        title: b.title,
-        subtitle: b.description || '',
-        ctaText: b.description?.replace(/>/g, '').trim() || '',
-        ctaLink: b.linkUrl || '',
-        image: b.imageUrl,
-        imageUrl: b.imageUrl,
-        accentColor: '#1e73be',
-        location: 'Homepage Hero',
-        status: b.isActive ? 'Active' : 'Inactive',
-        order: b.displayOrder,
-        createdAt: b.createdAt || new Date().toISOString(),
-        updatedAt: b.updatedAt || new Date().toISOString(),
-      }));
-      saveStoredBanners(converted);
-    }
-  }, [dbBannersData]);
+    const dialog = editorOpen ? editorRef.current : deleteId !== null ? deleteRef.current : null;
+    if (!dialog) return;
+    const previousOverflow = document.body.style.overflow;
+    dialog.showModal();
+    document.body.style.overflow = 'hidden';
+    return () => {
+      dialog.close();
+      document.body.style.overflow = previousOverflow;
+      if (returnFocusRef.current?.isConnected) returnFocusRef.current.focus({ preventScroll: true });
+    };
+  }, [editorOpen, deleteId]);
 
-  // Filters & State
-  const [filterLocation, setFilterLocation] = useState<string>('All');
-  const [filterStatus, setFilterStatus] = useState<string>('All');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [previewBannerId, setPreviewBannerId] = useState<string | null>(
-    banners[0]?.id || null
-  );
-
-  // Modal State
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingBanner, setEditingBanner] = useState<BannerItem | null>(null);
-  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  // Form State
-  const [formTitle, setFormTitle] = useState('');
-  const [formSubtitle, setFormSubtitle] = useState('');
-  const [formCtaText, setFormCtaText] = useState('');
-  const [formCtaLink, setFormCtaLink] = useState('');
-  const [formImage, setFormImage] = useState('');
-  const [formAccentColor, setFormAccentColor] = useState('#1e73be');
-  const [formLocation, setFormLocation] = useState<'Homepage Hero' | 'Category Top' | 'Promo Strip'>('Homepage Hero');
-  const [formStatus, setFormStatus] = useState<'Active' | 'Inactive'>('Active');
-  const [formBadgeText, setFormBadgeText] = useState('');
-
-  const triggerToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
+  const openEditor = (banner?: DbBanner) => {
+    returnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setEditingId(banner?.id ?? null);
+    setForm(banner ? { title: banner.title, description: banner.description || '', imageUrl: banner.imageUrl, linkUrl: banner.linkUrl || '', isActive: banner.isActive, displayOrder: banner.displayOrder, startDate: localDateInput(banner.startDate), endDate: localDateInput(banner.endDate) }
+      : { ...emptyForm, displayOrder: Math.max(0, ...banners.map(item => item.displayOrder)) + 1 });
+    setError(null);
+    setNotice(null);
+    setEditorOpen(true);
   };
-
-  // Open Modal for Add
-  const handleOpenAdd = () => {
-    setEditingBanner(null);
-    setFormTitle('');
-    setFormSubtitle('');
-    setFormCtaText('');
-    setFormCtaLink('/category/drill-bits-and-taps');
-    setFormImage('');
-    setFormAccentColor('#1e73be');
-    setFormLocation('Homepage Hero');
-    setFormStatus('Active');
-    setFormBadgeText('');
-    setIsModalOpen(true);
-  };
-
-  // Open Modal for Edit
-  const handleOpenEdit = (banner: BannerItem) => {
-    setEditingBanner(banner);
-    setFormTitle(banner.title);
-    setFormSubtitle(banner.subtitle);
-    setFormCtaText(banner.ctaText);
-    setFormCtaLink(banner.ctaLink);
-    setFormImage(banner.image);
-    setFormAccentColor(banner.accentColor || '#1e73be');
-    setFormLocation(banner.location);
-    setFormStatus(banner.status);
-    setFormBadgeText(banner.badgeText || '');
-    setIsModalOpen(true);
-  };
-
-  // Handle Save
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formTitle.trim()) {
-      alert('Please provide a banner title.');
-      return;
-    }
-    if (!formImage.trim()) {
-      alert('Please provide an image URL or choose a preset.');
-      return;
-    }
-
-    let finalImage = formImage.trim();
-    if (finalImage.startsWith('data:image/') && finalImage.length > 200000) {
-      try {
-        finalImage = await compressImageToDataUrl(finalImage, 1600, 900, 0.82);
-      } catch (e) {
-        console.warn('Could not compress data URL, using as is', e);
-      }
-    }
-
-    if (editingBanner) {
-      // 1. Update in local storage
-      updateBanner(editingBanner.id, {
-        title: formTitle,
-        subtitle: formSubtitle,
-        ctaText: formCtaText,
-        ctaLink: formCtaLink,
-        image: finalImage,
-        imageUrl: finalImage,
-        accentColor: formAccentColor,
-        location: formLocation,
-        status: formStatus,
-        badgeText: formBadgeText,
-      });
-
-      // 2. Persist update to PostgreSQL backend database
-      const numericId = Number(editingBanner.id);
-      if (Number.isInteger(numericId)) {
-        try {
-          await updateBannerMutation({
-            id: numericId,
-            data: {
-              title: formTitle,
-              description: formSubtitle || formCtaText,
-              imageUrl: finalImage,
-              linkUrl: formCtaLink,
-              isActive: formStatus === 'Active',
-            },
-          }).unwrap();
-        } catch (err) {
-          console.warn('Backend DB update banner error:', err);
-        }
-      }
-
-      triggerToast('Banner updated in database & storefront successfully!');
-    } else {
-      // 1. Add to local storage
-      addBanner({
-        title: formTitle,
-        subtitle: formSubtitle,
-        ctaText: formCtaText,
-        ctaLink: formCtaLink,
-        image: finalImage,
-        imageUrl: finalImage,
-        accentColor: formAccentColor,
-        location: formLocation,
-        status: formStatus,
-        order: banners.length + 1,
-        badgeText: formBadgeText,
-      });
-
-      // 2. Add to PostgreSQL backend database
-      try {
-        await createBannerMutation({
-          title: formTitle,
-          description: formSubtitle || formCtaText,
-          imageUrl: finalImage,
-          linkUrl: formCtaLink,
-          isActive: formStatus === 'Active',
-          displayOrder: banners.length + 1,
-        }).unwrap();
-      } catch (err) {
-        console.warn('Backend DB create banner error:', err);
-      }
-
-      triggerToast('New banner created in database & storefront successfully!');
-    }
-
-    setIsModalOpen(false);
-  };
-
-  // Handle Image Upload with automatic compression (<120KB) to ensure localStorage quota is never exceeded
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const runAction = async (name: string, operation: () => Promise<void>, successMessage: string) => {
+    if (busyRef.current) return;
+    busyRef.current = true;
+    setPending(name);
+    setError(null);
+    setNotice(null);
     try {
-      const compressedDataUrl = await compressImageToDataUrl(file, 1600, 900, 0.82);
-      setFormImage(compressedDataUrl);
-      triggerToast('Image uploaded & optimized successfully!');
-    } catch (err) {
-      console.warn('Fallback to file reader:', err);
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === 'string') {
-          setFormImage(reader.result);
-        }
-      };
-      reader.readAsDataURL(file);
+      await operation();
+      setNotice(successMessage);
+    } catch (caught) {
+      setError(messageFrom(caught, 'The change could not be saved. Please try again.'));
+      if (name !== 'upload') void refetch();
+    } finally {
+      busyRef.current = false;
+      setPending(null);
     }
   };
-
-  // Handle Move Up / Down
-  const handleMove = (index: number, direction: 'up' | 'down') => {
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= banners.length) return;
-
-    const newBanners = [...banners];
-    const temp = newBanners[index];
-    newBanners[index] = newBanners[targetIndex];
-    newBanners[targetIndex] = temp;
-
-    reorderBanners(newBanners);
-    triggerToast(`Banner moved ${direction}!`);
+  const save = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!form.title.trim() || !form.imageUrl.trim()) { setError('Enter a title and a banner image.'); return; }
+    if (!validDestination(form.imageUrl.trim())) { setError('Use an uploaded image, an HTTP image URL, or an image path beginning with /.'); return; }
+    if (form.linkUrl.trim() && !validDestination(form.linkUrl.trim())) { setError('The destination must be an HTTP URL or a store path beginning with /.'); return; }
+    if (!Number.isInteger(form.displayOrder) || form.displayOrder < 0) { setError('Display order must be a nonnegative whole number.'); return; }
+    const startDate = form.startDate ? new Date(form.startDate) : null;
+    const endDate = form.endDate ? new Date(form.endDate) : null;
+    if ((startDate && Number.isNaN(startDate.getTime())) || (endDate && Number.isNaN(endDate.getTime()))) { setError('Enter valid schedule dates.'); return; }
+    if (startDate && endDate && startDate > endDate) { setError('The end date must be on or after the start date.'); return; }
+    const payload: CreateBannerRequest = { title: form.title.trim(), description: form.description.trim() || null, imageUrl: form.imageUrl.trim(), linkUrl: form.linkUrl.trim() || null, isActive: form.isActive, displayOrder: form.displayOrder, startDate: startDate?.toISOString() || null, endDate: endDate?.toISOString() || null };
+    await runAction('save', async () => {
+      const response = editingId === null ? await createBanner(payload).unwrap() : await updateBanner({ id: editingId, data: payload }).unwrap();
+      requireSuccess(response);
+      setPreviewId(response.data.id);
+      setEditorOpen(false);
+    }, editingId === null ? 'Banner created successfully.' : 'Banner updated successfully.');
   };
-
-  // Handle Delete
-  const handleDelete = async (id: string) => {
-    deleteBanner(id);
-    const numericId = Number(id);
-    if (Number.isInteger(numericId)) {
-      try {
-        await deleteBannerMutation(numericId).unwrap();
-      } catch (err) {
-        console.warn('Backend DB delete error:', err);
+  const upload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 5 * 1024 * 1024) { setError('Choose a JPG, PNG, or WebP image smaller than 5 MB.'); return; }
+    await runAction('upload', async () => {
+      const body = new FormData();
+      body.append('images', file);
+      const response = await uploadImage(body).unwrap();
+      requireSuccess(response);
+      const imageUrl = response.data[0]?.imageUrl;
+      if (!imageUrl) throw new Error('The upload did not return an image URL. Please try again.');
+      setForm(current => ({ ...current, imageUrl }));
+    }, 'Image uploaded. Save the banner to publish this change.');
+  };
+  const toggle = (banner: DbBanner) => runAction(`toggle-${banner.id}`, async () => {
+    requireSuccess(await updateBanner({ id: banner.id, data: { isActive: !banner.isActive } }).unwrap());
+  }, `Banner ${banner.isActive ? 'disabled' : 'enabled'}.`);
+  const move = (id: number, direction: -1 | 1) => runAction(`move-${id}`, async () => {
+    const index = banners.findIndex(banner => banner.id === id);
+    const target = index + direction;
+    if (index < 0 || target < 0 || target >= banners.length) return;
+    const ordered = [...banners];
+    [ordered[index], ordered[target]] = [ordered[target], ordered[index]];
+    try {
+      for (let position = 0; position < ordered.length; position++) {
+        if (ordered[position].displayOrder !== position + 1) requireSuccess(await updateBanner({ id: ordered[position].id, data: { displayOrder: position + 1 } }).unwrap());
       }
+    } catch (caught) {
+      throw new Error(`The complete banner order could not be saved. Reload to see the latest saved order. ${messageFrom(caught, 'Please try again.')}`);
     }
-    setDeleteConfirmId(null);
-    triggerToast('Banner deleted successfully!');
+  }, 'Banner order saved.');
+  const remove = () => {
+    if (deleteId === null) return;
+    return runAction('delete', async () => {
+      requireSuccess(await deleteBanner(deleteId).unwrap());
+      setDeleteId(null);
+    }, 'Banner deleted successfully.');
   };
+  const closeEditor = () => { if (!busyRef.current) { setEditorOpen(false); setError(null); setNotice(null); } };
+  const alert = error && <div role="alert" className="mb-5 flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"><AlertCircle size={18} className="mt-0.5 shrink-0" /><span>{error}</span></div>;
+  const success = notice && <div role="status" className="mb-5 flex items-start gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800"><CheckCircle2 size={18} className="mt-0.5 shrink-0" /><span>{notice}</span></div>;
 
-  // Handle Toggle Status
-  const handleToggleStatus = async (banner: BannerItem) => {
-    const nextStatus = banner.status === 'Active' ? 'Inactive' : 'Active';
-    toggleBannerStatus(banner.id);
-    const numericId = Number(banner.id);
-    if (Number.isInteger(numericId)) {
-      try {
-        await updateBannerMutation({
-          id: numericId,
-          data: {
-            isActive: nextStatus === 'Active',
-          },
-        }).unwrap();
-      } catch (err) {
-        console.warn('Backend DB toggle status error:', err);
-      }
-    }
-    triggerToast(`Banner status changed to ${nextStatus}!`);
-  };
-
-  // Filtered Banners
-  const filteredBanners = banners.filter((b) => {
-    if (filterLocation !== 'All' && b.location !== filterLocation) return false;
-    if (filterStatus !== 'All' && b.status !== filterStatus) return false;
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      return (
-        b.title.toLowerCase().includes(q) ||
-        b.subtitle.toLowerCase().includes(q) ||
-        b.ctaLink.toLowerCase().includes(q)
-      );
-    }
-    return true;
-  });
-
-  const previewBanner =
-    banners.find((b) => b.id === previewBannerId) || banners[0] || null;
-
-  return (
-    <div style={{ fontFamily: FONTS.main, color: COLORS.text }}>
-      {/* Toast Notification */}
-      {toastMessage && (
-        <div className="fixed top-20 right-8 z-50 flex items-center gap-2 px-5 py-3 rounded-xl bg-gray-900 text-white text-sm font-semibold shadow-2xl animate-in fade-in slide-in-from-top-4">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
-
-      {/* Top Header & Back Button */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate('/admin/settings')}
-            className="w-10 h-10 flex items-center justify-center rounded-xl bg-white border shadow-sm hover:bg-gray-50 transition-colors cursor-pointer"
-            style={{ borderColor: COLORS.border }}
-            title="Go Back to Settings"
-          >
-            <ArrowLeft className="w-5 h-5 text-gray-600" />
-          </button>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight" style={{ fontFamily: FONTS.heading }}>
-              Banner Management
-            </h1>
-            <p className="text-sm text-gray-500 mt-0.5">
-              Control, edit, design and reorder high-precision promotional hero banners across your store.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Button
-            variant="primary"
-            size="md"
-            onClick={handleOpenAdd}
-            className="shadow-lg shadow-red-500/20 hover:-translate-y-0.5 transition-transform"
-          >
-            <Plus className="w-4 h-4 mr-1.5" />
-            Add New Banner
-          </Button>
-        </div>
-      </div>
-
-      {/* ─── LIVE HERO BANNER PREVIEW (EXACT REFERENCE DESIGN) ─── */}
-      <div className="mb-8 bg-white rounded-2xl border shadow-sm p-6" style={{ borderColor: COLORS.border }}>
-        {previewBanner ? (
-          <>
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                <h2 className="text-sm font-bold uppercase tracking-wider text-gray-700">
-                  Live Storefront Preview
-                </h2>
-                <span className="text-xs text-gray-400">
-                  (Viewing: <span className="font-semibold text-gray-800">{previewBanner.title.split('\n')[0]}</span>)
-                </span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500 font-medium">Select to preview:</span>
-                <select
-                  value={previewBanner.id}
-                  onChange={(e) => setPreviewBannerId(e.target.value)}
-                  className="text-xs border border-gray-200 rounded-lg px-2.5 py-1.5 bg-gray-50 font-medium text-gray-700 focus:outline-none"
-                >
-                  {banners.map((b, i) => (
-                    <option key={b.id} value={b.id}>
-                      #{i + 1} - {b.title.split('\n')[0]} ({b.status})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Live Banner Render Frame */}
-            <div
-              className="relative w-full rounded-xl overflow-hidden border border-gray-200 shadow-md select-none"
-              style={{
-                height: 'clamp(240px, 28vw, 360px)',
-              }}
-            >
-              {/* Background Image */}
-              {previewBanner.image ? (
-                <img
-                  src={previewBanner.image}
-                  alt={previewBanner.title}
-                  className="absolute inset-0 w-full h-full object-cover object-center"
-                />
-              ) : (
-                <div className="absolute inset-0 w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
-                  No banner image selected
-                </div>
-              )}
-
-              {/* Diagonal Frosted Light Polygon */}
-              <div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                  background:
-                    'linear-gradient(90deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.82) 42%, rgba(255,255,255,0.45) 60%, rgba(255,255,255,0) 100%)',
-                  clipPath: 'polygon(0 0, 64% 0, 46% 100%, 0 100%)',
-                  backdropFilter: 'blur(1.5px)',
-                  WebkitBackdropFilter: 'blur(1.5px)',
-                }}
-              />
-
-              {/* Text Content */}
-              <div className="relative z-10 h-full max-w-[1200px] mx-auto px-6 sm:px-10 flex flex-col justify-center">
-                <div className="max-w-[480px]">
-                  <h3
-                    className="text-xl sm:text-2xl md:text-3xl font-normal tracking-tight text-[#17171a] leading-[1.18] whitespace-pre-line"
-                    style={{ fontFamily: "'Montserrat', sans-serif" }}
-                  >
-                    {previewBanner.title}
-                  </h3>
-                  <div className="mt-3 sm:mt-4">
-                    <span
-                      className="inline-flex items-center gap-1.5 text-xs sm:text-sm md:text-base font-medium"
-                      style={{ color: previewBanner.accentColor || '#1e73be' }}
-                    >
-                      <span>{previewBanner.subtitle || previewBanner.ctaText}</span>
-                      <span className="font-bold text-xs">&gt;</span>
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom-Right Iconic Motif: Dynamic Navigation Slashes (////) */}
-              <div className="absolute bottom-0 right-0 z-20 pointer-events-none">
-                <div
-                  className="min-w-[120px] h-20 relative px-4"
-                  style={{
-                    background:
-                      'linear-gradient(135deg, transparent 40%, rgba(30, 41, 59, 0.45) 85%, rgba(15, 23, 42, 0.65) 100%)',
-                    clipPath: 'polygon(100% 0, 0 100%, 100% 100%)',
-                  }}
-                >
-                  <div className="absolute bottom-2.5 right-4 flex items-center gap-1.5 pointer-events-auto">
-                    {banners.map((b, idx) => {
-                      const isActive = b.id === previewBanner.id;
-                      return (
-                        <button
-                          key={b.id || idx}
-                          type="button"
-                          onClick={() => setPreviewBannerId(b.id)}
-                          className="cursor-pointer focus:outline-none transition-transform hover:scale-125 p-0.5"
-                          title={`Preview #${idx + 1}: ${b.title.split('\n')[0]}`}
-                        >
-                          <span
-                            className={`block w-1 sm:w-1.5 h-5 sm:h-6 rounded-xs transition-all ${
-                              isActive
-                                ? 'bg-[#38bdf8] shadow-[0_0_8px_rgba(56,189,248,0.9)] scale-y-110'
-                                : 'bg-white/80 hover:bg-white'
-                            }`}
-                            style={{ transform: 'skewX(-28deg)' }}
-                          />
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="py-12 text-center">
-            <h2 className="text-lg font-bold text-gray-900">No banner to preview</h2>
-            <p className="mt-2 text-sm text-gray-500">Add a banner to see the storefront preview.</p>
-            <Button variant="primary" size="md" onClick={handleOpenAdd} className="mt-4">
-              <Plus className="w-4 h-4 mr-1.5" />
-              Add New Banner
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {/* ─── Filters & Search Bar ─── */}
-      <div className="bg-white rounded-2xl border shadow-sm p-4 mb-6" style={{ borderColor: COLORS.border }}>
-        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
-          {/* Location Filters */}
-          <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
-            {['All', 'Homepage Hero', 'Category Top', 'Promo Strip'].map((loc) => (
-              <button
-                key={loc}
-                onClick={() => setFilterLocation(loc)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                  filterLocation === loc
-                    ? 'bg-red-600 text-white shadow-sm'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
-              >
-                {loc}
-              </button>
-            ))}
-          </div>
-
-          {/* Status & Search */}
-          <div className="flex items-center gap-3 w-full sm:w-auto">
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="text-xs border border-gray-200 rounded-xl px-3 py-2 bg-gray-50 font-medium text-gray-700 focus:outline-none"
-            >
-              <option value="All">All Status</option>
-              <option value="Active">Active Only</option>
-              <option value="Inactive">Inactive Only</option>
-            </select>
-
-            <input
-              type="text"
-              placeholder="Search banners..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="text-xs border border-gray-200 rounded-xl px-3 py-2 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-red-500/20"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* ─── Banner Cards Grid ─── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {filteredBanners.map((banner, index) => {
-          const isSelectedForPreview = banner.id === previewBanner?.id;
-
-          return (
-            <div
-              key={banner.id}
-              className={`bg-white rounded-2xl border shadow-sm overflow-hidden flex flex-col group transition-all duration-300 ${
-                isSelectedForPreview ? 'ring-2 ring-red-500/40 border-red-500/50' : ''
-              }`}
-              style={{ borderColor: isSelectedForPreview ? COLORS.primary : COLORS.border }}
-            >
-              {/* Banner Visual Thumbnail */}
-              <div className="h-44 w-full bg-gray-100 relative overflow-hidden">
-                <img
-                  src={banner.image}
-                  alt={banner.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-
-                {/* Diagonal effect overlay in preview */}
-                <div
-                  className="absolute inset-0 pointer-events-none"
-                  style={{
-                    background:
-                      'linear-gradient(90deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.7) 45%, rgba(255,255,255,0) 80%)',
-                    clipPath: 'polygon(0 0, 65% 0, 45% 100%, 0 100%)',
-                  }}
-                />
-
-                {/* Badges Overlay */}
-                <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5">
-                  <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider bg-black/80 text-white shadow-xs">
-                    #{banner.order || index + 1}
-                  </span>
-                  {banner.badgeText && (
-                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-red-600 text-white shadow-xs">
-                      {banner.badgeText}
-                    </span>
-                  )}
-                </div>
-
-                <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
-                  {/* Status Toggle Badge */}
-                  <button
-                    onClick={() => handleToggleStatus(banner)}
-                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider backdrop-blur-md cursor-pointer transition-all ${
-                      banner.status === 'Active'
-                        ? 'bg-emerald-500 text-white shadow-sm hover:bg-emerald-600'
-                        : 'bg-gray-600/90 text-white shadow-sm hover:bg-gray-700'
-                    }`}
-                    title="Click to toggle status"
-                  >
-                    <span className={`w-1.5 h-1.5 rounded-full ${banner.status === 'Active' ? 'bg-white' : 'bg-gray-300'}`} />
-                    {banner.status}
-                  </button>
-                </div>
-
-                {/* Reorder Buttons Overlay */}
-                <div className="absolute bottom-2 left-2 z-10 flex items-center gap-1 bg-black/60 backdrop-blur-md p-1 rounded-lg">
-                  <button
-                    onClick={() => handleMove(index, 'up')}
-                    disabled={index === 0}
-                    className="p-1 text-white hover:text-red-400 disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
-                    title="Move banner earlier"
-                  >
-                    <MoveUp size={14} />
-                  </button>
-                  <button
-                    onClick={() => handleMove(index, 'down')}
-                    disabled={index === banners.length - 1}
-                    className="p-1 text-white hover:text-red-400 disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
-                    title="Move banner later"
-                  >
-                    <MoveDown size={14} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Banner Details */}
-              <div className="p-5 flex-1 flex flex-col">
-                <div className="flex items-start justify-between gap-2 mb-2">
-                  <h3 className="font-bold text-base text-gray-900 leading-snug line-clamp-2">
-                    {banner.title.replace('\n', ' ')}
-                  </h3>
-                  <button
-                    onClick={() => setPreviewBannerId(banner.id)}
-                    className="p-1 text-gray-400 hover:text-red-600 transition-colors flex-shrink-0 cursor-pointer"
-                    title="Preview this banner"
-                  >
-                    <Eye size={16} />
-                  </button>
-                </div>
-
-                {/* Subtitle / CTA */}
-                <div className="mt-1 flex items-center gap-1.5 text-xs font-medium" style={{ color: banner.accentColor || '#1e73be' }}>
-                  <span>{banner.subtitle || banner.ctaText}</span>
-                </div>
-
-                {/* Target Link */}
-                <p className="text-xs text-gray-400 mt-2 flex items-center gap-1.5 truncate">
-                  <LinkIcon size={12} className="flex-shrink-0" />
-                  <span className="truncate">{banner.ctaLink}</span>
-                </p>
-
-                {/* Location Badge */}
-                <div className="mt-auto pt-4 flex items-center justify-between text-xs text-gray-500 border-t border-gray-100">
-                  <span className="inline-flex items-center gap-1 font-semibold text-gray-600">
-                    <Layers size={13} />
-                    {banner.location}
-                  </span>
-
-                  <span className="text-[11px] text-gray-400 font-mono">
-                    ID: {banner.id.slice(0, 10)}
-                  </span>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex border-t divide-x border-gray-100 bg-gray-50/50">
-                <button
-                  onClick={() => handleOpenEdit(banner)}
-                  className="flex-1 py-3 text-xs font-bold text-gray-700 hover:bg-white hover:text-red-600 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <Edit2 size={13} />
-                  Edit Banner
-                </button>
-
-                <button
-                  onClick={() => setDeleteConfirmId(banner.id)}
-                  className="px-4 py-3 text-xs font-bold text-gray-400 hover:bg-red-50 hover:text-red-600 transition-colors flex items-center justify-center cursor-pointer"
-                  title="Delete banner"
-                >
-                  <Trash2 size={13} />
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* ─── ADD / EDIT BANNER MODAL ─── */}
-      {isModalOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={titleId}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 overflow-y-auto"
-        >
-          <div className="relative bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[92vh] overflow-y-auto p-6 sm:p-8">
-            {/* Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-gray-100 mb-6">
-              <div>
-                <h3 id={titleId} className="text-xl font-bold text-gray-950" style={{ fontFamily: FONTS.heading }}>
-                  {editingBanner ? 'Edit Promotional Banner' : 'Create New Industrial Banner'}
-                </h3>
-                <p className="text-xs text-gray-500 mt-1">
-                  Configure text, diagonal overlay, link, and high-precision imagery.
-                </p>
-              </div>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 transition-colors cursor-pointer"
-                aria-label="Close dialog"
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <form onSubmit={handleSave} className="space-y-5">
-              {/* Live Mini Preview Inside Modal */}
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1.5">
-                  Live Banner Preview
-                </label>
-                <div
-                  className="relative w-full rounded-xl overflow-hidden border border-gray-200 shadow-inner select-none"
-                  style={{ height: '160px' }}
-                >
-                  {formImage ? (
-                    <img
-                      src={formImage}
-                      alt="Preview"
-                      className="absolute inset-0 w-full h-full object-cover object-center"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                      }}
-                    />
-                  ) : (
-                    <div className="absolute inset-0 w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-xs">
-                      Upload or enter an image URL to preview
-                    </div>
-                  )}
-                  {/* Diagonal cut */}
-                  <div
-                    className="absolute inset-0 pointer-events-none"
-                    style={{
-                      background:
-                        'linear-gradient(90deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.82) 42%, rgba(255,255,255,0.45) 60%, rgba(255,255,255,0) 100%)',
-                      clipPath: 'polygon(0 0, 64% 0, 46% 100%, 0 100%)',
-                    }}
-                  />
-                  <div className="relative z-10 h-full p-4 flex flex-col justify-center">
-                    <h4 className="text-sm sm:text-base font-normal tracking-tight text-[#17171a] leading-tight max-w-[260px] whitespace-pre-line">
-                      {formTitle || 'Banner Title Here'}
-                    </h4>
-                    <span className="text-xs font-medium mt-1.5" style={{ color: formAccentColor }}>
-                      {formSubtitle || 'Call to action >'}
-                    </span>
-                  </div>
-                  {/* Bottom right slashes according to banner count */}
-                  <div className="absolute bottom-2 right-3 z-10 flex items-center gap-1">
-                    {banners.map((b, idx) => {
-                      const isCurr = editingBanner ? b.id === editingBanner.id : idx === 0;
-                      return (
-                        <span
-                          key={b.id || idx}
-                          className={`block w-1 h-4 rounded-xs ${isCurr ? 'bg-[#38bdf8]' : 'bg-white/80'}`}
-                          style={{ transform: 'skewX(-28deg)' }}
-                        />
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-
-              {/* Title Input */}
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">
-                  Main Headline / Title <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  rows={2}
-                  value={formTitle}
-                  onChange={(e) => setFormTitle(e.target.value)}
-                  placeholder="Enter banner headline..."
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all font-sans"
-                  required
-                />
-                <p className="text-[11px] text-gray-400 mt-1">
-                  Tip: Press Enter to create a 2-line title just like in the reference image.
-                </p>
-              </div>
-
-              {/* Subtitle / CTA Link Text */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">
-                    Subtitle / Link Text <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formSubtitle}
-                    onChange={(e) => {
-                      setFormSubtitle(e.target.value);
-                      setFormCtaText(e.target.value.replace(/>/g, '').trim());
-                    }}
-                    placeholder="e.g. Explore Products >"
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">
-                    Target Destination URL / Route <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formCtaLink}
-                    onChange={(e) => setFormCtaLink(e.target.value)}
-                    placeholder="/category/drill-bits-and-taps"
-                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-500/20 font-mono text-xs"
-                    required
-                  />
-                  {/* Quick Route Buttons */}
-                  <div className="flex flex-wrap gap-1.5 mt-1.5">
-                    {[
-                      { label: 'Drill Bits', path: '/category/drill-bits-and-taps' },
-                      { label: 'End Mills', path: '/category/end-mills' },
-                      { label: 'Inquiry', path: '/bulk-inquiry' },
-                      { label: 'Shop All', path: '/#shop' },
-                    ].map((route) => (
-                      <button
-                        key={route.path}
-                        type="button"
-                        onClick={() => setFormCtaLink(route.path)}
-                        className="text-[10px] bg-gray-100 hover:bg-gray-200 text-gray-600 px-2 py-0.5 rounded cursor-pointer"
-                      >
-                        {route.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Image Source & Upload */}
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">
-                  Banner Image Source <span className="text-red-500">*</span>
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={formImage}
-                    onChange={(e) => setFormImage(e.target.value)}
-                    placeholder="Enter image URL or click Upload"
-                    className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-red-500/20"
-                    required
-                  />
-                  <label className="px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 hover:bg-gray-100 text-gray-700 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer transition-colors flex-shrink-0">
-                    <Upload size={14} />
-                    <span>Upload Image</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-              </div>
-
-              {/* Accent Color & Location & Status */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-gray-100">
-                {/* Accent Color */}
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1 flex items-center gap-1">
-                    <Palette size={12} />
-                    Accent Color
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={formAccentColor}
-                      onChange={(e) => setFormAccentColor(e.target.value)}
-                      className="w-8 h-8 rounded-lg border border-gray-200 cursor-pointer"
-                    />
-                    <div className="flex flex-wrap gap-1">
-                      {PRESET_COLORS.map((c) => (
-                        <button
-                          key={c.value}
-                          type="button"
-                          onClick={() => setFormAccentColor(c.value)}
-                          className="w-5 h-5 rounded-full border border-white shadow-xs cursor-pointer"
-                          style={{ backgroundColor: c.value }}
-                          title={c.name}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Location */}
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">
-                    Placement
-                  </label>
-                  <select
-                    value={formLocation}
-                    onChange={(e) => setFormLocation(e.target.value as any)}
-                    className="w-full px-3 py-2 rounded-xl border border-gray-200 text-xs font-medium text-gray-800 bg-white focus:outline-none"
-                  >
-                    <option value="Homepage Hero">Homepage Hero</option>
-                    <option value="Category Top">Category Top</option>
-                    <option value="Promo Strip">Promo Strip</option>
-                  </select>
-                </div>
-
-                {/* Status */}
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">
-                    Status
-                  </label>
-                  <div className="flex items-center gap-3 mt-1.5">
-                    <label className="inline-flex items-center gap-1.5 text-xs font-semibold cursor-pointer">
-                      <input
-                        type="radio"
-                        name="banner_status"
-                        checked={formStatus === 'Active'}
-                        onChange={() => setFormStatus('Active')}
-                        className="text-emerald-600 focus:ring-emerald-500"
-                      />
-                      <span className="text-emerald-700">Active</span>
-                    </label>
-                    <label className="inline-flex items-center gap-1.5 text-xs font-semibold cursor-pointer">
-                      <input
-                        type="radio"
-                        name="banner_status"
-                        checked={formStatus === 'Inactive'}
-                        onChange={() => setFormStatus('Inactive')}
-                        className="text-gray-600 focus:ring-gray-500"
-                      />
-                      <span className="text-gray-600">Inactive</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
-
-              {/* Submit Buttons */}
-              <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="md"
-                  onClick={() => setIsModalOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" variant="primary" size="md">
-                  {editingBanner ? 'Save Changes' : 'Publish Banner'}
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* ─── DELETE CONFIRMATION MODAL ─── */}
-      {deleteConfirmId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 text-center">
-            <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4">
-              <AlertCircle size={24} />
-            </div>
-            <h4 className="text-lg font-bold text-gray-900 mb-2">Delete this banner?</h4>
-            <p className="text-xs text-gray-500 mb-6">
-              This action will remove the banner from your store carousel. This action cannot be undone.
-            </p>
-            <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                size="md"
-                className="flex-1"
-                onClick={() => setDeleteConfirmId(null)}
-              >
-                Cancel
-              </Button>
-              <Button
-                variant="primary"
-                size="md"
-                className="flex-1 bg-red-600 hover:bg-red-700"
-                onClick={() => handleDelete(deleteConfirmId)}
-              >
-                Delete
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+  return <div style={{ fontFamily: FONTS.main, color: COLORS.text }}>
+    <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+      <div className="flex items-center gap-4"><button type="button" onClick={() => navigate('/admin/marketing')} className="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white shadow-sm" aria-label="Back to marketing"><ArrowLeft size={20} /></button><div><h1 className="text-2xl font-bold tracking-tight">Banner Management</h1><p className="mt-1 text-sm text-gray-500">Manage homepage banners, visibility, schedules, and display order.</p></div></div>
+      <div className="flex gap-3"><Button variant="outline" size="sm" onClick={() => void refetch()} disabled={isFetching || !!pending} aria-label="Refresh banners"><RefreshCw size={16} className={isFetching ? 'animate-spin' : ''} /></Button><Button size="sm" onClick={() => openEditor()} disabled={isLoading || !!pending}><Plus size={16} className="mr-2" />Add New Banner</Button></div>
     </div>
-  );
+    {!editorOpen && deleteId === null && <>{alert}{success}</>}
+    {(isError || data?.success === false) && <div role="alert" className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">Banners could not be loaded from the server. <button type="button" className="font-bold underline" onClick={() => void refetch()}>Try again</button></div>}
+    {isLoading ? <div className="flex justify-center gap-3 rounded-2xl border border-gray-200 bg-white p-12 text-gray-500" role="status"><LoaderCircle size={20} className="animate-spin" />Loading banners…</div> : <>
+      <section className="mb-7 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6" aria-label="Banner preview">
+        {preview ? <><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h2 className="text-sm font-bold uppercase tracking-wider text-gray-700">Banner preview</h2><label className="flex items-center gap-2 text-xs text-gray-500">Select to preview:<select aria-label="Select banner to preview" value={preview.id} onChange={event => setPreviewId(Number(event.target.value))} className="max-w-[240px] rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-gray-800">{banners.map(banner => <option key={banner.id} value={banner.id}>{banner.title} ({visibility(banner)})</option>)}</select></label></div><div className="relative flex min-h-[260px] items-center overflow-hidden rounded-xl bg-gray-950 p-7 sm:p-10"><img src={preview.imageUrl} alt={preview.title} className="absolute inset-0 h-full w-full object-cover" /><div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/45 to-transparent" /><div className="relative max-w-xl text-white"><h3 className="whitespace-pre-line text-2xl font-bold leading-tight sm:text-4xl">{preview.title}</h3>{preview.description && <p className="mt-4 text-sm leading-relaxed sm:text-base">{preview.description}</p>}{preview.linkUrl && <span className="mt-6 inline-block rounded-lg bg-red-600 px-5 py-2.5 text-sm font-bold">Explore products</span>}</div></div><p className="mt-3 text-xs text-gray-500">{visibility(preview)} · Homepage banner</p></>
+          : <div className="py-9 text-center"><ImagePlus size={36} className="mx-auto mb-4 text-gray-300" /><h2 className="text-lg font-bold">No banner to preview</h2><p className="mt-2 text-sm text-gray-500">Create a banner to show a promotion on the homepage.</p></div>}
+      </section>
+      <div className="mb-5 flex flex-col justify-between gap-3 rounded-xl border border-gray-200 bg-white p-4 sm:flex-row"><label className="flex items-center gap-3 text-sm text-gray-600">Status<select aria-label="Filter banner status" value={statusFilter} onChange={event => setStatusFilter(event.target.value)} className="rounded-lg border border-gray-200 px-3 py-2">{['All', 'Active', 'Inactive', 'Scheduled', 'Expired'].map(status => <option key={status}>{status}</option>)}</select></label><input aria-label="Search banners" value={search} onChange={event => setSearch(event.target.value)} placeholder="Search banners…" className={`${inputClass} sm:max-w-xs`} /></div>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {filtered.map(banner => { const index = banners.findIndex(item => item.id === banner.id); return <article key={banner.id} className={`overflow-hidden rounded-2xl border bg-white shadow-sm ${preview?.id === banner.id ? 'border-red-400 ring-2 ring-red-100' : 'border-gray-200'}`}>
+          <div className="relative h-44 bg-gray-100"><img src={banner.imageUrl} alt={banner.title} className="h-full w-full object-cover" /><span className="absolute left-3 top-3 rounded-md bg-black/75 px-2 py-1 text-xs font-bold text-white">#{banner.displayOrder}</span><button type="button" disabled={!!pending} onClick={() => void toggle(banner)} aria-label={`${banner.isActive ? 'Disable' : 'Enable'} ${banner.title}`} className={`absolute right-3 top-3 rounded-full px-3 py-1 text-xs font-bold text-white disabled:opacity-50 ${banner.isActive ? 'bg-emerald-600' : 'bg-gray-600'}`}>{pending === `toggle-${banner.id}` ? 'Saving…' : visibility(banner)}</button><div className="absolute bottom-3 left-3 flex gap-2 rounded-lg bg-black/75 p-1 text-white"><button type="button" disabled={!!pending || index === 0} onClick={() => void move(banner.id, -1)} aria-label={`Move ${banner.title} earlier`} className="p-1.5 disabled:opacity-30"><MoveUp size={16} /></button><button type="button" disabled={!!pending || index === banners.length - 1} onClick={() => void move(banner.id, 1)} aria-label={`Move ${banner.title} later`} className="p-1.5 disabled:opacity-30"><MoveDown size={16} /></button></div></div>
+          <div className="p-5"><div className="flex justify-between gap-3"><h3 className="font-bold leading-snug text-gray-900">{banner.title}</h3><button type="button" onClick={() => setPreviewId(banner.id)} aria-label={`Preview ${banner.title}`} className="shrink-0 text-gray-400 hover:text-red-600"><Eye size={17} /></button></div>{banner.description && <p className="mt-2 line-clamp-2 text-xs leading-5 text-gray-500">{banner.description}</p>}{banner.linkUrl && <p className="mt-3 flex items-center gap-2 text-xs text-gray-500"><LinkIcon size={13} className="shrink-0" /><span className="truncate">{banner.linkUrl}</span></p>}<p className="mt-4 text-xs text-gray-400">{banner.startDate ? new Date(banner.startDate).toLocaleString() : 'No start date'}{banner.endDate ? ` — ${new Date(banner.endDate).toLocaleString()}` : ' · No end date'}</p></div>
+          <div className="flex border-t border-gray-100 bg-gray-50"><button type="button" disabled={!!pending} onClick={() => openEditor(banner)} className="flex flex-1 items-center justify-center gap-2 py-3 text-xs font-bold text-gray-700 hover:text-red-600 disabled:opacity-50"><Edit2 size={14} />Edit Banner</button><button type="button" disabled={!!pending} onClick={() => { returnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null; setError(null); setNotice(null); setDeleteId(banner.id); }} aria-label={`Delete ${banner.title}`} className="border-l border-gray-100 px-5 text-gray-400 hover:text-red-600 disabled:opacity-50"><Trash2 size={15} /></button></div>
+        </article>; })}
+      </div>
+      {banners.length > 0 && filtered.length === 0 && <p className="py-10 text-center text-sm text-gray-500">No banners match these filters.</p>}
+      {pending?.startsWith('move-') && <p role="status" className="mt-4 text-sm text-gray-500">Saving banner order…</p>}
+    </>}
+
+    {editorOpen && <dialog ref={editorRef} aria-labelledby={titleId} className="fixed inset-0 m-auto max-h-[92dvh] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto rounded-3xl border-0 bg-white p-6 text-gray-900 shadow-2xl backdrop:bg-black/60 sm:p-8" onCancel={event => { if (busyRef.current) event.preventDefault(); else closeEditor(); }}>
+      <div className="mb-5 flex items-start justify-between gap-4 border-b border-gray-100 pb-5"><div><h2 id={titleId} className="text-xl font-bold">{editingId === null ? 'Create New Banner' : 'Edit Promotional Banner'}</h2><p className="mt-1 text-xs text-gray-500">Update the image, copy, destination, and schedule.</p></div><button type="button" disabled={!!pending} onClick={closeEditor} aria-label="Close banner editor" className="rounded-xl bg-gray-100 p-2 disabled:opacity-50"><X size={19} /></button></div>
+      {alert}{success}
+      <form onSubmit={save} className="space-y-5">
+        <fieldset disabled={!!pending} className="space-y-5 disabled:opacity-70">
+          <label className="block text-xs font-bold text-gray-700">Banner title *<textarea name="title" rows={2} required value={form.title} onChange={event => setForm({ ...form, title: event.target.value })} className={`${inputClass} mt-1.5`} autoFocus /></label>
+          <label className="block text-xs font-bold text-gray-700">Description<textarea name="description" rows={2} value={form.description} onChange={event => setForm({ ...form, description: event.target.value })} className={`${inputClass} mt-1.5`} /></label>
+          <div><label className="block text-xs font-bold text-gray-700" htmlFor={`${titleId}-image`}>Banner image *</label><div className="mt-1.5 flex flex-col gap-2 sm:flex-row"><input id={`${titleId}-image`} name="imageUrl" required value={form.imageUrl} onChange={event => setForm({ ...form, imageUrl: event.target.value })} placeholder="https://… or /images/…" className={`${inputClass} min-w-0 flex-1`} /><label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 py-2 text-xs font-bold"><Upload size={15} />{pending === 'upload' ? 'Uploading…' : 'Upload image'}<input type="file" accept="image/jpeg,image/png,image/webp" onChange={event => void upload(event)} className="sr-only" aria-label="Upload banner image" /></label></div><div className="mt-2 flex flex-wrap items-center justify-between gap-2"><p className="text-xs text-gray-400">JPG, PNG, or WebP, up to 5 MB.</p><button type="button" onClick={() => setForm(current => ({ ...current, imageUrl: '/images/sansei/hero.png' }))} className="text-xs font-semibold text-red-600 hover:underline">Use SANSEI design image</button></div>{form.imageUrl && <img src={form.imageUrl} alt="Selected banner image" className="mt-3 h-40 w-full rounded-xl border border-gray-200 bg-gray-100 object-cover" />}</div>
+          <label className="block text-xs font-bold text-gray-700">Destination URL or store path<input name="linkUrl" value={form.linkUrl} onChange={event => setForm({ ...form, linkUrl: event.target.value })} placeholder="/catalog" className={`${inputClass} mt-1.5`} /></label>
+          <div className="grid gap-4 sm:grid-cols-2"><label className="block text-xs font-bold text-gray-700">Display order<input name="displayOrder" type="number" min="0" step="1" required value={form.displayOrder} onChange={event => setForm({ ...form, displayOrder: event.target.valueAsNumber })} className={`${inputClass} mt-1.5`} /></label><label className="flex items-center gap-3 text-sm font-semibold"><input name="isActive" type="checkbox" checked={form.isActive} onChange={event => setForm({ ...form, isActive: event.target.checked })} className="h-4 w-4 accent-red-600" />Enable banner</label></div>
+          <div className="border-t border-gray-100 pt-4"><p className="mb-3 text-xs text-gray-500">Optional schedule. Times use your browser's local timezone.</p><div className="grid gap-4 sm:grid-cols-2"><label className="block text-xs font-bold text-gray-700">Start date<input name="startDate" type="datetime-local" value={form.startDate} onChange={event => setForm({ ...form, startDate: event.target.value })} className={`${inputClass} mt-1.5`} /></label><label className="block text-xs font-bold text-gray-700">End date<input name="endDate" type="datetime-local" value={form.endDate} onChange={event => setForm({ ...form, endDate: event.target.value })} className={`${inputClass} mt-1.5`} /></label></div></div>
+        </fieldset>
+        <div className="flex justify-end gap-3 border-t border-gray-100 pt-5"><Button type="button" variant="outline" size="sm" disabled={!!pending} onClick={closeEditor}>Cancel</Button><Button type="submit" size="sm" disabled={!!pending}>{pending === 'save' ? <><LoaderCircle size={16} className="mr-2 animate-spin" />Saving…</> : editingId === null ? 'Create Banner' : 'Save Changes'}</Button></div>
+      </form>
+    </dialog>}
+    {deleteId !== null && <dialog ref={deleteRef} aria-labelledby={`${titleId}-delete`} className="fixed inset-0 m-auto w-[calc(100%-2rem)] max-w-sm rounded-3xl border-0 bg-white p-6 text-gray-900 shadow-2xl backdrop:bg-black/60" onCancel={event => { if (busyRef.current) event.preventDefault(); else setDeleteId(null); }}>
+      <AlertCircle size={32} className="mb-4 text-red-600" /><h2 id={`${titleId}-delete`} className="text-lg font-bold">Delete this banner?</h2><p className="mb-5 mt-2 text-sm text-gray-500">The banner will be removed from the homepage. This cannot be undone.</p>{alert}<div className="flex gap-3"><Button variant="outline" size="sm" disabled={!!pending} onClick={() => { setDeleteId(null); setError(null); }} autoFocus>Cancel</Button><Button size="sm" disabled={!!pending} onClick={() => void remove()}>{pending === 'delete' ? 'Deleting…' : 'Delete Banner'}</Button></div>
+    </dialog>}
+  </div>;
 }

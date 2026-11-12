@@ -1,0 +1,245 @@
+.precision-home {
+  --precision-red: #e30613;
+  --precision-ink: #101114;
+  --precision-gutter: clamp(22px, 4.5vw, 60px);
+  color: var(--precision-ink);
+  background: #fff;
+  font-family: 'Montserrat', Arial, sans-serif;
+  line-height: 1.5;
+  overflow: clip;
+}
+.precision-home *, .precision-home *::before, .precision-home *::after { box-sizing: border-box; }
+.precision-home h1, .precision-home h2, .precision-home h3, .precision-home p { margin: 0; }
+.precision-home a { text-decoration: none; }
+.precision-home button, .precision-home summary { cursor: pointer; }
+.precision-home button { font: inherit; }
+.precision-home img { display: block; }
+.precision-home :is(a, button, summary, [tabindex]):focus-visible { outline: 3px solid #ef535c; outline-offset: 5px; }
+.precision-home :is(section, main, footer) { scroll-margin-top: 116px; }
+.precision-container { width: 100%; max-width: 1320px; margin-inline: auto; padding-inline: var(--precision-gutter); }
+.precision-screen-reader, .precision-skip-link:not(:focus) { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.precision-skip-link:focus { position: fixed; top: 12px; left: 12px; z-index: 100; padding: 12px 20px; color: #fff; background: #b80410; border-radius: 4px; }
+
+.precision-header { position: relative; z-index: 5; border-bottom: 1px solid #363638; background: #101112; color: white; }
+.precision-header__inner { min-height: 112px; display: flex; align-items: center; justify-content: space-between; gap: 36px; }
+.precision-brand { display: block; flex: 0 0 94px; }
+.precision-brand img { width: 88px; height: 99px; object-fit: contain; }
+.precision-navigation { display: flex; align-items: center; gap: clamp(22px, 3vw, 42px); }
+.precision-navigation > a, .precision-navigation > button { position: relative; border: 0; background: none; color: white; padding: 12px 0; font-size: 14px; font-weight: 700; white-space: nowrap; transition: color .18s ease; }
+.precision-navigation > a:hover, .precision-navigation > button:hover { color: #ff454e; }
+.precision-navigation .is-current::after { position: absolute; content: ''; height: 3px; background: var(--precision-red); left: 0; right: 0; bottom: 2px; }
+.precision-navigation .precision-navigation__cta { border: 1.5px solid var(--precision-red); border-radius: 10px; padding: 10px 18px; color: #ff2632; }
+.precision-navigation .precision-navigation__cta:hover { background: var(--precision-red); color: white; }
+.precision-menu-toggle { display: none; padding: 10px; color: white; background: none; border: 1px solid #555; border-radius: 6px; }
+
+.precision-hero { position: relative; isolation: isolate; height: clamp(650px, 64vw, 860px); background: #111213; color: white; overflow: hidden; text-align: center; }
+.precision-hero__art { position: absolute; z-index: -1; left: 50%; transform: translateX(-50%); bottom: 0; width: min(100%, 1240px); height: auto; mask-image: linear-gradient(to bottom, transparent, #000 18%), linear-gradient(to right, transparent, #000 10%, #000 90%, transparent); mask-composite: intersect; }
+.precision-hero__copy { position: relative; padding-top: 40px; }
+.precision-home .precision-eyebrow { color: var(--precision-red); font-size: clamp(13px, 1.4vw, 17px); font-weight: 800; text-transform: uppercase; line-height: 1.35; letter-spacing: -.025em; }
+.precision-hero .precision-eyebrow { color: #ff1b29; font-size: clamp(14px, 1.6vw, 19px); }
+.precision-hero h1 { margin-top: 16px; font-size: clamp(48px, 6.2vw, 80px); font-weight: 850; line-height: 1.015; letter-spacing: -.045em; text-transform: uppercase; text-wrap: balance; }
+.precision-hero__description { margin-top: 20px !important; font-size: clamp(16px, 1.8vw, 23px); font-weight: 400; line-height: 1.4; letter-spacing: -.025em; }
+.precision-hero__actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 18px; margin-top: 24px; }
+.precision-home .precision-button { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 12px 26px; border: 1.5px solid var(--precision-red); border-radius: 9px; background: var(--precision-red); color: #fff; font-size: 15px; font-weight: 750; line-height: 1.2; text-align: center; transition: background .18s ease, border-color .18s ease, transform .18s ease; }
+.precision-home .precision-button:hover { background: #bd0010; border-color: #bd0010; transform: translateY(-1px); }
+.precision-home .precision-button--outline { background: #15151580; border-color: #dedee1; }
+.precision-home .precision-button--outline:hover { color: #101114; border-color: white; background: white; }
+
+.precision-statement { padding-block: 38px 42px; text-align: center; background: linear-gradient(120deg, #fff, #fcfcfd); }
+.precision-statement h2 { display: inline-block; position: relative; font-size: clamp(25px, 3.7vw, 46px); font-weight: 800; line-height: 1.2; letter-spacing: -.055em; }
+.precision-statement h2::before, .precision-statement h2::after { content: ''; display: block; position: absolute; height: 1px; width: 28px; background: var(--precision-red); top: 54%; }
+.precision-statement h2::before { right: calc(100% + 30px); }
+.precision-statement h2::after { left: calc(100% + 30px); }
+.precision-statement span, .precision-statement p { color: var(--precision-red); }
+.precision-statement p { margin-top: 12px; font-size: clamp(14px, 1.5vw, 18px); letter-spacing: -.025em; }
+
+.precision-products { background: linear-gradient(115deg, #eeeef1, #f3f3f6 60%, #eaecef); padding-block: 48px 46px; }
+.precision-section-heading { margin-top: 5px !important; font-size: clamp(29px, 3.7vw, 46px); font-weight: 800; letter-spacing: -.055em; line-height: 1.16; }
+.precision-showcase { position: relative; margin-top: 32px; }
+.precision-operation-tabs { position: absolute; left: 0; top: 0; width: 22%; height: 300px; display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+.precision-operation-tabs button { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; flex: 1; min-height: 44px; border: 0; border-radius: 9px; padding: 13px 24px; background: #ffffffdc; box-shadow: 0 2px 3px #17202a09; color: #121318; text-align: left; font-size: 17px; font-weight: 750; transition: background .18s ease, color .18s ease; }
+.precision-operation-tabs button svg { color: var(--precision-red); flex-shrink: 0; }
+.precision-operation-tabs button:hover { background: #fff; color: #c40010; }
+.precision-operation-tabs button.is-selected { background: var(--precision-red); color: white; }
+.precision-operation-tabs button.is-selected svg { color: white; }
+.precision-product-panel { min-width: 0; }
+.precision-featured-product { display: grid; margin-left: calc(22% + 26px); min-height: 300px; grid-template-columns: 47% 53%; align-items: center; padding: 22px 30px 22px 20px; background: white; border-radius: 14px; box-shadow: 0 3px 5px #17202a08; color: inherit; transition: box-shadow .2s ease; }
+.precision-featured-product:hover { box-shadow: 0 7px 25px #17202a12; }
+.precision-featured-product__image { height: 248px; padding-right: 22px; }
+.precision-featured-product img { width: 100%; height: 100%; object-fit: contain; transition: transform .25s ease; }
+.precision-featured-product:hover img { transform: scale(1.035); }
+.precision-featured-product__copy { border-left: 1px solid #a5a7ad; padding-left: 34px; }
+.precision-featured-product h3 { font-size: clamp(24px, 2.8vw, 34px); font-weight: 800; letter-spacing: -.055em; line-height: 1.15; }
+.precision-featured-product p { margin-top: 14px; font-size: 17px; letter-spacing: -.025em; line-height: 1.5; }
+.precision-featured-product__link { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; color: #c5000d; font-size: 13px; font-weight: 700; }
+.precision-product-grid { display: grid; grid-template-columns: repeat(var(--product-count, 4), minmax(0, 1fr)); gap: 18px; margin-top: 22px; }
+.precision-product-card { display: flex; flex-direction: column; min-width: 0; padding: 14px 18px 20px; border: 1px solid #fff; border-radius: 12px; background: #fff; color: inherit; box-shadow: 0 3px 4px #17202a09; transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+.precision-product-card:hover { transform: translateY(-4px); border-color: #f6afb4; box-shadow: 0 9px 20px #17202a10; }
+.precision-product-card__image { height: 220px; margin-bottom: 8px; }
+.precision-product-card img { height: 100%; width: 100%; object-fit: contain; }
+.precision-product-card__label { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: auto; }
+.precision-product-card h3 { font-size: clamp(14px, 1.5vw, 18px); font-weight: 750; letter-spacing: -.045em; line-height: 1.2; }
+.precision-product-card__label svg { flex-shrink: 0; color: var(--precision-red); }
+
+.precision-benefits { padding-block: 38px 32px; background: #fff; }
+.precision-benefit-list { margin-top: 14px; }
+.precision-benefit { display: grid; grid-template-columns: 110px minmax(0, .8fr) minmax(0, 1.2fr); align-items: center; gap: 32px; padding: 24px 4px; border-bottom: 1px solid #d5d6dd; }
+.precision-benefit:last-child { border-bottom: 0; }
+.precision-benefit__icon { justify-self: center; color: var(--precision-red); }
+.precision-benefit h3 { position: relative; padding-left: 30px; font-size: 23px; font-weight: 750; letter-spacing: -.045em; line-height: 1.15; max-width: 300px; }
+.precision-benefit h3::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 1px; background: #b4b5bb; }
+.precision-benefit p { font-size: 16px; letter-spacing: -.025em; line-height: 1.55; }
+.precision-industries { padding-block: 24px 30px; color: white; background: linear-gradient(130deg, #171719, #090a0b); }
+.precision-industries .precision-eyebrow { text-align: center; color: #ff1b29; }
+.precision-industry-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 22px; }
+.precision-industry { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding-inline: 12px; border-right: 1px solid var(--precision-red); }
+.precision-industry:last-child { border-right: 0; }
+.precision-industry h3 { font-size: 17px; font-weight: 700; letter-spacing: -.025em; }
+
+.precision-cta { position: relative; isolation: isolate; overflow: hidden; padding-block: 42px 46px; background: #fff; text-align: center; }
+.precision-cta__drawing { position: absolute; z-index: -1; bottom: -58px; right: -45px; width: min(58%, 690px); height: 350px; color: #afb3c2; opacity: .75; }
+.precision-cta h2 { font-size: clamp(27px, 3.5vw, 43px); font-weight: 800; letter-spacing: -.055em; line-height: 1.14; text-wrap: balance; }
+.precision-cta .precision-button { margin-top: 24px; min-width: 178px; }
+.precision-home .precision-footer__inner { max-width: 1320px; padding-inline: var(--precision-gutter); }
+
+.precision-dialog { border: 0; padding: 0; margin: auto; width: min(640px, calc(100% - 32px)); max-height: calc(100dvh - 48px); border-radius: 18px; background: #fff; color: #151519; box-shadow: 0 25px 90px #0007; overflow-y: auto; }
+.precision-dialog::backdrop { background: #08090bd9; backdrop-filter: blur(6px); }
+.precision-dialog__body { position: relative; padding: 42px; }
+.precision-dialog__close { position: absolute; right: 14px; top: 14px; display: grid; place-items: center; padding: 9px; border: 0; border-radius: 50%; background: #f0f0f3; }
+.precision-dialog h2 { font-size: 34px; font-weight: 800; line-height: 1.2; margin-top: 10px; letter-spacing: -.045em; }
+.precision-dialog h2 + p { margin-top: 12px; color: #55565d; font-size: 14px; }
+.precision-catalog-list { display: flex; flex-direction: column; gap: 0; margin-block: 24px; }
+.precision-catalog-list button { display: flex; justify-content: space-between; align-items: center; gap: 16px; border: 0; border-bottom: 1px solid #e1e1e7; background: #fff; padding: 15px 5px; text-align: left; }
+.precision-catalog-list button:hover { background: #fff4f5; }
+.precision-catalog-list strong, .precision-catalog-list small { display: block; }
+.precision-catalog-list strong { font-size: 17px; }
+.precision-catalog-list small { font-size: 12px; color: #686971; margin-top: 4px; }
+.precision-catalog-list svg { color: var(--precision-red); flex-shrink: 0; }
+.precision-resource { border-bottom: 1px solid #dddde3; padding-block: 18px; }
+.precision-resource summary { font-weight: 750; }
+.precision-resource p { margin-top: 12px; font-size: 14px; color: #55565d; }
+.precision-resource + .precision-button { margin-top: 24px; }
+
+@media (max-width: 950px) {
+  .precision-header__inner { min-height: 88px; gap: 20px; }
+  .precision-brand { flex-basis: 78px; }
+  .precision-brand img { width: 70px; height: 78px; }
+  .precision-navigation { gap: 22px; }
+  .precision-navigation > a, .precision-navigation > button { font-size: 12px; }
+  .precision-navigation .precision-navigation__cta { padding: 8px 12px; }
+  .precision-hero { height: 650px; }
+  .precision-hero__copy { padding-top: 32px; }
+  .precision-hero h1 { font-size: clamp(44px, 6.4vw, 60px); }
+  .precision-hero__description { font-size: 19px; margin-top: 18px !important; }
+  .precision-statement { padding-block: 28px; }
+  .precision-statement h2::before { right: calc(100% + 16px); width: 20px; }
+  .precision-statement h2::after { left: calc(100% + 16px); width: 20px; }
+  .precision-products { padding-block: 34px; }
+  .precision-showcase { margin-top: 24px; }
+  .precision-operation-tabs { height: 230px; }
+  .precision-operation-tabs button { padding: 10px 18px; font-size: 14px; min-height: 40px; }
+  .precision-featured-product { min-height: 230px; padding: 15px; margin-left: calc(22% + 18px); }
+  .precision-featured-product__image { height: 200px; padding-right: 15px; }
+  .precision-featured-product__copy { padding-left: 22px; }
+  .precision-featured-product h3 { font-size: 26px; }
+  .precision-featured-product p { margin-top: 12px; font-size: 14px; }
+  .precision-featured-product__link { margin-top: 10px; font-size: 11px; }
+  .precision-product-grid { gap: 12px; margin-top: 18px; }
+  .precision-product-card { padding: 12px 12px 16px; }
+  .precision-product-card__image { height: 150px; }
+  .precision-product-card h3 { font-size: 13px; }
+  .precision-product-card__label svg { width: 18px; }
+  .precision-benefit { grid-template-columns: 78px minmax(0, .85fr) minmax(0, 1.15fr); gap: 20px; padding-block: 19px; }
+  .precision-benefit h3 { padding-left: 24px; font-size: 20px; }
+  .precision-benefit p { font-size: 13px; }
+  .precision-benefit__icon { width: 48px; height: 48px; }
+  .precision-industry h3 { font-size: 14px; }
+  .precision-cta { padding-block: 32px; }
+}
+@media (max-width: 680px) {
+  .precision-header__inner { min-height: 80px; }
+  .precision-brand img { height: 72px; width: 64px; }
+  .precision-menu-toggle { display: grid; place-items: center; }
+  .precision-navigation { display: none; position: absolute; top: 100%; left: 0; right: 0; padding: 14px var(--precision-gutter) 24px; background: #131416; border-bottom: 1px solid #444; box-shadow: 0 12px 16px #0003; }
+  .precision-navigation.is-open { display: flex; flex-direction: column; align-items: stretch; gap: 5px; }
+  .precision-navigation > a, .precision-navigation > button { text-align: left; font-size: 15px; padding: 12px 4px; }
+  .precision-navigation .is-current::after { right: auto; width: 42px; }
+  .precision-navigation .precision-navigation__cta { padding: 12px; margin-top: 12px; text-align: center; }
+  .precision-hero { height: 610px; }
+  .precision-hero__art { height: 380px; width: 100%; object-fit: cover; object-position: center bottom; mask-image: linear-gradient(to bottom, transparent, #000 15%); }
+  .precision-hero__copy { padding-top: 30px; }
+  .precision-hero h1 { font-size: clamp(36px, 8.1vw, 52px); margin-top: 16px; }
+  .precision-hero__description { font-size: 16px; line-height: 1.45; margin-top: 18px !important; }
+  .precision-hero__actions { gap: 12px; margin-top: 22px; }
+  .precision-home .precision-button { font-size: 13px; padding: 12px 20px; min-height: 44px; }
+  .precision-statement { padding-block: 28px; }
+  .precision-statement h2 { font-size: clamp(23px, 5.4vw, 34px); text-wrap: balance; }
+  .precision-statement h2::before, .precision-statement h2::after { display: none; }
+  .precision-statement p { font-size: 13px; max-width: 300px; margin-inline: auto; }
+  .precision-section-heading { font-size: 31px; max-width: 400px; }
+  .precision-operation-tabs { position: relative; width: auto; height: auto; flex-direction: row; justify-content: flex-start; overflow-x: auto; gap: 5px; padding: 4px 3px 8px; margin: -4px -3px 10px; scrollbar-width: thin; }
+  .precision-operation-tabs button { flex: 0 0 auto; width: auto; gap: 8px; padding: 11px 15px; font-size: 13px; min-height: 44px; }
+  .precision-operation-tabs svg { width: 14px; }
+  .precision-featured-product { grid-template-columns: 45% 55%; min-height: 200px; padding: 16px 12px; margin-left: 0; }
+  .precision-featured-product__image { height: 180px; padding-right: 10px; }
+  .precision-featured-product__copy { padding-left: 15px; }
+  .precision-featured-product h3 { font-size: 23px; }
+  .precision-featured-product p { font-size: 12px; }
+  .precision-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .precision-product-card__image { height: 165px; }
+  .precision-product-card h3 { font-size: 13px; }
+  .precision-benefits { padding-block: 30px 24px; }
+  .precision-benefit { grid-template-columns: 58px minmax(0, 1fr); gap: 10px 16px; padding-block: 20px; }
+  .precision-benefit__icon { width: 43px; height: 43px; grid-row: span 2; align-self: start; }
+  .precision-benefit h3 { border: 0; padding-left: 0; font-size: 20px; max-width: none; }
+  .precision-benefit h3::before { display: none; }
+  .precision-benefit p { grid-column: 2; font-size: 13px; }
+  .precision-industry-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 24px; }
+  .precision-industry:nth-child(2) { border-right: 0; }
+  .precision-industry h3 { font-size: 14px; }
+  .precision-cta { padding-block: 36px; }
+  .precision-cta h2 { font-size: 28px; }
+  .precision-cta__drawing { width: 100%; height: 260px; right: -150px; opacity: .4; }
+  .precision-dialog__body { padding: 36px 24px 26px; }
+  .precision-dialog h2 { font-size: 28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .precision-home *, .precision-home *::before, .precision-home *::after { transition: none !important; scroll-behavior: auto !important; }
+}
+
+/* Backend content keeps the approved composition without assuming a fixed catalog. */
+.precision-hero__copy h1 { max-width: 900px; margin-inline: auto; white-space: pre-line; }
+.precision-hero__description { max-width: 680px; margin-inline: auto !important; white-space: pre-line; }
+.precision-hero--intro { height: auto; min-height: 360px; padding-bottom: 60px; }
+.precision-hero__controls { position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); display: flex; align-items: center; justify-content: center; gap: 4px; max-width: calc(100% - 36px); flex-wrap: wrap; border: 1px solid #ffffff30; border-radius: 30px; padding: 2px 6px; background: #101114c9; }
+.precision-hero__controls button { display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 50%; background: none; color: #fff; }
+.precision-hero__controls { width: max-content; }
+.precision-hero__controls button:hover { background: #ffffff20; }
+.precision-hero__dot span { width: 6px; height: 6px; border-radius: 50%; background: #96969c; }
+.precision-hero__dot.is-active span { background: #ff2935; width: 9px; height: 9px; }
+.precision-home .precision-hero__status { margin-top: 22px; color: #dbdbe0; font-size: 13px; }
+.precision-hero__status button { padding: 3px; background: none; border: 0; color: #fff; text-decoration: underline; }
+.precision-products__heading { display: flex; align-items: end; justify-content: space-between; gap: 24px; }
+.precision-text-link { display: inline-flex; align-items: center; gap: 10px; color: #bd0010; font-size: 13px; font-weight: 700; }
+.precision-products__heading > a { white-space: nowrap; margin-bottom: 6px; }
+.precision-operation-tabs { justify-content: flex-start; overflow-y: auto; scrollbar-width: thin; padding: 2px 4px 4px 0; }
+.precision-operation-tabs button { flex: 0 0 auto; min-height: 54px; overflow-wrap: anywhere; }
+.precision-products__state { margin-left: calc(22% + 26px); min-height: 300px; padding: 45px 25px; background: #fff; border: 1px solid #e4e5e9; border-radius: 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; text-align: center; }
+.precision-products__state h3 { font-size: 20px; font-weight: 700; }
+.precision-products__state p { color: #656872; font-size: 14px; }
+.precision-products__more { margin-top: 24px; text-align: right; }
+.precision-showcase--no-tabs :is(.precision-featured-product, .precision-products__state) { margin-left: 0; }
+.precision-home .precision-product-card__price { margin-top: 10px; color: #a9010b; font-size: 14px; font-weight: 650; }
+.precision-featured-product h3, .precision-product-card h3 { overflow-wrap: anywhere; }
+.precision-featured-product__copy p:not(.precision-product-card__price) { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; }
+@media (max-width: 950px) and (min-width: 681px) { .precision-products__state { min-height: 230px; margin-left: calc(22% + 18px); } }
+@media (max-width: 680px) {
+  .precision-home :is(section, main, footer) { scroll-margin-top: 90px; }
+  .precision-hero--intro { min-height: 340px; height: auto; }
+  .precision-hero h1 { font-size: clamp(32px, 8vw, 52px); }
+  .precision-products__heading { align-items: flex-start; flex-direction: column; gap: 15px; }
+  .precision-operation-tabs { overflow-y: hidden; padding-bottom: 12px; }
+  .precision-operation-tabs button { min-height: 44px; }
+  .precision-products__state { min-height: 230px; margin-left: 0; }
+  .precision-products__more { text-align: left; }
+}

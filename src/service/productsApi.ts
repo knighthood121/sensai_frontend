@@ -28,6 +28,11 @@ export interface ProductQueryFilters {
   featured?: boolean;
   bestseller?: boolean;
   newArrival?: boolean;
+  isFeatured?: boolean;
+  isBestSeller?: boolean;
+  isNewArrival?: boolean;
+  sortBy?: 'createdAt' | 'updatedAt' | 'name' | 'basePrice' | 'totalSold';
+  sortOrder?: 'asc' | 'desc';
   sort?:
   | 'newest'
   | 'oldest'
@@ -63,21 +68,35 @@ export const productsApi = api.injectEndpoints({
           ? [
             ...result.data.map(({ id }) => ({ type: 'Product' as const, id })),
             { type: 'Product', id: 'LIST' },
+            { type: 'Variant', id: 'LIST' },
+            { type: 'Category' },
+            { type: 'SubCategory' },
           ]
-          : [{ type: 'Product', id: 'LIST' }],
+          : [
+            { type: 'Product', id: 'LIST' },
+            { type: 'Variant', id: 'LIST' },
+            { type: 'Category' },
+            { type: 'SubCategory' },
+          ],
     }),
 
     getProductDetails: builder.query<ProductDetailsResponse, string | number>({
       query: (identifier) => ENDPOINTS.products.details(identifier),
-      providesTags: (_result, _error, identifier) => [
+      providesTags: (result, _error, identifier) => [
         { type: 'Product', id: identifier },
+        ...(result?.data.product ? [{ type: 'Product' as const, id: result.data.product.id }] : []),
+        { type: 'Category' },
+        { type: 'SubCategory' },
       ],
     }),
 
     getProductDetailsBySlug: builder.query<ProductDetailsResponse, string>({
       query: (slug) => ENDPOINTS.products.detailsBySlug(slug),
-      providesTags: (_result, _error, slug) => [
+      providesTags: (result, _error, slug) => [
         { type: 'Product', id: slug },
+        ...(result?.data.product ? [{ type: 'Product' as const, id: result.data.product.id }] : []),
+        { type: 'Category' },
+        { type: 'SubCategory' },
       ],
     }),
 
@@ -87,7 +106,7 @@ export const productsApi = api.injectEndpoints({
         method: 'POST',
         body: newProduct,
       }),
-      invalidatesTags: [{ type: 'Product', id: 'LIST' }],
+      invalidatesTags: [{ type: 'Product', id: 'LIST' }, 'Home', 'Category', 'SubCategory'],
     }),
 
     updateProduct: builder.mutation<
@@ -102,6 +121,7 @@ export const productsApi = api.injectEndpoints({
       invalidatesTags: (_result, _error, { id }) => [
         { type: 'Product', id },
         { type: 'Product', id: 'LIST' },
+        'Home', 'Category', 'SubCategory',
       ],
     }),
 
@@ -113,6 +133,7 @@ export const productsApi = api.injectEndpoints({
       invalidatesTags: (_result, _error, id) => [
         { type: 'Product', id },
         { type: 'Product', id: 'LIST' },
+        'Home', 'Category', 'SubCategory',
       ],
     }),
 
@@ -123,8 +144,8 @@ export const productsApi = api.injectEndpoints({
         body: formData,
       }),
 
-      // Invalidates product details list as new product images are saved
-      invalidatesTags: [{ type: 'Product', id: 'LIST' }],
+      // Media changes affect both list cards and product detail caches.
+      invalidatesTags: ['Product', 'Home'],
     }),
 
     uploadProductVideos: builder.mutation<{ success: boolean; data: any[] }, FormData>({
@@ -133,7 +154,7 @@ export const productsApi = api.injectEndpoints({
         method: 'POST',
         body: formData,
       }),
-      invalidatesTags: [{ type: 'Product', id: 'LIST' }],
+      invalidatesTags: ['Product', 'Home'],
     }),
 
     uploadTempProductImages: builder.mutation<UploadProductImagesResponse, FormData>({
@@ -153,6 +174,7 @@ export const productsApi = api.injectEndpoints({
       invalidatesTags: (_result, _error, { productId }) => [
         { type: 'Product', id: productId },
         { type: 'Product', id: 'LIST' },
+        'Home',
       ],
     }),
 
@@ -162,7 +184,7 @@ export const productsApi = api.injectEndpoints({
         method: 'DELETE',
         body: deletePayload,
       }),
-      invalidatesTags: [{ type: 'Product', id: 'LIST' }],
+      invalidatesTags: ['Product', 'Home'],
     }),
 
     listCategories: builder.query<{ success: boolean; data: any[] }, void>({
@@ -176,7 +198,7 @@ export const productsApi = api.injectEndpoints({
         method: 'POST',
         body: newCategory,
       }),
-      invalidatesTags: ['Category'],
+      invalidatesTags: ['Category', 'SubCategory', 'Product', 'Home', 'Dropdown'],
     }),
 
     updateCategory: builder.mutation<{ success: boolean; data: any }, { id: number; data: any }>({
@@ -185,7 +207,7 @@ export const productsApi = api.injectEndpoints({
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: ['Category'],
+      invalidatesTags: ['Category', 'SubCategory', 'Product', 'Home', 'Dropdown'],
     }),
 
     deleteCategory: builder.mutation<{ success: boolean; message: string }, number>({
@@ -193,7 +215,7 @@ export const productsApi = api.injectEndpoints({
         url: `/api/v1/categories/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['Category'],
+      invalidatesTags: ['Category', 'SubCategory', 'Product', 'Home', 'Dropdown'],
     }),
 
     listSubCategories: builder.query<{ success: boolean; data: any[] }, { categoryId?: number } | void>({
@@ -216,7 +238,7 @@ export const productsApi = api.injectEndpoints({
         method: 'POST',
         body: newSubCategory,
       }),
-      invalidatesTags: ['SubCategory', 'Category'],
+      invalidatesTags: ['SubCategory', 'Category', 'Product', 'Home', 'Dropdown'],
     }),
 
     updateSubCategory: builder.mutation<{ success: boolean; data: any }, { id: number; data: any }>({
@@ -225,7 +247,7 @@ export const productsApi = api.injectEndpoints({
         method: 'PUT',
         body: data,
       }),
-      invalidatesTags: ['SubCategory', 'Category'],
+      invalidatesTags: ['SubCategory', 'Category', 'Product', 'Home', 'Dropdown'],
     }),
 
     deleteSubCategory: builder.mutation<{ success: boolean; message: string }, number>({
@@ -233,7 +255,7 @@ export const productsApi = api.injectEndpoints({
         url: `/api/v1/subcategories/${id}`,
         method: 'DELETE',
       }),
-      invalidatesTags: ['SubCategory', 'Category'],
+      invalidatesTags: ['SubCategory', 'Category', 'Product', 'Home', 'Dropdown'],
     }),
   }),
   overrideExisting: false,
