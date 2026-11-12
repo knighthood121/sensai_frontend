@@ -6,12 +6,27 @@ import { useLogoutMutation } from '../../service/authApi';
 import { useGetCartQuery } from '../../service/cartApi';
 import { useListCategoriesQuery, useListProductsQuery } from '../../service/productsApi';
 import { getGuestCart } from '../../utils/guestCart';
+import ProductImage from '../common/ProductImage';
+import { getCatalogImage } from '../../utils/catalogProduct';
+import { getCategoryColorStyle } from '../../utils/categoryColors';
 import './StorefrontNavbar.css';
 
 type OpenPanel = 'products' | 'search' | 'account' | null;
-type StoreCategory = { id: number; name: string; slug: string; isActive?: boolean };
+type StoreCategory = { id: number; name: string; slug: string; image?: string | null; isActive?: boolean };
 const navClass = ({ isActive }: { isActive: boolean }) => `storefront-nav__link${isActive ? ' is-active' : ''}`;
 const readGuestCount = () => getGuestCart().reduce((sum, item) => sum + item.quantity, 0);
+
+function CategoryTile({ category, onSelect }: { category: StoreCategory; onSelect: () => void }) {
+  // A category without artwork uses a real product from that category.
+  const { data, isFetching } = useListProductsQuery({ categoryId: category.id, limit: 1 }, { skip: !!category.image });
+  const image = category.image || (data?.data?.[0] ? getCatalogImage(data.data[0]) : null);
+  return <Link to={`/category/${category.slug}`} onClick={onSelect} className="storefront-category-tile" style={getCategoryColorStyle(category.id)}>
+    <span className="storefront-category-tile__image">
+      {isFetching && !image ? <span className="storefront-category-tile__loading" aria-label={`Loading ${category.name} image`} /> : <ProductImage src={image} alt={category.name} />}
+    </span>
+    <span className="storefront-category-tile__label">{category.name}<ArrowRight size={17} aria-hidden="true" /></span>
+  </Link>;
+}
 
 export default function StorefrontNavbar({ onLoginClick }: { onLoginClick?: () => void }) {
   const location = useLocation();
@@ -32,9 +47,7 @@ export default function StorefrontNavbar({ onLoginClick }: { onLoginClick?: () =
   const accountPanelRef = useRef<HTMLDivElement>(null);
   const { data: cartData } = useGetCartQuery(undefined, { skip: !isAuthenticated });
   const { data: categoryResponse, isLoading: categoriesLoading, isError: categoriesError, refetch: reloadCategories } = useListCategoriesQuery();
-  const { data: productResponse } = useListProductsQuery({ limit: 100 }, { skip: panel !== 'products' && !mobileProductsOpen });
   const categories: StoreCategory[] = (categoryResponse?.data || []).filter((category: StoreCategory) => category.isActive !== false && category.slug);
-  const products = productResponse?.data || [];
   const cartCount = isAuthenticated ? cartData?.data?.totalItems || 0 : guestCount;
   const productsActive = location.pathname.startsWith('/category/') || location.pathname.startsWith('/product/');
 
@@ -182,10 +195,7 @@ export default function StorefrontNavbar({ onLoginClick }: { onLoginClick?: () =
         <div className="storefront-nav__products-heading"><div><span>PRECISION CUTTING SOLUTIONS</span><h2>Find the right tool.</h2></div><Link to="/catalog" onClick={closeNavigation}>View all products <ArrowRight size={18} /></Link></div>
         {categoryStatus}
         <div className="storefront-nav__categories">
-          {categories.map(category => <section className="storefront-nav__category" key={category.id}>
-            <Link to={`/category/${category.slug}`} onClick={closeNavigation} className="storefront-nav__category-title">{category.name}<ArrowRight size={17} /></Link>
-            {products.filter(product => product.categoryId === category.id || product.category?.id === category.id).slice(0, 4).map(product => <Link className="storefront-nav__product-link" to={`/product/${product.id}`} key={product.id} onClick={closeNavigation}>{product.name}</Link>)}
-          </section>)}
+          {categories.map(category => <CategoryTile category={category} onSelect={closeNavigation} key={category.id} />)}
         </div>
       </div>}
     </header>
@@ -198,7 +208,7 @@ export default function StorefrontNavbar({ onLoginClick }: { onLoginClick?: () =
         <nav className="storefront-nav__mobile-links" aria-label="Mobile main navigation">
           <NavLink to="/" end className={navClass} onClick={closeNavigation}>Home</NavLink>
           <button type="button" className={`storefront-nav__link${productsActive ? ' is-active' : ''}`} aria-expanded={mobileProductsOpen} aria-controls="storefront-mobile-products" onClick={() => setMobileProductsOpen(open => !open)}>Products<ChevronDown size={17} aria-hidden="true" /></button>
-          {mobileProductsOpen && <div className="storefront-nav__mobile-products" id="storefront-mobile-products">{categoryStatus}{categories.map(category => <Link key={category.id} to={`/category/${category.slug}`} onClick={closeNavigation}>{category.name}<ArrowRight size={16} /></Link>)}<Link to="/catalog" onClick={closeNavigation}>View all products<ArrowRight size={16} /></Link></div>}
+          {mobileProductsOpen && <div className="storefront-nav__mobile-products" id="storefront-mobile-products">{categoryStatus}<div className="storefront-nav__category-tiles">{categories.map(category => <CategoryTile category={category} onSelect={closeNavigation} key={category.id} />)}</div><Link className="storefront-nav__mobile-view-all" to="/catalog" onClick={closeNavigation}>View all products<ArrowRight size={16} /></Link></div>}
           <NavLink to="/catalog" className={navClass} onClick={closeNavigation}>Catalog</NavLink>
           <NavLink to="/about" className={navClass} onClick={closeNavigation}>About Us</NavLink>
           <NavLink to="/bulk-inquiry#inquiry-form" className={navClass} onClick={closeNavigation}>Contact</NavLink>

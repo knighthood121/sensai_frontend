@@ -1,17 +1,19 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight, Heart, Loader2, Package, Search, ShoppingCart, X } from 'lucide-react';
+import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight, Loader2, Package, Search, SlidersHorizontal, X } from 'lucide-react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Navbar from '../../../components/layout/Navbar';
 import Footer from '../../../components/layout/Footer';
-import ProductImage from '../../../components/common/ProductImage';
+import CatalogProductRow from './CatalogProductRow';
+import './CatalogList.css';
 import { useToast } from '../../../components/common/Toast';
 import { useAppSelector } from '../../../app/hooks';
 import { useListCategoriesQuery, useListProductsQuery, useListSubCategoriesQuery, useLazyGetProductDetailsQuery } from '../../../service/productsApi';
-import { useToggleWishlistMutation } from '../../../service/wishlistApi';
+import { useGetWishlistQuery, useToggleWishlistMutation } from '../../../service/wishlistApi';
 import { useAddToCartMutation } from '../../../service/cartApi';
 import { addGuestCartItem, getGuestCart } from '../../../utils/guestCart';
-import { getCartUnitPrice, getCatalogImage, getCatalogPrice, getCatalogStock, getVariantStock } from '../../../utils/catalogProduct';
+import { getCartUnitPrice, getCatalogImage, getVariantStock } from '../../../utils/catalogProduct';
 import type { Product } from '../../../types/Product.type';
+import { getCategoryColorStyle } from '../../../utils/categoryColors';
 
 type CatalogNode = {
   id: number; name: string; slug: string; description?: string | null;
@@ -23,7 +25,6 @@ const sorts = [
   { value: 'newest', label: 'Newest first' },
 ] as const;
 type CatalogSort = typeof sorts[number]['value'];
-const money = (value: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(value);
 
 export default function CategoryBrowse() {
   const navigate = useNavigate();
@@ -42,6 +43,8 @@ export default function CategoryBrowse() {
   const [addToCart] = useAddToCartMutation();
   const [getProductDetails] = useLazyGetProductDetailsQuery();
   const [toggleWishlist] = useToggleWishlistMutation();
+  const { data: wishlist } = useGetWishlistQuery(undefined, { skip: !isAuthenticated });
+  const savedProducts = new Set(wishlist?.data.map((item) => item.productId) ?? []);
   useEffect(() => { setSearchDraft(search); }, [search]);
 
   const { data: categoryResponse, isLoading: categoriesLoading, isError: categoriesError, refetch: reloadCategories } = useListCategoriesQuery();
@@ -127,97 +130,64 @@ export default function CategoryBrowse() {
     } finally { setAddingProductId(null); }
   };
 
-  return (
-    <div className="min-h-screen bg-[#f2f3f4] text-[#101114]">
-      <Navbar />
-      <header className="border-b-4 border-[#e30613] bg-[#151619] text-white">
-        <div className="mx-auto max-w-[1440px] px-5 py-12 sm:px-8 sm:py-16">
-          <p className="text-xs font-extrabold uppercase tracking-[.18em] text-[#ff5963]">Precision cutting solutions</p>
-          <h1 className="mt-3 text-4xl font-extrabold tracking-tight sm:text-5xl">{title}</h1>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-gray-300">{activeCategory?.description || 'Explore our cutting tools, compare specifications, and find the right product for your operation.'}</p>
-        </div>
-      </header>
-      <main className="mx-auto max-w-[1440px] px-5 py-10 sm:px-8">
-        <div className="flex flex-col items-start gap-8 lg:flex-row">
-          <aside className="w-full shrink-0 rounded-xl border border-gray-200 bg-white p-5 lg:w-64" aria-label="Catalog filters">
-            <button type="button" aria-expanded={filtersOpen} aria-controls="catalog-filter-options" onClick={() => setFiltersOpen((open) => !open)} className="flex w-full items-center justify-between gap-3 text-sm font-bold lg:hidden"><span>Filter products{categorySlug ? ' · ' + (activeCategory?.name || 'Category') : ''}</span><ChevronDown size={18} className={filtersOpen ? 'rotate-180' : ''} /></button>
-            <div id="catalog-filter-options" className={(filtersOpen ? 'mt-5 block' : 'hidden') + ' lg:mt-0 lg:block'}>
-            <div className="flex items-center justify-between border-b border-gray-200 pb-4">
-              <h2 className="text-sm font-extrabold uppercase tracking-wide">Categories</h2>
-              <Link to="/catalog" className="text-xs font-semibold text-red-700 hover:underline">Reset all</Link>
-            </div>
-            <nav className="mt-4 flex flex-col gap-1" aria-label="Product categories">
-              <Link to={categoryPath('')} onClick={() => setFiltersOpen(false)} aria-current={!categorySlug ? 'page' : undefined} className={'flex items-center justify-between px-3 py-3 text-sm font-bold ' + (!categorySlug ? 'bg-red-50 text-red-700' : 'hover:bg-gray-100')}>All products <ArrowRight size={15} /></Link>
-              {categoriesLoading && <p role="status" className="p-3 text-sm text-gray-600">Loading categories…</p>}
-              {categoriesError && <p role="alert" className="p-3 text-sm text-red-700">Categories could not load. <button onClick={() => reloadCategories()} className="underline">Retry</button></p>}
-              {!categoriesLoading && !categoriesError && categories.length === 0 && <p className="p-3 text-sm text-gray-600">No categories are available.</p>}
-              {categories.map((category) => {
-                const count = category.productCount ?? category._count?.products;
-                return <Link key={category.id} to={categoryPath(category.slug)} onClick={() => setFiltersOpen(false)} aria-current={categorySlug === category.slug ? 'page' : undefined} className={'flex items-center justify-between gap-3 px-3 py-3 text-sm ' + (categorySlug === category.slug ? 'bg-red-50 font-bold text-red-700' : 'text-gray-700 hover:bg-gray-100')}><span>{category.name}</span>{count !== undefined && <span className="text-xs">{count}</span>}</Link>;
-              })}
-            </nav>
-            {activeCategory && (subcategories.length > 0 || subcategoriesLoading || subcategoriesError) && <div className="mt-5 border-t border-gray-200 pt-5">
-              <h3 className="text-xs font-extrabold uppercase tracking-wide">Product type</h3>
-              {subcategoriesLoading && <p className="mt-3 text-sm text-gray-600">Loading product types…</p>}
-              {subcategoriesError && <p className="mt-3 text-sm text-red-700">Product types are unavailable.</p>}
-              <nav className="mt-3 flex flex-col gap-1" aria-label="Product types">
-                {subcategories.map((subcategory) => <Link key={subcategory.id} to={categoryPath(categorySlug, subcategory.slug)} onClick={() => setFiltersOpen(false)} aria-current={subCategorySlug === subcategory.slug ? 'page' : undefined} className={'px-3 py-2.5 text-sm ' + (subCategorySlug === subcategory.slug ? 'bg-red-50 font-bold text-red-700' : 'text-gray-700 hover:bg-gray-100')}>{subcategory.name}</Link>)}
-              </nav>
-            </div>}
-            <div className="mt-6 border-t border-gray-200 pt-5">
-              <p className="text-sm font-bold">Need help choosing?</p><p className="mt-2 text-xs leading-6 text-gray-600">Share your application and tooling requirements with our team.</p>
-              <Link to="/bulk-inquiry#inquiry-form" className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-red-700">Get solutions <ArrowRight size={16} /></Link>
-            </div>
-            </div>
-          </aside>
-          <section className="min-w-0 flex-1 self-stretch" aria-label="Product results">
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <form onSubmit={searchCatalog} role="search" className="flex min-w-0 flex-1 border border-gray-300 bg-white">
-                <label htmlFor="catalog-search" className="sr-only">Search the catalog</label>
-                <input id="catalog-search" value={searchDraft} onChange={(event) => setSearchDraft(event.target.value)} type="search" placeholder="Search names, SKU or keywords" className="min-w-0 flex-1 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-inset focus:ring-red-600" />
-                <button type="submit" aria-label="Search products" className="bg-[#e30613] px-4 text-white hover:bg-red-800"><Search size={19} /></button>
-              </form>
-              <label className="flex items-center gap-2 border border-gray-300 bg-white px-3 text-sm"><span className="sr-only">Sort products</span><select aria-label="Sort products" value={sort} onChange={(event) => updateQuery({ sort: event.target.value, page: null })} className="w-full bg-white py-3 outline-none">{sorts.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
-            </div>
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-              <p className="text-sm text-gray-600" aria-live="polite">{productsLoading ? 'Loading products…' : productsError ? 'Products unavailable' : pagination ? pagination.total.toLocaleString() + ' products found' : products.length.toLocaleString() + ' products found'}</p>
-              <div className="flex flex-wrap gap-2">
-                {categorySlug && <Link to={categoryPath('')} className="inline-flex items-center gap-2 border border-red-100 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700">{activeCategory?.name || 'Category'} <X size={12} /></Link>}
-                {subCategorySlug && <Link to={categoryPath(categorySlug)} className="inline-flex items-center gap-2 border border-red-100 bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-700">{activeSubcategory?.name || 'Product type'} <X size={12} /></Link>}
-                {search && <button onClick={() => { setSearchDraft(''); updateQuery({ search: null, page: null }); }} className="inline-flex items-center gap-2 border border-gray-300 bg-white px-3 py-1.5 text-xs">“{search}” <X size={12} /></button>}
-              </div>
-            </div>
-            {productsError ? <div role="alert" className="mt-6 border border-gray-200 bg-white p-10 text-center"><Package className="mx-auto text-gray-400" size={36} /><h2 className="mt-4 font-bold">We couldn't load the catalog.</h2><p className="mt-2 text-sm text-gray-600">Please try again in a moment.</p><button onClick={() => reloadProducts()} className="mt-5 bg-red-600 px-5 py-3 text-sm font-bold text-white">Try again</button></div>
-              : productsLoading && !productsResponse ? <div role="status" className="flex min-h-[320px] items-center justify-center gap-3"><Loader2 className="animate-spin text-red-600" /><span className="text-sm">Loading products…</span></div>
-              : products.length === 0 ? <div className="mt-6 border border-gray-200 bg-white p-12 text-center"><Package className="mx-auto text-gray-400" size={40} /><h2 className="mt-4 text-xl font-bold">{search || categorySlug ? 'No products match your selection.' : 'No products are available yet.'}</h2><p className="mt-2 text-sm text-gray-600">Adjust your filters or ask our team about your requirements.</p><Link to="/catalog" className="mt-5 inline-block font-bold text-red-700">View all products</Link></div>
-              : <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3" aria-busy={productsLoading}>
-                {products.map((product) => {
-                  const price = getCatalogPrice(product);
-                  const stock = getCatalogStock(product);
-                  const image = getCatalogImage(product);
-                  return <article key={product.id} className="flex min-w-0 flex-col overflow-hidden rounded-xl border border-gray-200 bg-white transition-shadow hover:shadow-md">
-                    <Link to={'/product/' + product.id} className="flex aspect-[4/3] items-center justify-center border-b border-gray-100 bg-[#f9f9fa] p-6">
-                      <ProductImage src={image} alt={product.name} className="h-full w-full object-contain" />
-                    </Link>
-                    <div className="flex flex-1 flex-col p-5">
-                      {product.category?.name && <p className="text-[10px] font-extrabold uppercase tracking-wide text-red-700">{product.category.name}</p>}
-                      <h2 className="mt-2 text-base font-bold leading-6"><Link to={'/product/' + product.id} className="hover:text-red-700">{product.name}</Link></h2>
-                      {product.sku && <p className="mt-2 break-words text-xs text-gray-500">SKU: {product.sku}</p>}
-                      {(product.material || product.dimensions) && <p className="mt-2 text-xs leading-5 text-gray-600">{[product.material, product.dimensions].filter(Boolean).join(' · ')}</p>}
-                      <div className="mt-auto pt-5"><p className="text-lg font-extrabold">{price === null ? 'Price on request' : money(price)}</p><p className={'mt-1 text-xs ' + (stock === 0 ? 'text-red-700' : 'text-gray-600')}>{stock === null ? 'Availability on request' : stock > 0 ? stock + ' available' : 'Out of stock'}</p></div>
-                      <div className="mt-4 flex gap-2">
-                        <button type="button" onClick={() => handleAddToCart(product)} disabled={addingProductId === product.id || stock === 0} className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 bg-[#e30613] px-3 py-3 text-xs font-bold text-white hover:bg-red-800 disabled:cursor-not-allowed disabled:bg-gray-200 disabled:text-gray-600">{addingProductId === product.id ? <Loader2 size={15} className="animate-spin" /> : <ShoppingCart size={15} />}{addingProductId === product.id ? 'Adding…' : stock === 0 ? 'Out of stock' : product.variants?.length > 1 ? 'Choose options' : 'Add to cart'}</button>
-                        <button type="button" aria-label={'Save ' + product.name + ' to wishlist'} disabled={wishlistProductId === product.id} onClick={() => handleWishlist(product.id)} className="border border-gray-300 px-3 text-gray-800 hover:border-red-600 hover:text-red-700 disabled:opacity-50">{wishlistProductId === product.id ? <Loader2 className="animate-spin" size={17} /> : <Heart size={17} />}</button>
-                      </div>
-                    </div>
-                  </article>;
+  const selectFilter = (path: string) => { setFiltersOpen(false); navigate(path); };
+
+  return <div className="catalog-page">
+    <Navbar />
+    <main className="catalog-page__inner" style={getCategoryColorStyle(activeCategory?.id)}>
+      <nav className="catalog-breadcrumb" aria-label="Breadcrumb"><Link to="/">Home</Link><ChevronRight size={12} aria-hidden="true" /><Link to="/catalog" aria-current={!categorySlug ? 'page' : undefined}>Products</Link>{activeCategory && <><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{title}</span></>}</nav>
+      <header className="catalog-page__heading"><div><p>Precision cutting solutions</p><h1>{title}</h1></div><Link to="/bulk-inquiry#inquiry-form">Need help selecting a tool? <ArrowRight size={16} aria-hidden="true" /></Link></header>
+      <div className="catalog-layout">
+        <aside className="catalog-filters" aria-label="Catalog filters">
+          <div className="catalog-filters__heading"><h2>Filters</h2><Link to="/catalog" onClick={() => setFiltersOpen(false)}>Clear all filters</Link></div>
+          <button type="button" className="catalog-filters__toggle" aria-expanded={filtersOpen} aria-controls="catalog-filter-options" onClick={() => setFiltersOpen(open => !open)}><span><SlidersHorizontal size={16} aria-hidden="true" />Filter products</span><ChevronDown size={17} aria-hidden="true" className={filtersOpen ? 'is-open' : ''} /></button>
+          <div id="catalog-filter-options" className={`catalog-filters__options${filtersOpen ? ' is-open' : ''}`}>
+            <details className="catalog-filter-group" open>
+              <summary>Category <ChevronDown size={16} aria-hidden="true" /></summary>
+              <fieldset><legend className="sr-only">Product category</legend>
+                <label className={`catalog-filter-option${!categorySlug ? ' is-selected' : ''}`}><input type="radio" name="category" checked={!categorySlug} onChange={() => selectFilter(categoryPath(''))} /><span>All products</span></label>
+                {categoriesLoading && <p className="catalog-filters__status" role="status">Loading categories...</p>}
+                {categoriesError && <p className="catalog-filters__status" role="alert">Categories could not load. <button type="button" onClick={() => void reloadCategories()}>Retry</button></p>}
+                {!categoriesLoading && !categoriesError && categories.length === 0 && <p className="catalog-filters__status">No categories available.</p>}
+                {categories.map(category => {
+                  const count = category.productCount ?? category._count?.products;
+                  return <label key={category.id} style={getCategoryColorStyle(category.id)} className={`catalog-filter-option catalog-filter-option--category${categorySlug === category.slug ? ' is-selected' : ''}`}><input type="radio" name="category" checked={categorySlug === category.slug} onChange={() => selectFilter(categoryPath(category.slug))} /><span>{category.name}</span>{count !== undefined && <small>{count.toLocaleString()}</small>}</label>;
                 })}
-              </div>}
-            {!productsError && pagination && pagination.totalPages > 1 && <nav aria-label="Catalog pages" className="mt-8 flex items-center justify-between gap-3 border-t border-gray-300 pt-5"><button disabled={!pagination.hasPreviousPage || productsLoading} onClick={() => updateQuery({ page: String(page - 1) })} className="inline-flex items-center gap-1 border border-gray-300 bg-white px-3 py-2 text-sm disabled:opacity-40"><ChevronLeft size={16} /> Previous</button><span className="text-sm text-gray-600">Page {pagination.page} of {pagination.totalPages}</span><button disabled={!pagination.hasNextPage || productsLoading} onClick={() => updateQuery({ page: String(page + 1) })} className="inline-flex items-center gap-1 border border-gray-300 bg-white px-3 py-2 text-sm disabled:opacity-40">Next <ChevronRight size={16} /></button></nav>}
-          </section>
-        </div>
-      </main>
-      <Footer />
-    </div>
-  );
+              </fieldset>
+            </details>
+            {activeCategory && <details className="catalog-filter-group" open>
+              <summary>Product type <ChevronDown size={16} aria-hidden="true" /></summary>
+              {subcategoriesLoading ? <p className="catalog-filters__status" role="status">Loading product types...</p> : subcategoriesError ? <p className="catalog-filters__status">Product types could not load.</p> : subcategories.length ? <fieldset><legend className="sr-only">Product type</legend>
+                <label className={`catalog-filter-option${!subCategorySlug ? ' is-selected' : ''}`}><input type="radio" name="subcategory" checked={!subCategorySlug} onChange={() => selectFilter(categoryPath(categorySlug))} /><span>All product types</span></label>
+                {subcategories.map(subcategory => <label key={subcategory.id} className={`catalog-filter-option${subCategorySlug === subcategory.slug ? ' is-selected' : ''}`}><input type="radio" name="subcategory" checked={subCategorySlug === subcategory.slug} onChange={() => selectFilter(categoryPath(categorySlug, subcategory.slug))} /><span>{subcategory.name}</span>{(subcategory.productCount ?? subcategory._count?.products) !== undefined && <small>{subcategory.productCount ?? subcategory._count?.products}</small>}</label>)}
+              </fieldset> : <p className="catalog-filters__status">No product types in this category.</p>}
+            </details>}
+            <div className="catalog-filters__help"><p>Find your cutting solution.</p><span>Select a category and product type to narrow your search.</span><Link to="/bulk-inquiry#inquiry-form">Talk to our team <ArrowRight size={14} aria-hidden="true" /></Link></div>
+          </div>
+        </aside>
+        <section className="catalog-results" aria-label="Product results" aria-busy={productsLoading}>
+          <div className="catalog-toolbar">
+            <form className="catalog-search" role="search" onSubmit={searchCatalog}><Search size={21} aria-hidden="true" /><label htmlFor="catalog-search" className="sr-only">Search by name or SKU</label><input id="catalog-search" type="search" placeholder="Search by Name or by SKU" value={searchDraft} onChange={event => setSearchDraft(event.target.value)} /><button type="submit">Search</button></form>
+            <label className="catalog-sort"><span className="sr-only">Sort products</span><select aria-label="Sort products" value={sort} onChange={event => updateQuery({ sort: event.target.value, page: null })}>{sorts.map(item => <option value={item.value} key={item.value}>{item.label}</option>)}</select></label>
+          </div>
+          <div className="catalog-active-filters" aria-label="Active filters">
+            {categorySlug && <Link to={categoryPath('')} aria-label="Remove category filter">Category: {activeCategory?.name || categorySlug}<X size={13} aria-hidden="true" /></Link>}
+            {subCategorySlug && <Link to={categoryPath(categorySlug)} aria-label="Remove product type filter">Type: {activeSubcategory?.name || subCategorySlug}<X size={13} aria-hidden="true" /></Link>}
+            {search && <button type="button" onClick={() => { setSearchDraft(''); updateQuery({ search: null, page: null }); }} aria-label="Remove search filter">Search: {search}<X size={13} aria-hidden="true" /></button>}
+            {(categorySlug || search) && <Link to="/catalog" className="catalog-active-filters__clear">Clear all filters</Link>}
+          </div>
+          <div className="catalog-list__heading">
+            <p className="catalog-list__count" aria-live="polite">{productsLoading ? 'Loading products...' : productsError ? 'Products unavailable' : (pagination?.total ?? products.length).toLocaleString() + ' products found'}</p>
+            <div aria-hidden="true">Product data</div><div aria-hidden="true">Specifications</div><div aria-hidden="true">Price &amp; availability</div><div aria-hidden="true">Wishlist &amp; cart</div>
+          </div>
+          {productsError ? <div className="catalog-state" role="alert"><Package size={35} aria-hidden="true" /><h2>We couldn't load the catalog.</h2><p>Please try again in a moment.</p><button type="button" onClick={() => void reloadProducts()}>Try again</button></div>
+            : productsLoading && !productsResponse ? <div className="catalog-state" role="status"><Loader2 size={28} className="animate-spin" aria-hidden="true" /><p>Loading products...</p></div>
+            : products.length === 0 ? <div className="catalog-state"><Package size={40} aria-hidden="true" /><h2>{search || categorySlug ? 'No products match your selection.' : 'No products are available yet.'}</h2><p>Adjust your filters or ask our team about your requirements.</p><Link to="/catalog">View all products</Link></div>
+            : <div className="catalog-product-list">{products.map(product => <CatalogProductRow key={product.id} product={product} saved={savedProducts.has(product.id)} saving={wishlistProductId === product.id} adding={addingProductId === product.id} onAddToCart={() => void handleAddToCart(product)} onWishlist={() => void handleWishlist(product.id)} />)}</div>}
+          {!productsError && pagination && pagination.totalPages > 1 && <nav aria-label="Catalog pages" className="catalog-pagination"><button type="button" disabled={!pagination.hasPreviousPage || productsLoading} onClick={() => updateQuery({ page: String(page - 1) })}><ChevronLeft size={16} aria-hidden="true" />Previous</button><span>Page {pagination.page} of {pagination.totalPages}</span><button type="button" disabled={!pagination.hasNextPage || productsLoading} onClick={() => updateQuery({ page: String(page + 1) })}>Next<ChevronRight size={16} aria-hidden="true" /></button></nav>}
+        </section>
+      </div>
+    </main>
+    <Footer />
+  </div>;
 }
