@@ -4,21 +4,21 @@ import { useGetHomeQuery } from '../../../service/homeApi';
 import './PrecisionFooter.css';
 
 const locations = [
-  {
-    city: 'Mumbai',
-    type: 'Head Office',
-    lines: ['3rd Floor, Ali Tower,', '88 Gujjar Street,', 'Mumbai - 400003, India'],
-  },
+  // {
+  //   city: 'Mumbai',
+  //   type: 'Head Office',
+  //   lines: ['3rd Floor, Ali Tower,', '88 Gujjar Street,', 'Mumbai - 400003, India'],
+  // },
   {
     city: 'Gurugram',
-    type: 'Branch Office',
+     type: 'Head Office',
     lines: ['Eros Corporate Park,', '11th Floor, 1131-B, Sector-2,', 'Manesar, Gurugram,', 'Haryana - 122052, India'],
   },
-  {
-    city: 'Kolhapur',
-    type: 'Branch Office',
-    lines: ['Plot No. 578/1,', 'Near Saroj Foundry,', 'Opp. Shiroli MIDC,', 'Kolhapur - 416122, India'],
-  },
+  // {
+  //   city: 'Kolhapur',
+  //   type: 'Branch Office',
+  //   lines: ['Plot No. 578/1,', 'Near Saroj Foundry,', 'Opp. Shiroli MIDC,', 'Kolhapur - 416122, India'],
+  // },
 ] as const;
 
 const sitemap = [
@@ -91,8 +91,15 @@ export default function PrecisionFooter() {
             <div className="precision-footer__contact">
               <h3>Contact Us</h3>
               <div className="precision-footer__contact-links">
-                <a href="tel:+917021583452"><Phone size={14} aria-hidden="true" /><span>+91 70215 83452</span></a>
-                <a href="mailto:getsolution@carbiforce.com"><Mail size={15} aria-hidden="true" /><span>getsolution@carbiforce.com</span></a>
+                <a href="tel:+91 94676 13669"><Phone size={14} aria-hidden="true" /><span>+91 94676 13669</span></a>
+                <a href="mailto:Sales@sanseisolutions.in"><Mail size={15} aria-hidden="true" /><span>Sales@sanseisolutions.in</span></a>
+                {/* <a href="mailto:tech@sanseisolutions.in"><Mail size={15} aria-hidden="true" /><span>tech@sanseisolutions.in</span></a> */}
+              </div>
+              <div className="precision-footer__contact-links">
+                {/* <a href="tel:+91 94676 13669"><Phone size={14} aria-hidden="true" /><span>+91 94676 13669</span></a> */}
+                <a href="tel:+91 98705 17217"><Phone size={14} aria-hidden="true" /><span>+91 98705 17217</span></a>
+                {/* <a href="mailto:Sales@sanseisolutions.in"><Mail size={15} aria-hidden="true" /><span>Sales@sanseisolutions.in</span></a> */}
+                <a href="mailto:tech@sanseisolutions.in"><Mail size={15} aria-hidden="true" /><span>tech@sanseisolutions.in</span></a>
               </div>
             </div>
           </section>
