@@ -47,8 +47,8 @@
 .catalog-active-filters > a.catalog-active-filters__clear { background: none; padding-inline: 4px; }
 .catalog-list__heading, .catalog-row { display: grid; grid-template-columns: minmax(260px, 2.1fr) minmax(120px, 1fr) minmax(125px, 1fr) minmax(120px, .85fr) minmax(145px, 1fr); }
 .catalog-list__heading { align-items: stretch; min-height: 43px; margin-bottom: 9px; border-bottom: 1px solid #dfe1e6; }
-.catalog-list__heading > div { display: flex; align-items: center; justify-content: center; border-left: 1px solid #e6e7ea; padding: 8px; text-align: center; font-size: 10px; font-weight: 650; }
-.catalog-list__count { align-self: center; padding: 8px 10px; color: #6a6d75; font-size: 13px; font-weight: 650; }
+.catalog-list__heading > div { display: flex; align-items: center; justify-content: center; border-left: 1px solid #e6e7ea; padding: 8px; text-align: center; font-size: 12px; font-weight: 650; }
+.catalog-list__count { align-self: center; padding: 8px 10px; color: #6a6d75; font-size: 15px; font-weight: 650; }
 .catalog-row { min-height: 206px; margin-block: 10px; padding-block: 20px; border-left: 3px solid var(--category-accent, #e30613); border-bottom: 1px solid #e1e3e7; transition: background .15s ease; }
 .catalog-row:hover { background: var(--category-accent-tint, #fff2f3); }
 .catalog-row__identity { display: flex; align-items: center; gap: 15px; min-width: 0; padding: 5px 17px 5px 10px; }
@@ -57,26 +57,26 @@
 .catalog-row__image .storefront-image-placeholder { min-height: 0; font-size: 9px; }
 .catalog-row__image .storefront-image-placeholder small { font-size: 9px; text-align: center; }
 .catalog-row__name { min-width: 0; }
-.catalog-row__category { display: block; margin-bottom: 8px; color: var(--category-accent-ink, #bd0510); font-size: 9px; font-weight: 700; line-height: 1.6; text-transform: uppercase; }
-.catalog-row__name h2 { font-size: 16px; font-weight: 650; line-height: 1.6; overflow-wrap: anywhere; }
+.catalog-row__category { display: block; margin-bottom: 8px; color: var(--category-accent-ink, #bd0510); font-size: 11px; font-weight: 700; line-height: 1.6; text-transform: uppercase; }
+.catalog-row__name h2 { font-size: 18px; font-weight: 650; line-height: 1.5; overflow-wrap: anywhere; }
 .catalog-row__name h2 a:hover { color: var(--category-accent-ink, #bd0510); text-decoration: underline; text-underline-offset: 4px; }
-.catalog-row__sku { margin-top: 11px; color: #9699a1; font-size: 11px; overflow-wrap: anywhere; }
+.catalog-row__sku { margin-top: 11px; color: #6b707b; font-size: 13px; overflow-wrap: anywhere; }
 .catalog-row__sku span { color: #4b4e57; margin-left: 4px; }
-.catalog-row__type { margin-top: 6px; color: #737680; font-size: 10px; }
+.catalog-row__type { margin-top: 6px; color: #737680; font-size: 12px; }
 .catalog-row__cell { display: flex; flex-direction: column; justify-content: center; min-width: 0; gap: 9px; padding: 8px 14px; border-left: 1px solid #e7e8ec; }
-.catalog-row__column-label { display: none; font-size: 10px; font-weight: 700; color: #535763; }
+.catalog-row__column-label { display: none; font-size: 12px; font-weight: 700; color: #535763; }
 .catalog-row dl { display: flex; flex-direction: column; gap: 8px; }
-.catalog-row dt { color: #898c95; font-size: 9px; margin-bottom: 2px; }
-.catalog-row dd { font-size: 11px; line-height: 1.7; overflow-wrap: anywhere; }
-.catalog-row__details { display: inline-flex; align-items: center; gap: 3px; color: var(--category-accent-ink, #bd0510); font-size: 10px; line-height: 1.6; }
+.catalog-row dt { color: #6b707b; font-size: 11px; margin-bottom: 2px; }
+.catalog-row dd { font-size: 13px; line-height: 1.7; overflow-wrap: anywhere; }
+.catalog-row__details { display: inline-flex; align-items: center; gap: 3px; color: var(--category-accent-ink, #bd0510); font-size: 12px; line-height: 1.6; }
 .catalog-row__details svg { flex-shrink: 0; }
 .catalog-row__details:hover { text-decoration: underline; }
-.catalog-row__muted { font-size: 11px; color: #898c95; }
-.catalog-row__price { font-size: 15px; font-weight: 700; overflow-wrap: anywhere; }
-.catalog-row__stock { color: #747883; font-size: 10px; }
+.catalog-row__muted { font-size: 13px; color: #6b707b; }
+.catalog-row__price { font-size: 18px; font-weight: 700; overflow-wrap: anywhere; }
+.catalog-row__stock { color: #666c77; font-size: 12px; }
 .catalog-row__stock.is-unavailable { color: #ba0611; }
 .catalog-row__actions { gap: 10px; }
-.catalog-row__actions button { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; min-height: 38px; padding: 8px 6px; border: 1px solid var(--category-accent-ink, #bd0510); border-radius: 4px; font-size: 10px; font-weight: 650; line-height: 1.4; }
+.catalog-row__actions button { display: flex; align-items: center; justify-content: center; gap: 7px; width: 100%; min-height: 44px; padding: 8px 6px; border: 1px solid var(--category-accent-ink, #bd0510); border-radius: 4px; font-size: 12px; font-weight: 650; line-height: 1.4; }
 .catalog-row__actions button svg { flex-shrink: 0; }
 .catalog-row__wishlist { color: var(--category-accent-ink, #bd0510); background: #fff; }
 .catalog-row__wishlist:hover, .catalog-row__wishlist.is-saved { background: var(--category-accent-tint, #fff2f3); }
@@ -129,14 +129,14 @@
   .catalog-active-filters { margin-block: 10px; min-height: 0; }
   .catalog-row__identity { padding-inline: 6px 10px; gap: 10px; }
   .catalog-row__image { flex-basis: 78px; height: 108px; }
-  .catalog-row__name h2 { font-size: 14px; }
-  .catalog-row__category { font-size: 8px; }
-  .catalog-row__sku { font-size: 10px; }
+  .catalog-row__name h2 { font-size: 16px; }
+  .catalog-row__category { font-size: 10px; }
+  .catalog-row__sku { font-size: 12px; }
   .catalog-row__cell { padding-inline: 10px; }
-  .catalog-row__actions button { font-size: 9px; gap: 5px; }
+  .catalog-row__actions button { font-size: 11px; gap: 5px; }
   .catalog-row__actions button svg { width: 13px; }
-  .catalog-row__price { font-size: 14px; }
-  .catalog-row__pricing .catalog-row__column-label { font-size: 9px; }
+  .catalog-row__price { font-size: 17px; }
+  .catalog-row__pricing .catalog-row__column-label { font-size: 11px; }
   .catalog-pagination { gap: 5px; font-size: 10px; }
   .catalog-pagination button { padding-inline: 7px; gap: 2px; }
 }
