@@ -16,17 +16,19 @@ type StoreCategory = { id: number; name: string; slug: string; image?: string | 
 const navClass = ({ isActive }: { isActive: boolean }) => `storefront-nav__link${isActive ? ' is-active' : ''}`;
 const readGuestCount = () => getGuestCart().reduce((sum, item) => sum + item.quantity, 0);
 
+
 function CategoryTile({ category, onSelect }: { category: StoreCategory; onSelect: () => void }) {
   // A category without artwork uses a real product from that category.
   const { data, isFetching } = useListProductsQuery({ categoryId: category.id, limit: 1 }, { skip: !!category.image });
   const image = category.image || (data?.data?.[0] ? getCatalogImage(data.data[0]) : null);
-  return <Link to={`/category/${category.slug}`} onClick={onSelect} className="storefront-category-tile" style={getCategoryColorStyle(category.id)}>
+  return <Link to={`/category/${category.slug}`} onClick={onSelect} className="storefront-category-tile" style={getCategoryColorStyle()}>
     <span className="storefront-category-tile__image">
       {isFetching && !image ? <span className="storefront-category-tile__loading" aria-label={`Loading ${category.name} image`} /> : <ProductImage src={image} alt={category.name} />}
     </span>
     <span className="storefront-category-tile__label">{category.name}<ArrowRight size={17} aria-hidden="true" /></span>
   </Link>;
 }
+
 
 export default function StorefrontNavbar({ onLoginClick }: { onLoginClick?: () => void }) {
   const location = useLocation();
@@ -49,7 +51,7 @@ export default function StorefrontNavbar({ onLoginClick }: { onLoginClick?: () =
   const { data: categoryResponse, isLoading: categoriesLoading, isError: categoriesError, refetch: reloadCategories } = useListCategoriesQuery();
   const categories: StoreCategory[] = (categoryResponse?.data || []).filter((category: StoreCategory) => category.isActive !== false && category.slug);
   const cartCount = isAuthenticated ? cartData?.data?.totalItems || 0 : guestCount;
-  const productsActive = location.pathname.startsWith('/category/') || location.pathname.startsWith('/product/');
+  const productsActive = location.pathname === '/catalog' || location.pathname.startsWith('/category/') || location.pathname.startsWith('/product/');
 
   useEffect(() => {
     const update = () => setGuestCount(readGuestCount());
@@ -144,10 +146,10 @@ export default function StorefrontNavbar({ onLoginClick }: { onLoginClick?: () =
       navigate('/');
     }
   };
-  const searchForm = (id: string, autofocus = false) => <form className="storefront-nav__search-form" role="search" onSubmit={submitSearch}>
+  const searchForm = (id: string, autofocus = false) => <form className="storefront-nav__search-form" role="search" aria-label="Search products" onSubmit={submitSearch}>
     <label className="storefront-nav__sr-only" htmlFor={id}>Search all products</label>
     <Search size={19} aria-hidden="true" />
-    <input id={id} ref={autofocus ? searchRef : undefined} type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Search all cutting tools…" autoComplete="off" />
+    <input id={id} ref={autofocus ? searchRef : undefined} type="search" name="search" maxLength={255} value={search} onChange={event => setSearch(event.target.value)} placeholder="Search by product name or SKU…" autoComplete="off" />
     <button type="submit">Search <ArrowRight size={17} aria-hidden="true" /></button>
   </form>;
   const categoryStatus = categoriesLoading ? <p className="storefront-nav__status" role="status">Loading product categories…</p>
@@ -174,9 +176,10 @@ export default function StorefrontNavbar({ onLoginClick }: { onLoginClick?: () =
         <nav className="storefront-nav__main" aria-label="Main navigation">
           <NavLink to="/" end className={navClass} onClick={closeNavigation}>Home</NavLink>
           <button type="button" className={`storefront-nav__link${productsActive || panel === 'products' ? ' is-active' : ''}`} aria-expanded={panel === 'products'} aria-controls="storefront-products" onClick={event => togglePanel('products', event.currentTarget)} onKeyDown={event => focusPanel(event, 'products')}>Products <ChevronDown size={13} aria-hidden="true" /></button>
-          <NavLink to="/catalog" className={navClass} onClick={closeNavigation}>Catalog</NavLink>
+          <NavLink to="/bulk-inquiry#inquiry-form" className={navClass} onClick={closeNavigation}>Bulk Inquiry</NavLink>
           <NavLink to="/about" className={navClass} onClick={closeNavigation}>About Us</NavLink>
-          <NavLink to="/bulk-inquiry#inquiry-form" className={navClass} onClick={closeNavigation}>Contact</NavLink>
+          <NavLink to="/faqs" className={navClass} onClick={closeNavigation}>FAQ</NavLink>
+          <NavLink to="/blog" className={navClass} onClick={closeNavigation}>Blog</NavLink>
         </nav>
         <div className="storefront-nav__actions">
           <Link to="/bulk-inquiry#inquiry-form" className="storefront-nav__solution" onClick={closeNavigation}>Get Solutions</Link>
@@ -209,13 +212,14 @@ export default function StorefrontNavbar({ onLoginClick }: { onLoginClick?: () =
           <NavLink to="/" end className={navClass} onClick={closeNavigation}>Home</NavLink>
           <button type="button" className={`storefront-nav__link${productsActive ? ' is-active' : ''}`} aria-expanded={mobileProductsOpen} aria-controls="storefront-mobile-products" onClick={() => setMobileProductsOpen(open => !open)}>Products<ChevronDown size={17} aria-hidden="true" /></button>
           {mobileProductsOpen && <div className="storefront-nav__mobile-products" id="storefront-mobile-products">{categoryStatus}<div className="storefront-nav__category-tiles">{categories.map(category => <CategoryTile category={category} onSelect={closeNavigation} key={category.id} />)}</div><Link className="storefront-nav__mobile-view-all" to="/catalog" onClick={closeNavigation}>View all products<ArrowRight size={16} /></Link></div>}
-          <NavLink to="/catalog" className={navClass} onClick={closeNavigation}>Catalog</NavLink>
           <NavLink to="/about" className={navClass} onClick={closeNavigation}>About Us</NavLink>
-          <NavLink to="/bulk-inquiry#inquiry-form" className={navClass} onClick={closeNavigation}>Contact</NavLink>
+          <NavLink to="/bulk-inquiry#inquiry-form" className={navClass} onClick={closeNavigation}>bulk inquiry</NavLink>
+          <NavLink to="/faqs" className={navClass} onClick={closeNavigation}>FAQ</NavLink>
+          <NavLink to="/blog" className={navClass} onClick={closeNavigation}>Blog</NavLink>
         </nav>
         <Link to="/bulk-inquiry#inquiry-form" className="storefront-nav__solution" onClick={closeNavigation}>Get Solutions <ArrowRight size={17} /></Link>
         <div className="storefront-nav__mobile-account"><Link to="/cart" onClick={closeNavigation}><ShoppingCart size={17} /> Shopping cart <span>({cartCount})</span></Link>{accountLinks}</div>
-        <div className="storefront-nav__extra-links"><Link to="/faqs" onClick={closeNavigation}>FAQs</Link><Link to="/join-us" onClick={closeNavigation}>Join us</Link></div>
+        <div className="storefront-nav__extra-links"><Link to="/join-us" onClick={closeNavigation}>Join us</Link></div>
       </div>
     </dialog>}
   </>;

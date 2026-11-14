@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
+import { BookOpen } from 'lucide-react';
 import { COLORS, FONTS } from '../../constant/style';
 import logo from '../../assets/logo.png';
 
@@ -104,7 +105,12 @@ const adminNavLinks = [
         <path d="M4 4h16v16H4z" /><path d="M4 8h16" /><path d="M8 12h8" /><path d="M8 16h5" />
       </svg>
     )
-  },  {
+  },
+  {
+    label: 'Blog articles',
+    path: '/admin/blogs',
+    icon: <BookOpen size={20} />,
+  }, {
     label: 'Settings',
     path: '/admin/settings',
     icon: (

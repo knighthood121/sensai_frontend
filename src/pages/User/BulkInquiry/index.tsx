@@ -14,7 +14,8 @@ type CatalogCategory = { id: number; name: string; isActive?: boolean };
 const money = (value: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 }).format(value);
 
 export default function BulkInquiry() {
-  const { search, hash } = useLocation();
+  const { search, hash, state, key: locationKey } = useLocation();
+  const contactEmail = typeof state?.contactEmail === 'string' ? state.contactEmail.trim() : '';
   const [submitted, setSubmitted] = useState(false);
   const [submissionError, setSubmissionError] = useState('');
   // Seed once; incoming catalog data never replaces the user's inquiry draft.
@@ -34,7 +35,7 @@ export default function BulkInquiry() {
       document.getElementById('inquiry-form')?.scrollIntoView({ block: 'start' });
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [hash]);
+  }, [hash, locationKey]);
 
   const handleInquireProduct = (product: Product) => {
     setRequirements(makeProductInquiry(product));
@@ -136,7 +137,7 @@ export default function BulkInquiry() {
             <p className="mt-3 text-sm leading-6 text-gray-600">Tell us about your tooling, quantities and application. Our team will get in touch to help with your request.</p>
             <div className="mt-8 grid gap-6 md:grid-cols-2">
               <Field label="Name" name="name" required />
-              <Field label="Email" name="email" type="email" required />
+              <Field key={contactEmail} label="Email" name="email" type="email" defaultValue={contactEmail} required />
               <Field label="Phone number" name="phone" type="tel" required />
               <Field label="Company name" name="company" required />
               <label className="md:col-span-2"><span className="mb-2 block text-xs font-bold uppercase tracking-wide">Inquiry type</span>
@@ -159,6 +160,6 @@ export default function BulkInquiry() {
   );
 }
 
-function Field({ label, name, type = 'text', required = false }: { label: string; name: string; type?: string; required?: boolean }) {
-  return <label><span className="mb-2 block text-xs font-bold uppercase tracking-wide">{label}{required && <span className="text-red-600"> *</span>}</span><input name={name} type={type} required={required} className="w-full border border-gray-300 bg-white px-4 py-3 outline-none focus:border-red-600" /></label>;
+function Field({ label, name, type = 'text', required = false, defaultValue = '' }: { label: string; name: string; type?: string; required?: boolean; defaultValue?: string }) {
+  return <label><span className="mb-2 block text-xs font-bold uppercase tracking-wide">{label}{required && <span className="text-red-600"> *</span>}</span><input name={name} type={type} required={required} defaultValue={defaultValue} className="w-full border border-gray-300 bg-white px-4 py-3 outline-none focus:border-red-600" /></label>;
 }

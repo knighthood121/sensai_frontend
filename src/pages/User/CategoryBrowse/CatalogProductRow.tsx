@@ -20,7 +20,7 @@ export default function CatalogProductRow({ product, adding, saving, saved, onAd
   const path = `/product/${product.id}`;
   const data = [['Brand', product.brand], ['Material', product.material], ['Finish', product.finish]].filter(([, value]) => value);
 
-  return <article className="catalog-row" aria-label={product.name} style={getCategoryColorStyle(product.categoryId ?? product.category?.id)}>
+  return <article className="catalog-row" aria-label={product.name} style={getCategoryColorStyle()}>
     <div className="catalog-row__identity">
       <Link to={path} className="catalog-row__image" aria-label={`View ${product.name}`}><ProductImage src={getCatalogImage(product)} alt={product.name} /></Link>
       <div className="catalog-row__name">

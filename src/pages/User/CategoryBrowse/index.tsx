@@ -61,7 +61,7 @@ export default function CategoryBrowse() {
   });
   const products = productsResponse?.data || [];
   const pagination = productsResponse?.pagination;
-  const title = !categorySlug ? 'All products' : activeSubcategory?.name || activeCategory?.name || (categoriesLoading ? 'Product catalog' : 'Category unavailable');
+  const title = !categorySlug ? (search ? `Search results for “${search}”` : 'All products') : activeSubcategory?.name || activeCategory?.name || (categoriesLoading ? 'Product catalog' : 'Category unavailable');
 
   const updateQuery = (changes: Record<string, string | null>) => {
     const next = new URLSearchParams(searchParams);
@@ -134,7 +134,7 @@ export default function CategoryBrowse() {
 
   return <div className="catalog-page">
     <Navbar />
-    <main className="catalog-page__inner" style={getCategoryColorStyle(activeCategory?.id)}>
+    <main className="catalog-page__inner" style={getCategoryColorStyle()}>
       <nav className="catalog-breadcrumb" aria-label="Breadcrumb"><Link to="/">Home</Link><ChevronRight size={12} aria-hidden="true" /><Link to="/catalog" aria-current={!categorySlug ? 'page' : undefined}>Products</Link>{activeCategory && <><ChevronRight size={12} aria-hidden="true" /><span aria-current="page">{title}</span></>}</nav>
       <header className="catalog-page__heading"><div><p>Precision cutting solutions</p><h1>{title}</h1></div><Link to="/bulk-inquiry#inquiry-form">Need help selecting a tool? <ArrowRight size={16} aria-hidden="true" /></Link></header>
       <div className="catalog-layout">
@@ -151,7 +151,7 @@ export default function CategoryBrowse() {
                 {!categoriesLoading && !categoriesError && categories.length === 0 && <p className="catalog-filters__status">No categories available.</p>}
                 {categories.map(category => {
                   const count = category.productCount ?? category._count?.products;
-                  return <label key={category.id} style={getCategoryColorStyle(category.id)} className={`catalog-filter-option catalog-filter-option--category${categorySlug === category.slug ? ' is-selected' : ''}`}><input type="radio" name="category" checked={categorySlug === category.slug} onChange={() => selectFilter(categoryPath(category.slug))} /><span>{category.name}</span>{count !== undefined && <small>{count.toLocaleString()}</small>}</label>;
+                  return <label key={category.id} style={getCategoryColorStyle()} className={`catalog-filter-option catalog-filter-option--category${categorySlug === category.slug ? ' is-selected' : ''}`}><input type="radio" name="category" checked={categorySlug === category.slug} onChange={() => selectFilter(categoryPath(category.slug))} /><span>{category.name}</span>{count !== undefined && <small>{count.toLocaleString()}</small>}</label>;
                 })}
               </fieldset>
             </details>
@@ -167,7 +167,7 @@ export default function CategoryBrowse() {
         </aside>
         <section className="catalog-results" aria-label="Product results" aria-busy={productsLoading}>
           <div className="catalog-toolbar">
-            <form className="catalog-search" role="search" onSubmit={searchCatalog}><Search size={21} aria-hidden="true" /><label htmlFor="catalog-search" className="sr-only">Search by name or SKU</label><input id="catalog-search" type="search" placeholder="Search by Name or by SKU" value={searchDraft} onChange={event => setSearchDraft(event.target.value)} /><button type="submit">Search</button></form>
+            <form className="catalog-search" role="search" aria-label="Search products" onSubmit={searchCatalog}><Search size={21} aria-hidden="true" /><label htmlFor="catalog-search" className="sr-only">Search by name or SKU</label><input id="catalog-search" type="search" name="search" maxLength={255} placeholder="Search by Name or by SKU" value={searchDraft} onChange={event => setSearchDraft(event.target.value)} /><button type="submit">Search</button></form>
             <label className="catalog-sort"><span className="sr-only">Sort products</span><select aria-label="Sort products" value={sort} onChange={event => updateQuery({ sort: event.target.value, page: null })}>{sorts.map(item => <option value={item.value} key={item.value}>{item.label}</option>)}</select></label>
           </div>
           <div className="catalog-active-filters" aria-label="Active filters">

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import {
-  AlertTriangle, ArrowRight, Boxes, CircleDollarSign, ClipboardList,
+  AlertTriangle, ArrowRight, BookOpen, Boxes, CircleDollarSign, ClipboardList, Mail,
   ImagePlus, Layers3, PackagePlus, RefreshCw, ShoppingBag, Tags, Users
 } from 'lucide-react';
 import {
@@ -19,6 +19,8 @@ const quickActions = [
   { label:'Inventory', copy:'Monitor and adjust stock', path:'/admin/products/inventory', icon:Boxes },
   { label:'Orders', copy:'Process customer orders', path:'/admin/orders/list', icon:ClipboardList },
   { label:'Product images', copy:'Manage catalog media', path:'/admin/products/images', icon:ImagePlus },
+  { label:'Inquiries', copy:'Follow up on email and bulk requests', path:'/admin/bulk-inquiries', icon:Mail },
+  { label:'Blog articles', copy:'Write and publish with cover images', path:'/admin/blogs', icon:BookOpen },
 ];
 
 export default function DashboardScreen() {

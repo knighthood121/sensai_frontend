@@ -1,4 +1,50 @@
-# React + TypeScript + Vite
+# SANSEI storefront
+
+## Email inquiries and blog publishing
+
+The footer sends email-only inquiries to `POST /api/v1/bulk-inquiries/contact`.
+Admins can review them alongside full inquiries at `/admin/bulk-inquiries`, which
+refreshes automatically every 15 seconds. This records a request; it does not send
+an automatic email to the visitor.
+
+Blog management is at `/admin/blogs`. Admins can create, edit, preview, publish,
+unpublish, and delete articles. Cover images use the existing authenticated image
+upload service (JPG, PNG, WebP, up to 5 MB), or a supplied image URL. Public readers
+see published articles at `/blog` and `/blog/:slug`. Drafts remain private. Article
+content supports plain text, blank lines between paragraphs, and `#` headings.
+
+### Backend rollout
+
+These features require the updated `SansaiBackend` and the database migration
+`20261114000000_add_blogs_and_email_inquiries`. From the backend directory:
+
+```sh
+npx prisma migrate deploy
+npm run build
+node --test tests/contact-blogs.test.cjs
+```
+
+Deploy/restart that backend before using the new frontend. The migration adds
+`BlogPost` and makes missing contact details nullable on email-only inquiries;
+existing inquiry records are retained. No migration is applied by the frontend.
+
+For local development, copy `.env.example` to `.env.local`, set
+`VITE_API_BASE_URL` to the running backend, and restart Vite. For production, set
+the same variable before building if the API URL differs from the current Render
+backend. Image uploads require the backend's existing Cloudinary configuration.
+
+### Starter blog articles
+
+After applying the migration, run `npm run seed:blogs` from `SansaiBackend` to
+insert three published starter articles with existing cover images. Fixed slugs
+and duplicate skipping preserve existing admin edits on repeated runs. Seeding
+never runs during page reads or normal startup.
+
+If blog requests return HTTP 500, check the backend log and run
+`npx prisma migrate status`. The `BlogPost` table must exist; apply the pending
+migration with `npm run migrate:deploy` before retrying.
+
+## Vite tooling
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 

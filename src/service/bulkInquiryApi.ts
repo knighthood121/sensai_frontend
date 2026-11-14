@@ -4,10 +4,10 @@ export type BulkInquiryStatus = 'NEW' | 'CONTACTED' | 'QUOTED' | 'CLOSED';
 
 export interface BulkInquiry {
   id: number;
-  name: string;
+  name: string | null;
   email: string;
-  phone: string;
-  company: string;
+  phone: string | null;
+  company: string | null;
   inquiryType: string;
   requirements: string;
   status: BulkInquiryStatus;
@@ -27,6 +27,10 @@ export interface CreateBulkInquiry {
 
 export const bulkInquiryApi = api.injectEndpoints({
   endpoints: (builder) => ({
+    createContactInquiry: builder.mutation<{ success: boolean; message: string }, { email: string }>({
+      query: (body) => ({ url: '/api/v1/bulk-inquiries/contact', method: 'POST', body }),
+      invalidatesTags: (result) => result?.success ? ['BulkInquiry'] : [],
+    }),
     createBulkInquiry: builder.mutation<{ success: boolean; message: string; data: BulkInquiry }, CreateBulkInquiry>({
       query: (body) => ({ url: '/api/v1/bulk-inquiries', method: 'POST', body }),
       invalidatesTags: ['BulkInquiry'],
@@ -42,4 +46,4 @@ export const bulkInquiryApi = api.injectEndpoints({
   }),
 });
 
-export const { useCreateBulkInquiryMutation, useGetBulkInquiriesQuery, useUpdateBulkInquiryMutation } = bulkInquiryApi;
+export const { useCreateContactInquiryMutation, useCreateBulkInquiryMutation, useGetBulkInquiriesQuery, useUpdateBulkInquiryMutation } = bulkInquiryApi;

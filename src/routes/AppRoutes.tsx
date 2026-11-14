@@ -16,6 +16,9 @@ import { Dashboard } from '../pages/Admin';
 import BulkInquiry from '../pages/User/BulkInquiry';
 import { AboutPage, FaqPage, PrivacyPolicyPage, TermsPage } from '../pages/User/InfoPages';
 import BulkInquiriesAdmin from '../pages/Admin/BulkInquiries';
+import Blog, { BlogArticle } from '../pages/User/Blog';
+import BlogsAdmin from '../pages/Admin/Blogs';
+import BlogEditor from '../pages/Admin/Blogs/BlogEditor';
 import {
   ProductManagement,
   ProductList,
@@ -148,6 +151,8 @@ export default function AppRoutes() {
         <Route path="/signup" element={<AuthenticationLayout><Signup /></AuthenticationLayout>} />
         <Route path="/bulk-inquiry" element={<BulkInquiry />} />
         <Route path="/faqs" element={<FaqPage />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<BlogArticle />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/privacy" element={<PrivacyPolicyPage />} />
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
@@ -198,6 +203,9 @@ export default function AppRoutes() {
           <Route path="marketing/notifications" element={<PushNotification />} />
           <Route path="marketing/social" element={<SocialCampaignLink />} />
           <Route path="bulk-inquiries" element={<BulkInquiriesAdmin />} />
+          <Route path="blogs" element={<BlogsAdmin />} />
+          <Route path="blogs/new" element={<BlogEditor />} />
+          <Route path="blogs/:id/edit" element={<BlogEditor />} />
           <Route path="settings" element={<BusinessSettings />} />
           <Route path="settings/cms" element={<CMSPages />} />
           <Route path="settings/contact" element={<ContactDetails />} />
