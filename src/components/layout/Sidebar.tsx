@@ -151,7 +151,7 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
 
       {/* Sidebar panel */}
       <div
-        className={`fixed top-0 left-0 h-full z-50 transform transition-all duration-300 ease-in-out flex flex-col bg-black/95 backdrop-blur-xl border-r border-red-500/20 ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 ${isMinimized ? 'lg:w-[80px]' : 'lg:w-[260px]'}`}
+        className={`fixed top-0 left-0 h-dvh w-[260px] max-w-[calc(100vw-16px)] z-50 transform transition-all duration-300 ease-in-out flex flex-col bg-black/95 backdrop-blur-xl border-r border-red-500/20 ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 ${isMinimized ? 'lg:w-[80px]' : 'lg:w-[260px]'}`}
         style={{
           fontFamily: FONTS.main,
           boxShadow: '4px 0 30px rgba(220,38,38,0.15)'
@@ -188,6 +188,7 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
               onClick={onToggleMinimize}
               className="hidden lg:flex w-8 h-8 rounded-xl items-center justify-center hover:bg-white/10 transition-colors text-white/60 hover:text-red-500"
               title={isMinimized ? "Expand Sidebar" : "Collapse Sidebar"}
+              aria-label={isMinimized ? 'Expand sidebar' : 'Collapse sidebar'}
             >
               {isMinimized ? (
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="transition-transform duration-300 hover:scale-110">
@@ -206,6 +207,7 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
             {/* Mobile close button */}
             <button
               onClick={onClose}
+              aria-label="Close sidebar"
               className="lg:hidden w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors text-white/60 hover:text-red-500"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -216,7 +218,7 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
         </div>
 
         {/* Navigation */}
-        <nav className={`flex-1 py-8 custom-scrollbar transition-all duration-300 ${isMinimized ? 'px-2' : 'px-4'}`}>
+        <nav className={`min-h-0 flex-1 py-8 custom-scrollbar transition-all duration-300 ${isMinimized ? 'px-2' : 'overflow-y-auto px-4'}`}>
           {isAdminRoute ? (
             <>
               {isMinimized ? (
@@ -235,10 +237,11 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
                     <button
                       key={link.path}
                       onClick={() => handleNavigate(link.path)}
+                      aria-label={link.label}
                       className={`flex items-center transition-all duration-300 rounded-xl font-semibold ${
                         isMinimized 
                           ? 'w-12 h-12 justify-center mx-auto px-0' 
-                          : 'w-full gap-3.5 px-4 py-3.5 text-[15px]'
+                          : 'w-full justify-start gap-3.5 px-4 py-3.5 text-left text-[15px]'
                       } ${isActive
                         ? 'text-white'
                         : 'text-white hover:text-white hover:bg-white/5'
@@ -248,10 +251,10 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
                         boxShadow: `0 8px 20px -4px ${COLORS.primary}50`
                       } : {}}
                     >
-                      <span className={`flex items-center justify-center transition-transform duration-300 ${isMinimized ? 'mx-auto' : ''} ${isActive ? 'scale-110' : ''}`}>
+                      <span className={`flex h-5 w-5 shrink-0 items-center justify-center transition-transform duration-300 ${isMinimized ? 'mx-auto' : ''} ${isActive ? 'scale-110' : ''}`}>
                         {link.icon}
                       </span>
-                      {!isMinimized && link.label}
+                      {!isMinimized && <span className="min-w-0 flex-1 text-left leading-5">{link.label}</span>}
                     </button>
                   );
 
@@ -284,16 +287,17 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
                       key={link.label}
                       href={link.href}
                       onClick={onClose}
+                      aria-label={link.label}
                       className={`flex items-center transition-all duration-300 rounded-xl no-underline ${
                         isMinimized 
                           ? 'w-12 h-12 justify-center mx-auto px-0' 
-                          : 'w-full gap-3.5 px-4 py-3.5 font-semibold text-[15px]'
+                          : 'w-full justify-start gap-3.5 px-4 py-3.5 text-left font-semibold text-[15px]'
                       } text-white/60 hover:text-white hover:bg-white/5`}
                     >
-                      <span className={`flex items-center justify-center text-white/40 group-hover:text-red-500 transition-colors duration-300 ${isMinimized ? 'mx-auto' : ''}`}>
+                      <span className={`flex h-5 w-5 shrink-0 items-center justify-center text-white/40 group-hover:text-red-500 transition-colors duration-300 ${isMinimized ? 'mx-auto' : ''}`}>
                         {link.icon}
                       </span>
-                      {!isMinimized && link.label}
+                      {!isMinimized && <span className="min-w-0 flex-1 text-left leading-5">{link.label}</span>}
                     </a>
                   );
 
@@ -320,35 +324,37 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
               const storefrontButton = (
                 <button
                   onClick={() => handleNavigate('/')}
-                  className={`flex items-center justify-center rounded-xl font-semibold text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all duration-300 ${
+                  aria-label="View Storefront"
+                  className={`flex items-center rounded-xl font-semibold text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all duration-300 ${
                     isMinimized 
-                      ? 'w-12 h-12 px-0 mx-auto' 
-                      : 'w-full gap-2.5 px-4 py-3.5 text-[14px]'
+                      ? 'w-12 h-12 justify-center px-0 mx-auto'
+                      : 'w-full justify-start gap-3.5 px-4 py-3.5 text-left text-[14px]'
                   }`}
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={isMinimized ? 'mx-auto' : ''}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`h-5 w-5 shrink-0 ${isMinimized ? 'mx-auto' : ''}`}>
                     <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                     <polyline points="9 22 9 12 15 12 15 22" />
                   </svg>
-                  {!isMinimized && "View Storefront"}
+                  {!isMinimized && <span className="min-w-0 flex-1 text-left leading-5">View Storefront</span>}
                 </button>
               );
 
               const logoutButton = (
                 <button
                   onClick={handleLogout}
-                  className={`flex items-center justify-center rounded-xl font-semibold text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all duration-300 ${
+                  aria-label="Logout"
+                  className={`flex items-center rounded-xl font-semibold text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all duration-300 ${
                     isMinimized 
-                      ? 'w-12 h-12 px-0 mx-auto' 
-                      : 'w-full gap-2.5 px-4 py-3.5 text-[14px]'
+                      ? 'w-12 h-12 justify-center px-0 mx-auto'
+                      : 'w-full justify-start gap-3.5 px-4 py-3.5 text-left text-[14px]'
                   }`}
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={isMinimized ? 'mx-auto' : ''}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`h-5 w-5 shrink-0 ${isMinimized ? 'mx-auto' : ''}`}>
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                     <polyline points="16 17 21 12 16 7" />
                     <line x1="21" y1="12" x2="9" y2="12" />
                   </svg>
-                  {!isMinimized && "Logout"}
+                  {!isMinimized && <span className="min-w-0 flex-1 text-left leading-5">Logout</span>}
                 </button>
               );
 
@@ -379,16 +385,17 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
               const loginButton = (
                 <button
                   onClick={() => handleNavigate('/login')}
-                  className={`flex items-center justify-center rounded-xl font-semibold text-white/60 hover:bg-white/5 hover:text-red-500 transition-all duration-300 ${
+                  aria-label="Admin Login"
+                  className={`flex items-center rounded-xl font-semibold text-white/60 hover:bg-white/5 hover:text-red-500 transition-all duration-300 ${
                     isMinimized 
-                      ? 'w-12 h-12 px-0 mx-auto' 
-                      : 'w-full gap-2.5 px-4 py-3.5 text-[14px]'
+                      ? 'w-12 h-12 justify-center px-0 mx-auto'
+                      : 'w-full justify-start gap-3.5 px-4 py-3.5 text-left text-[14px]'
                   }`}
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={isMinimized ? 'mx-auto' : ''}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`h-5 w-5 shrink-0 ${isMinimized ? 'mx-auto' : ''}`}>
                     <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><polyline points="10 17 15 12 10 7" /><line x1="15" y1="12" x2="3" y2="12" />
                   </svg>
-                  {!isMinimized && "Admin Login"}
+                  {!isMinimized && <span className="min-w-0 flex-1 text-left leading-5">Admin Login</span>}
                 </button>
               );
 

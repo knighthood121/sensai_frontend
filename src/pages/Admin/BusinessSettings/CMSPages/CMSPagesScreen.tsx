@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, type SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -26,50 +26,70 @@ import {
   useCmsPages,
 } from '../../../../utils/cmsStorage';
 import type { CmsPage, CmsSection, CmsHighlight } from '../../../../utils/cmsStorage';
+import { POLICY_PAGE_LINKS } from '../../../../utils/policyPages';
+import { apiErrorMessage } from '../../../../utils/apiMessage';
+import PolicyDocument from '../../../../components/common/PolicyDocument';
 
-type TabKey = 'about' | 'privacy' | 'terms';
+type TabKey = 'about' | 'privacy' | 'terms' | 'payment' | typeof POLICY_PAGE_LINKS[number]['slug'];
 
 export default function CMSPagesScreen() {
   const navigate = useNavigate();
-  const { pages, updatePage, resetPage } = useCmsPages();
+  const { pages, updatePage, resetPage, isLoading, isSaving, isError, reload } = useCmsPages({ legacyDrafts: true });
 
   const [activeTab, setActiveTab] = useState<TabKey>('about');
   const [activeMode, setActiveMode] = useState<'edit' | 'preview'>('edit');
 
   // Local draft state for editing before saving
-  const [draft, setDraft] = useState<CmsPage>(pages[activeTab]);
-  const [isDirty, setIsDirty] = useState(false);
+  const [drafts, setDrafts] = useState<Partial<Record<TabKey, CmsPage>>>({});
+  const draft = drafts[activeTab] ?? pages[activeTab];
+  const isDirty = Boolean(drafts[activeTab]);
+  const setDraft = (update: SetStateAction<CmsPage>) => setDrafts(previous => ({
+    ...previous,
+    [activeTab]: typeof update === 'function' ? update(previous[activeTab] ?? pages[activeTab]) : update,
+  }));
+  const clearDraft = (slug: TabKey) => setDrafts(previous => {
+    const remaining = { ...previous };
+    delete remaining[slug];
+    return remaining;
+  });
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Modals & Toasts
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isResetModalOpen, setIsResetModalOpen] = useState(false);
   const [sectionToDelete, setSectionToDelete] = useState<string | null>(null);
 
-  // Sync draft when switching tabs
-  useEffect(() => {
-    if (pages[activeTab]) {
-      setDraft(JSON.parse(JSON.stringify(pages[activeTab])));
-      setIsDirty(false);
-    }
-  }, [activeTab, pages]);
-
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  const handleSave = () => {
-    updatePage(activeTab, draft);
-    setIsDirty(false);
-    showToast(`"${draft.title}" content saved and published to storefront!`);
+  const handleSave = async () => {
+    setSaveError(null);
+    if (!draft.title.trim()) {
+      setSaveError('Please enter a page title before saving.');
+      return;
+    }
+    try {
+      await updatePage(activeTab, draft);
+      clearDraft(activeTab);
+      showToast(`"${draft.title}" content saved and published to storefront!`);
+    } catch (error) {
+      setSaveError(apiErrorMessage(error, 'Unable to save this page. Your edits are preserved. Please try again.'));
+    }
   };
 
-  const handleConfirmReset = () => {
-    const res = resetPage(activeTab);
-    setDraft(JSON.parse(JSON.stringify(res)));
-    setIsDirty(false);
-    setIsResetModalOpen(false);
-    showToast(`"${res.title}" has been restored to factory default content.`);
+  const handleConfirmReset = async () => {
+    setSaveError(null);
+    try {
+      const res = await resetPage(activeTab);
+      clearDraft(activeTab);
+      setIsResetModalOpen(false);
+      showToast(`"${res.title}" has been restored to default content.`);
+    } catch (error) {
+      setIsResetModalOpen(false);
+      setSaveError(apiErrorMessage(error, 'Unable to restore this page. Your edits are preserved. Please try again.'));
+    }
   };
 
   // Section Handlers
@@ -78,7 +98,6 @@ export default function CMSPagesScreen() {
       ...prev,
       sections: prev.sections.map((s) => (s.id === id ? { ...s, [field]: value } : s)),
     }));
-    setIsDirty(true);
   };
 
   const handleAddSection = () => {
@@ -91,7 +110,6 @@ export default function CMSPagesScreen() {
       ...prev,
       sections: [...prev.sections, newSection],
     }));
-    setIsDirty(true);
   };
 
   const handleDeleteSection = (id: string) => {
@@ -100,7 +118,6 @@ export default function CMSPagesScreen() {
       sections: prev.sections.filter((s) => s.id !== id),
     }));
     setSectionToDelete(null);
-    setIsDirty(true);
   };
 
   const handleMoveSection = (index: number, direction: 'up' | 'down') => {
@@ -112,7 +129,6 @@ export default function CMSPagesScreen() {
     updated.splice(targetIndex, 0, moved);
 
     setDraft((prev) => ({ ...prev, sections: updated }));
-    setIsDirty(true);
   };
 
   // Highlights handlers (for About Us)
@@ -122,7 +138,6 @@ export default function CMSPagesScreen() {
       ...prev,
       highlights: prev.highlights?.map((h) => (h.id === id ? { ...h, [field]: value } : h)),
     }));
-    setIsDirty(true);
   };
 
   const handleAddHighlight = () => {
@@ -136,7 +151,6 @@ export default function CMSPagesScreen() {
       ...prev,
       highlights: [...(prev.highlights || []), newHighlight],
     }));
-    setIsDirty(true);
   };
 
   const handleDeleteHighlight = (id: string) => {
@@ -144,20 +158,21 @@ export default function CMSPagesScreen() {
       ...prev,
       highlights: prev.highlights?.filter((h) => h.id !== id),
     }));
-    setIsDirty(true);
   };
 
   const getPublicUrl = () => {
-    if (activeTab === 'about') return '/about';
-    if (activeTab === 'privacy') return '/privacy';
-    return '/terms';
+    return `/${activeTab}`;
   };
 
   const tabsConfig = [
     { key: 'about' as TabKey, label: 'About Us', icon: Info, path: '/about' },
+    { key: 'payment' as TabKey, label: 'Payment', icon: FileText, path: '/payment' },
     { key: 'privacy' as TabKey, label: 'Privacy Policy', icon: Shield, path: '/privacy' },
     { key: 'terms' as TabKey, label: 'Terms & Conditions', icon: FileCheck2, path: '/terms' },
+    ...POLICY_PAGE_LINKS.map(({ slug, label }) => ({ key: slug, label, icon: FileText, path: `/${slug}` })),
   ];
+
+  if (isLoading) return <p role="status" className="p-12 text-center">Loading CMS pages...</p>;
 
   return (
     <div
@@ -200,6 +215,7 @@ export default function CMSPagesScreen() {
           <button
             type="button"
             onClick={() => setIsResetModalOpen(true)}
+            disabled={isSaving || isError}
             className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-700 hover:text-red-600 hover:border-red-200 text-xs font-bold transition-all shadow-sm cursor-pointer"
             title="Restore default content for this page"
           >
@@ -220,7 +236,7 @@ export default function CMSPagesScreen() {
           <button
             type="button"
             onClick={handleSave}
-            disabled={!isDirty}
+            disabled={!isDirty || isSaving || isError}
             className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-xs font-bold transition-all shadow-md cursor-pointer ${
               isDirty
                 ? 'bg-gradient-to-r from-red-600 to-rose-600 hover:shadow-lg hover:scale-[1.02]'
@@ -228,7 +244,7 @@ export default function CMSPagesScreen() {
             }`}
           >
             <Save size={15} />
-            <span>{isDirty ? 'Save Changes' : 'Saved'}</span>
+            <span>{isSaving ? 'Saving...' : isDirty ? 'Save Changes' : 'Saved'}</span>
           </button>
         </div>
       </div>
@@ -260,7 +276,7 @@ export default function CMSPagesScreen() {
                 )}
               </div>
               <p className="text-sm md:text-base leading-relaxed text-gray-500 max-w-2xl">
-                Edit text, policies, and sections across About Us, Privacy Policy, and Terms & Conditions. Any change saved here updates the customer storefront immediately.
+                Edit About Us, Payment and bank details, Privacy Policy, Terms & Conditions, and all cancellation, return, shipping, cookie, warranty, and account deletion pages. Saved content is published to the customer storefront.
               </p>
             </div>
           </div>
@@ -295,7 +311,11 @@ export default function CMSPagesScreen() {
       </div>
 
       {/* Page Tabs */}
-      <div className="flex items-center gap-3 overflow-x-auto pb-1 scrollbar-none">
+      {(saveError || isError) && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+        {saveError || 'Unable to load published CMS content. Your browser drafts are available below.'}
+        {isError && <button type="button" className="ml-3 underline cursor-pointer" onClick={() => void reload()}>Retry loading</button>}
+      </div>}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
         {tabsConfig.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.key;
@@ -303,21 +323,18 @@ export default function CMSPagesScreen() {
             <button
               key={tab.key}
               type="button"
-              onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-2.5 px-5 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer shrink-0 border ${
+              onClick={() => { setActiveTab(tab.key); setSaveError(null); }}
+              disabled={isSaving}
+              className={`flex items-center gap-2.5 px-4 py-3 rounded-2xl text-left text-xs font-bold transition-all cursor-pointer min-w-0 border ${
                 isActive
                   ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white border-red-600 shadow-md scale-[1.01]'
                   : 'bg-white border-gray-200/80 text-gray-700 hover:border-red-200 hover:bg-red-50/20'
               }`}
             >
-              <Icon size={16} className={isActive ? 'text-white' : 'text-gray-500'} />
-              <span>{tab.label}</span>
-              <span
-                className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${
-                  isActive ? 'bg-white/20 text-white' : 'bg-gray-100 text-gray-500'
-                }`}
-              >
-                {tab.path}
+              <Icon size={16} className={`shrink-0 ${isActive ? 'text-white' : 'text-gray-500'}`} />
+              <span className="min-w-0">
+                <span className="block">{tab.label}</span>
+                <span className={`block break-all mt-1 text-[10px] font-mono ${isActive ? 'text-white/80' : 'text-gray-500'}`}>{tab.path}</span>
               </span>
             </button>
           );
@@ -326,7 +343,7 @@ export default function CMSPagesScreen() {
 
       {/* ─── MAIN CONTENT: EDIT MODE VS PREVIEW MODE ────────────────────── */}
       {activeMode === 'edit' ? (
-        <div className="space-y-6">
+        <fieldset disabled={isSaving} className="space-y-6 min-w-0">
           {/* 1. Page Header & Metadata Configuration Card */}
           <div className="bg-white rounded-3xl border border-gray-100 p-6 md:p-8 shadow-sm space-y-5">
             <div className="flex items-center justify-between border-b border-gray-100 pb-4">
@@ -345,15 +362,15 @@ export default function CMSPagesScreen() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-black uppercase tracking-wider text-gray-600 mb-1.5">
+                <label htmlFor="cms-page-title" className="block text-xs font-black uppercase tracking-wider text-gray-600 mb-1.5">
                   Page Title *
                 </label>
                 <input
+                  id="cms-page-title"
                   type="text"
                   value={draft.title}
                   onChange={(e) => {
                     setDraft((prev) => ({ ...prev, title: e.target.value }));
-                    setIsDirty(true);
                   }}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-bold outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
                 />
@@ -370,7 +387,6 @@ export default function CMSPagesScreen() {
                     value={draft.badge || ''}
                     onChange={(e) => {
                       setDraft((prev) => ({ ...prev, badge: e.target.value }));
-                      setIsDirty(true);
                     }}
                     placeholder="e.g. ENGINEERED FOR PRECISION"
                     className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-medium outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
@@ -387,7 +403,6 @@ export default function CMSPagesScreen() {
                   value={draft.subtitle}
                   onChange={(e) => {
                     setDraft((prev) => ({ ...prev, subtitle: e.target.value }));
-                    setIsDirty(true);
                   }}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-normal outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100 leading-relaxed"
                 />
@@ -404,7 +419,6 @@ export default function CMSPagesScreen() {
                     value={draft.contactEmail || ''}
                     onChange={(e) => {
                       setDraft((prev) => ({ ...prev, contactEmail: e.target.value }));
-                      setIsDirty(true);
                     }}
                     placeholder="e.g. support@sansai.com"
                     className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-medium outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
@@ -412,8 +426,7 @@ export default function CMSPagesScreen() {
                 </div>
               </div>
 
-              {activeTab === 'about' && (
-                <div>
+              <div>
                   <label className="block text-xs font-black uppercase tracking-wider text-gray-600 mb-1.5">
                     Contact Phone
                   </label>
@@ -424,14 +437,12 @@ export default function CMSPagesScreen() {
                       value={draft.contactPhone || ''}
                       onChange={(e) => {
                         setDraft((prev) => ({ ...prev, contactPhone: e.target.value }));
-                        setIsDirty(true);
                       }}
                       placeholder="e.g. +91 98765 43210"
                       className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-medium outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
                     />
                   </div>
-                </div>
-              )}
+              </div>
             </div>
           </div>
 
@@ -524,7 +535,7 @@ export default function CMSPagesScreen() {
                   Page Content Sections ({draft.sections.length})
                 </h3>
                 <p className="text-xs text-gray-400">
-                  Organize and edit the core clauses, paragraphs, and bullet points.
+                  {activeTab === 'payment' ? 'Edit the bank account details and payment instructions shown to customers.' : 'Organize and edit the core clauses, paragraphs, and bullet points.'}
                 </p>
               </div>
 
@@ -598,7 +609,8 @@ export default function CMSPagesScreen() {
                   {/* Section Content Area */}
                   <div>
                     <textarea
-                      rows={5}
+                      rows={activeTab === 'payment' ? 8 : 5}
+                      aria-label={`${section.heading || 'Section'} content`}
                       value={section.content}
                       onChange={(e) => handleSectionChange(section.id, 'content', e.target.value)}
                       placeholder="Type the detailed text here. Bullet points like '• Point 1' and paragraphs separated by blank lines will render beautifully..."
@@ -621,9 +633,10 @@ export default function CMSPagesScreen() {
               </button>
             </div>
           </div>
-        </div>
+        </fieldset>
       ) : (
         /* ─── LIVE PREVIEW MODE ─────────────────────────────────────────── */
+        activeTab !== 'about' && activeTab !== 'privacy' && activeTab !== 'terms' ? <PolicyDocument page={draft} /> :
         <div className="bg-white rounded-3xl border border-gray-200/80 shadow-md p-6 sm:p-12 overflow-hidden">
           <div className="max-w-4xl mx-auto space-y-8">
             {/* Live Preview Header */}
@@ -725,6 +738,7 @@ export default function CMSPagesScreen() {
                 <button
                   type="button"
                   onClick={handleConfirmReset}
+                  disabled={isSaving}
                   className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-md cursor-pointer"
                 >
                   Yes, Restore Default

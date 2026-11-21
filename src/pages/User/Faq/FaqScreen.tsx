@@ -518,14 +518,14 @@ export default function FaqScreen() {
               </div>
 
               <a
-                href="mailto:support@sansai.com"
+                href="mailto:sales.sanseisolutions@gmail.com"
                 className="bg-white/10 hover:bg-white/15 border border-white/10 rounded-2xl p-4 transition-all duration-300 cursor-pointer group block"
               >
                 <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                   <Mail size={18} />
                 </div>
                 <h4 className="font-bold text-sm text-white mb-0.5">Email Desk</h4>
-                <p className="text-xs text-gray-400">support@sansai.com</p>
+                <p className="text-xs text-gray-400 break-all">sales.sanseisolutions@gmail.com</p>
               </a>
             </div>
           </div>

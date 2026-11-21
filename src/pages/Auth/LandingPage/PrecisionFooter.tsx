@@ -1,7 +1,6 @@
 import { useId, useRef, useState, type FormEvent } from 'react';
-import { ArrowUpRight, ChevronDown, Mail, MapPin, Phone } from 'lucide-react';
+import { ArrowUpRight, Mail, MapPin, Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useGetHomeQuery } from '../../../service/homeApi';
 import { useCreateContactInquiryMutation } from '../../../service/bulkInquiryApi';
 import { apiErrorMessage } from '../../../utils/apiMessage';
 import './PrecisionFooter.css';
@@ -15,9 +14,10 @@ const locations = [
   {
     city: 'Gurugram',
      type: 'Head Office',
-    lines: ['Eros Corporate Park,', '11th Floor, 1131-B, Sector-2,', 'Manesar, Gurugram,', 'Haryana - 122052, India'],
+    lines: ['Eros Corporate Park,', 'office no. 419, Sector-2,', 'IMT Manesar, Gurugram,', 'Haryana - 122052, India'],
   },
-  // {
+  // { Eros Corporate Park
+
   //   city: 'Kolhapur',
   //   type: 'Branch Office',
   //   lines: ['Plot No. 578/1,', 'Near Saroj Foundry,', 'Opp. Shiroli MIDC,', 'Kolhapur - 416122, India'],
@@ -25,17 +25,32 @@ const locations = [
 ] as const;
 
 const sitemap = [
-  ['Home', '/'],
-  ['Products', '/catalog'],
+  // ['Sell on IDT', '/join-us'],
   ['About Us', '/about'],
-  ['Contact', '/bulk-inquiry'],
-  ['FAQs', '/faqs'],
-  ['Blog', '/blog'],
-  ['Login', '/login'],
-  ['Cart', '/cart'],
-  ['Orders', '/orders'],
+  ['Contact Us', '/bulk-inquiry#inquiry-form'],
+  ['Payment', '/payment'],
   ['Privacy Policy', '/privacy'],
-  ['Terms & Conditions', '/terms'],
+  ['Terms and Conditions', '/terms'],
+  ['Payment Terms and Conditions', '/payment-terms-and-conditions'],
+  ['Cancellation Policy', '/cancellation-policy'],
+  ['Returns and Refunds Policy', '/returns-and-refunds-policy'],
+  ['Shipping and Delivery Policy', '/shipping-and-delivery-policy'],
+  ['Cookie Policy', '/cookie-policy'],
+  ['Warranty and Liability Disclaimer', '/warranty-and-liability-disclaimer'],
+  ['Account Deletion Request', '/account-deletion-request'],
+] as const;
+
+const footerLinkGroups = [
+  { heading: 'Company', links: sitemap.slice(0, 6) },
+  { heading: 'Policies', links: sitemap.slice(6, 12) },
+  { heading: 'Operations', links: [
+    ['All products', '/catalog'],
+    ['Flat End Mill', '/category/hss-drill-bits'],
+    ['Flat Wood Drill Bits', '/category/flat-wood-drill-bits'],
+    ['Masonry Drill Bits', '/category/masonry-drill-bits'],
+    ['Glass & Tile Drill Bits', '/category/glass-and-tile-drill-bits'],
+    ['Hand Taps', '/category/hand-taps'],
+  ] },
 ] as const;
 
 // Demo destinations: replace these URLs with SANSEI's official social profiles.
@@ -64,8 +79,6 @@ export default function PrecisionFooter() {
   const contactPending = useRef(false);
   const [sendContact, { isLoading: sendingContact }] = useCreateContactInquiryMutation();
   const [contactFeedback, setContactFeedback] = useState<{ error: boolean; message: string } | null>(null);
-  const { data } = useGetHomeQuery();
-  const categories = data?.data?.categories ?? [];
   const startContact = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = event.currentTarget;
@@ -86,38 +99,15 @@ export default function PrecisionFooter() {
     <footer className="precision-footer" id="contact">
       <div className="precision-footer__inner">
         <div className="precision-footer__grid">
-          <nav className="precision-footer__operations" aria-labelledby="precision-footer-operations">
-            <h2 className="precision-footer__heading" id="precision-footer-operations">Operations</h2>
-            <div className="precision-footer__operation-list">
-              <Link to="/catalog" className="precision-footer__all-products">All products</Link>
-              {categories.map((category) => category.subcategories.length ? (
-                <details className="precision-footer__disclosure" key={category.id}>
-                  <summary><span>{category.name}</span><ChevronDown size={13} aria-hidden="true" /></summary>
-                  <ul className="precision-footer__sub-links">
-                    <li><Link to={`/category/${category.slug}`}>View all {category.name.toLowerCase()}</Link></li>
-                    {category.subcategories.map((subcategory) => <li key={subcategory.id}><Link to={`/category/${category.slug}/${subcategory.slug}`}>{subcategory.name}</Link></li>)}
-                  </ul>
-                </details>
-              ) : <Link className="precision-footer__category-link" key={category.id} to={`/category/${category.slug}`}>{category.name}</Link>)}
-            </div>
-          </nav>
-
-          <nav className="precision-footer__company" aria-labelledby="precision-footer-company">
-            <h2 className="precision-footer__heading" id="precision-footer-company">Company</h2>
-            <ul className="precision-footer__company-links">
-              <li><Link to="/about">About Us</Link></li>
-              <li><Link to="/faqs">FAQs</Link></li>
-              <li><Link to="/blog">Blog</Link></li>
-              <li><Link to="/bulk-inquiry#inquiry-form">Contact</Link></li>
-              <li>
-                <details className="precision-footer__disclosure precision-footer__sitemap">
-                  <summary><span>Sitemap</span><ChevronDown size={13} aria-hidden="true" /></summary>
-                  <ul className="precision-footer__sub-links">
-                    {sitemap.map(([label, path]) => <li key={label}><Link to={path}>{label}</Link></li>)}
-                  </ul>
-                </details>
-              </li>
-            </ul>
+          <nav className="precision-footer__sitemap" aria-label="Company, policies and operations">
+            {footerLinkGroups.map(({ heading, links }) => (
+              <div className="precision-footer__sitemap-column" key={heading}>
+                <h2 className="precision-footer__heading">{heading}</h2>
+                <ul>
+                  {links.map(([label, path]) => <li key={label}><Link to={path}>{label}</Link></li>)}
+                </ul>
+              </div>
+            ))}
           </nav>
 
           <section className="precision-footer__locations" aria-labelledby="precision-footer-locations">

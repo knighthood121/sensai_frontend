@@ -15,6 +15,8 @@ import { useAppSelector } from '../app/hooks';
 import { Dashboard } from '../pages/Admin';
 import BulkInquiry from '../pages/User/BulkInquiry';
 import { AboutPage, FaqPage, PrivacyPolicyPage, TermsPage } from '../pages/User/InfoPages';
+import PolicyPage from '../pages/User/PolicyPage';
+import { POLICY_PAGE_LINKS } from '../utils/policyPages';
 import BulkInquiriesAdmin from '../pages/Admin/BulkInquiries';
 import Blog, { BlogArticle } from '../pages/User/Blog';
 import BlogsAdmin from '../pages/Admin/Blogs';
@@ -158,6 +160,8 @@ export default function AppRoutes() {
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/terms" element={<TermsPage />} />
         <Route path="/terms-and-conditions" element={<TermsPage />} />
+        <Route path="/payment" element={<PolicyPage slug="payment" />} />
+        {POLICY_PAGE_LINKS.map(({ slug }) => <Route key={slug} path={`/${slug}`} element={<PolicyPage slug={slug} />} />)}
         <Route path="/join-us" element={<JoinUs />} />
         <Route path="/join" element={<Navigate to="/join-us" replace />} />
 

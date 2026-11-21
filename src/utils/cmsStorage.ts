@@ -1,4 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useGetCmsPagesQuery, useSaveCmsPageMutation } from '../service/cmsApi';
+import { DEFAULT_PAYMENT_PAGE, DEFAULT_POLICY_PAGES } from './policyPages';
 
 export interface CmsSection {
   id: string;
@@ -27,14 +29,16 @@ export interface CmsPage {
 }
 
 export const DEFAULT_CMS_PAGES: Record<string, CmsPage> = {
+  payment: DEFAULT_PAYMENT_PAGE,
+  ...DEFAULT_POLICY_PAGES,
   about: {
     slug: 'about',
-    title: 'About Sansai',
+    title: 'About Sansei',
     subtitle: 'Precision Industrial Tooling & High-Performance Cutting Solutions Engineered for India’s Modern Manufacturing.',
     badge: 'ENGINEERED FOR PRECISION',
     lastUpdated: 'October 2026',
     isActive: true,
-    contactEmail: 'support@sansai.com',
+    contactEmail: 'support@sansei.com',
     contactPhone: '+91 98765 43210',
     highlights: [
       { id: 'h1', value: '50,000+', label: 'Tools Shipped', description: 'Precision drill bits, end mills, and taps delivered nationwide' },
@@ -203,7 +207,15 @@ export function getStoredCmsPages(): Record<string, CmsPage> {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_CMS_PAGES));
       return DEFAULT_CMS_PAGES;
     }
-    // Ensure all 3 default pages exist even if storage had partial data
+    // Correct previously cached About defaults while preserving custom CMS content.
+    if (parsed.about?.title === 'About Sansai') {
+      parsed.about.title = DEFAULT_CMS_PAGES.about.title;
+    }
+    if (parsed.about?.contactEmail === 'support@sansai.com') {
+      parsed.about.contactEmail = DEFAULT_CMS_PAGES.about.contactEmail;
+    }
+
+    // Preserve browser drafts while adding newly introduced pages.
     return {
       ...DEFAULT_CMS_PAGES,
       ...parsed,
@@ -224,81 +236,37 @@ export function saveStoredCmsPages(pages: Record<string, CmsPage>): void {
   }
 }
 
-export function updateCmsPage(slug: string, updates: Partial<CmsPage>): CmsPage {
-  const pages = getStoredCmsPages();
-  const current = pages[slug] || DEFAULT_CMS_PAGES[slug];
-  const updatedPage: CmsPage = {
-    ...current,
-    ...updates,
-    slug,
-    lastUpdated: new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
-  };
-  pages[slug] = updatedPage;
-  saveStoredCmsPages(pages);
-  return updatedPage;
-}
-
-export function resetCmsPage(slug: string): CmsPage {
-  const pages = getStoredCmsPages();
-  const defaultPage = DEFAULT_CMS_PAGES[slug];
-  if (defaultPage) {
-    pages[slug] = { ...defaultPage };
-    saveStoredCmsPages(pages);
-    return defaultPage;
-  }
-  return pages[slug];
-}
-
-export function resetAllCmsPages(): Record<string, CmsPage> {
-  saveStoredCmsPages(DEFAULT_CMS_PAGES);
-  return DEFAULT_CMS_PAGES;
-}
-
 /**
- * React hook to read and write CMS pages reactively
+ * Published content comes from the API. Legacy browser content is retained as
+ * an admin-only fallback for pages that have not been saved to the server.
  */
-export function useCmsPages() {
-  const [pages, setPages] = useState<Record<string, CmsPage>>(() => getStoredCmsPages());
-
-  const reload = useCallback(() => {
-    setPages(getStoredCmsPages());
-  }, []);
+export function useCmsPages({ legacyDrafts = false } = {}) {
+  const [legacyPages] = useState(() => legacyDrafts ? getStoredCmsPages() : {});
+  const { data, isLoading, isError, refetch } = useGetCmsPagesQuery(undefined, {
+    refetchOnMountOrArgChange: true, refetchOnFocus: true,
+  });
+  const [savePage, { isLoading: isSaving }] = useSaveCmsPageMutation();
+  const pages = useMemo(() => ({ ...DEFAULT_CMS_PAGES, ...legacyPages, ...data?.data }), [legacyPages, data]);
 
   useEffect(() => {
-    const handleStorageChange = () => reload();
-    window.addEventListener(EVENT_NAME, handleStorageChange);
-    window.addEventListener('storage', handleStorageChange);
-
-    return () => {
-      window.removeEventListener(EVENT_NAME, handleStorageChange);
-      window.removeEventListener('storage', handleStorageChange);
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === STORAGE_KEY) void refetch();
     };
-  }, [reload]);
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [refetch]);
 
-  const handleUpdatePage = useCallback((slug: string, updates: Partial<CmsPage>) => {
-    const res = updateCmsPage(slug, updates);
-    setPages(getStoredCmsPages());
-    return res;
-  }, []);
+  const updatePage = useCallback(async (slug: string, updates: Partial<CmsPage>) => {
+    const response = await savePage({ ...pages[slug], ...updates, slug }).unwrap();
+    if (!response.success) throw new Error('Unable to save this page. Please try again.');
+    saveStoredCmsPages({ ...getStoredCmsPages(), [slug]: response.data });
+    return response.data;
+  }, [pages, savePage]);
 
-  const handleResetPage = useCallback((slug: string) => {
-    const res = resetCmsPage(slug);
-    setPages(getStoredCmsPages());
-    return res;
-  }, []);
-
-  const handleResetAll = useCallback(() => {
-    const res = resetAllCmsPages();
-    setPages(res);
-    return res;
-  }, []);
+  const resetPage = useCallback((slug: string) => updatePage(slug, DEFAULT_CMS_PAGES[slug]), [updatePage]);
 
   return {
-    pages,
-    updatePage: handleUpdatePage,
-    resetPage: handleResetPage,
-    resetAllPages: handleResetAll,
-    reload,
+    pages, updatePage, resetPage, isLoading, isSaving, isError, reload: refetch,
   };
 }
 
