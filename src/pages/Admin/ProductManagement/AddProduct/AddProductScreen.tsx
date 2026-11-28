@@ -2,6 +2,7 @@ import { COLORS, FONTS } from '../../../../constant/style';
 import Input from '../../../../components/common/Input';
 import Button from '../../../../components/common/Button';
 import type { AddProductScreenProps } from './index';
+import { Link } from 'react-router-dom';
 
 export default function AddProductScreen({
   name,
@@ -75,7 +76,7 @@ export default function AddProductScreen({
     <form onSubmit={handleSubmit} style={{ fontFamily: FONTS.main, color: COLORS.text }}>
       <div className="flex bg-white rounded-2xl border overflow-hidden" style={{ borderColor: COLORS.border }}>
         <div className="w-full">
-          <div className="px-6 py-5 flex items-center gap-4" style={{ borderBottom: `1px solid ${COLORS.border}` }}>
+          <div className="px-6 py-5 flex flex-wrap items-center gap-4" style={{ borderBottom: `1px solid ${COLORS.border}` }}>
             <button
               type="button"
               onClick={onCancel}
@@ -102,6 +103,7 @@ export default function AddProductScreen({
                 Fill in the details below to add a new product to your store.
               </p>
             </div>
+            <Link to="/admin/products/upload" className="ml-auto rounded-xl border border-red-200 px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50">Bulk Upload CSV / Excel</Link>
           </div>
 
           <div className="p-6">
@@ -233,7 +235,7 @@ export default function AddProductScreen({
                 required
                 disabled={isLoading}
               />
-              <Input label="Brand / Manufacturer" placeholder="e.g. Bosch, sansai" value={brand} onChange={(e) => setBrand(e.target.value)} disabled={isLoading} />
+              <Input label="Brand / Manufacturer" placeholder="e.g. Bosch, sansei" value={brand} onChange={(e) => setBrand(e.target.value)} disabled={isLoading} />
               <Input label="Material" placeholder="e.g. Stainless Steel 304" value={material} onChange={(e) => setMaterial(e.target.value)} disabled={isLoading} />
               <Input label="Finish / Coating" placeholder="e.g. Zinc plated, Black oxide" value={finish} onChange={(e) => setFinish(e.target.value)} disabled={isLoading} />
               <Input label="Dimensions" placeholder="e.g. M4 × 20 mm" value={dimensions} onChange={(e) => setDimensions(e.target.value)} disabled={isLoading} />

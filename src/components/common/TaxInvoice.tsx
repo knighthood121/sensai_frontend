@@ -420,10 +420,10 @@ export default function TaxInvoice({
               {buyer ? `${buyer.city}, ${buyer.state} - ${buyer.postalCode}` : 'Haryana - 122052'}
             </p>
             <p className="font-bold pt-1 text-gray-900">
-              GSTIN: {buyer?.gstin || '06AAZCS7666J1ZA'}
+              GSTIN: {buyer?.gstin || 'Not recorded'}
             </p>
             <p className="font-bold text-gray-900">
-              PAN: {buyer?.pan || 'AAZCS7666J'}
+              PAN: {buyer?.pan || 'Not recorded'}
             </p>
             <p className="font-bold text-gray-900">
               State: {buyer?.state ? `${buyer.state} ( 06 )` : 'Haryana ( 06 )'}

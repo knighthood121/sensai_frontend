@@ -32,7 +32,13 @@ export default function SignupScreen({ onBackClick, onSubmit, error, isLoading =
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [phone, setPhone] = useState('');
+  const [phoneTouched, setPhoneTouched] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  const isPhoneValid = phone === '' || /^[0-9]{10}$/.test(phone);
+  const phoneError = phoneTouched && !isPhoneValid
+    ? 'Phone number must be exactly 10 digits.'
+    : undefined;
 
   // Password Validation states
   const [valLength, setValLength] = useState(false);
@@ -51,10 +57,14 @@ export default function SignupScreen({ onBackClick, onSubmit, error, isLoading =
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isPhoneValid) {
+      setPhoneTouched(true);
+      return;
+    }
     onSubmit(name, email, password, phone || undefined);
   };
 
-  const isFormValid = valLength && valUpper && valLower && valDigit && valSpecial && name.trim() && email.trim();
+  const isFormValid = valLength && valUpper && valLower && valDigit && valSpecial && name.trim() && email.trim() && isPhoneValid;
 
   return (
     <div 
@@ -75,7 +85,7 @@ export default function SignupScreen({ onBackClick, onSubmit, error, isLoading =
         <div className="mb-8 text-center">
           <img 
             src={logo} 
-            alt="sansai" 
+            alt="sansei"
             className="h-20 w-auto mx-auto mb-5 cursor-pointer hover:opacity-85 transition-opacity object-contain"
             onClick={onBackClick}
           />
@@ -85,7 +95,7 @@ export default function SignupScreen({ onBackClick, onSubmit, error, isLoading =
           >
             Create Account
           </h2>
-          <p className="font-medium opacity-50">Join sansai and start shopping</p>
+          <p className="font-medium opacity-50">Join sansei and start shopping</p>
         </div>
 
         {error && (
@@ -128,9 +138,21 @@ export default function SignupScreen({ onBackClick, onSubmit, error, isLoading =
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input 
               label="Phone Number (Optional)"
-              type="tel" 
+              type="tel"
+              name="phone"
+              inputMode="numeric"
+              autoComplete="tel-national"
+              minLength={10}
+              maxLength={10}
+              pattern="[0-9]{10}"
+              title="Phone number must be exactly 10 digits."
+              aria-label="Phone Number (Optional)"
+              aria-invalid={phoneTouched && !isPhoneValid}
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => setPhone(e.target.value.replace(/[^0-9]/g, ''))}
+              onBlurCapture={() => setPhoneTouched(true)}
+              onInvalid={() => setPhoneTouched(true)}
+              error={phoneError}
               placeholder="9876543210"
             />
 

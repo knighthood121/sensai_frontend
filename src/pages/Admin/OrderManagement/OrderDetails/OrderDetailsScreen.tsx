@@ -2,6 +2,7 @@ import React from 'react';
 import type { NavigateFunction } from 'react-router-dom';
 import { COLORS, FONTS } from '../../../../constant/style';
 import Button from '../../../../components/common/Button';
+import OrderDocuments from '../../../../components/common/OrderDocuments';
 import {
   Loader2,
   AlertCircle,
@@ -226,6 +227,7 @@ export default function OrderDetailsScreen({
           </div>
 
           {/* Timeline steppers */}
+          <OrderDocuments key={order.id} orderId={order.id} admin stages={[...new Set([...order.timelines.map(entry => entry.status as OrderStatus), order.status])]} />
           {order.timelines && order.timelines.length > 0 && (
             <div className="bg-white rounded-2xl border p-6 shadow-sm" style={{ borderColor: COLORS.border }}>
               <h2 className="text-lg font-bold mb-6 flex items-center gap-2">
@@ -274,6 +276,7 @@ export default function OrderDetailsScreen({
 
         {/* Right Column - Customer, Shipping & Payment Summary */}
         <div className="space-y-6">
+          <div className="rounded-2xl border border-gray-200 bg-white p-6"><h3 className="text-sm font-bold text-gray-900">Customer GST Number</h3><p className="mt-2 font-mono text-sm text-gray-700">{order.gstNumber || 'Not recorded on this order'}</p></div>
           {/* Customer profile info */}
           <div className="bg-white rounded-2xl border p-6 shadow-sm" style={{ borderColor: COLORS.border }}>
             <h2 className="text-lg font-bold mb-4 flex items-center gap-2">

@@ -47,6 +47,11 @@ const authSlice = createSlice({
     name: 'auth',
     initialState: getInitialState(),
     reducers: {
+        updateUser: (state, action: PayloadAction<AuthUser>) => {
+            if (!state.isAuthenticated || (state.user && state.user.id !== action.payload.id)) return;
+            state.user = action.payload;
+            localStorage.setItem('user', JSON.stringify(action.payload));
+        },
         setCredentials: (
             state,
             action: PayloadAction<{ user: AuthUser; tokens: AuthTokens }>
@@ -82,6 +87,6 @@ const authSlice = createSlice({
     },
 });
 
-export const { setCredentials, updateAccessToken, logOut } = authSlice.actions;
+export const { setCredentials, updateAccessToken, logOut, updateUser } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -32,7 +32,7 @@ export default function Navbar({ onLoginClick, onMenuClick, isSidebarMinimized }
         <div className="flex h-full items-center justify-between px-4 sm:px-6">
           <div className="flex items-center gap-3">
             <button onClick={onMenuClick} className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 lg:hidden" aria-label="Open menu"><Menu size={22} /></button>
-            <div><p className="text-xs font-bold uppercase tracking-[0.18em] text-red-600">sansai commerce</p><h1 className="text-base font-extrabold text-gray-950">Admin workspace</h1></div>
+            <div><p className="text-xs font-bold uppercase tracking-[0.18em] text-red-600">sansei commerce</p><h1 className="text-base font-extrabold text-gray-950">Admin workspace</h1></div>
           </div>
           <div className="flex items-center gap-3">
             <div className="hidden text-right sm:block"><p className="text-sm font-bold text-gray-900">{user?.name || 'Administrator'}</p><p className="text-xs text-gray-500">{user?.email || 'Store operations'}</p></div>

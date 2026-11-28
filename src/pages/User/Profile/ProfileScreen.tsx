@@ -5,6 +5,7 @@ import { COLORS, FONTS } from '../../../constant/style';
 import Navbar from '../../../components/layout/Navbar';
 import Footer from '../../../components/layout/Footer';
 import Button from '../../../components/common/Button';
+import CustomerGst from '../../../components/common/CustomerGst';
 import {
   Mail,
   Phone,
@@ -176,7 +177,7 @@ export default function ProfileScreen({
             My <span style={{ color: COLORS.primary }}>Profile</span>
           </h1>
           <p className="text-gray-400 mt-3 font-medium text-sm sm:text-base max-w-xl">
-            Manage your account details, delivery address book, and wallet.
+            Manage your account details, GST number, delivery address book, and wallet.
           </p>
         </div>
 
@@ -277,6 +278,7 @@ export default function ProfileScreen({
 
           {/* ─── RIGHT COLUMN ────────────────────────────────────────────────── */}
           <div className="lg:col-span-2 space-y-8">
+            <CustomerGst key={`${user.id}-${user.customerProfile?.gstNumber || ''}`} gstNumber={user.customerProfile?.gstNumber} />
             
             {/* Account Details & Security Cards */}
             <div className="bg-white rounded-[24px] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.02)] border border-gray-100">

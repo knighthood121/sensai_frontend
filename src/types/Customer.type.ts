@@ -1,6 +1,7 @@
 import type { Pagination } from './Product.type';
 
 export interface CustomerSummary {
+  gstNumber?: string | null;
   id: number;
   customerId: string;
   name: string;

@@ -420,7 +420,7 @@ export default function CMSPagesScreen() {
                     onChange={(e) => {
                       setDraft((prev) => ({ ...prev, contactEmail: e.target.value }));
                     }}
-                    placeholder="e.g. support@sansai.com"
+                    placeholder="e.g. support@sansei.com"
                     className="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-gray-200 text-sm font-medium outline-none focus:border-red-500 focus:ring-2 focus:ring-red-100"
                   />
                 </div>

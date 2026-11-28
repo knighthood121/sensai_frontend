@@ -9,7 +9,7 @@ import type {
   MeResponse,
   DeleteResponse,
 } from '../types/Auth.type';
-import { setCredentials, logOut } from '../Feature/Authentication/Slice';
+import { setCredentials, logOut, updateUser } from '../Feature/Authentication/Slice';
 
 export const authApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -106,6 +106,22 @@ export const authApi = api.injectEndpoints({
     getMe: builder.query<MeResponse, void>({
       query: () => ENDPOINTS.auth.me,
       providesTags: ['Auth'],
+      async onQueryStarted(_args, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          if (data.success) dispatch(updateUser(data.data));
+        } catch { /* The requesting screen displays the error. */ }
+      },
+    }),
+    updateGst: builder.mutation<MeResponse, { gstNumber: string }>({
+      query: (body) => ({ url: ENDPOINTS.auth.me + '/gst', method: 'PATCH', body }),
+      async onQueryStarted(_args, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          if (data.success) dispatch(updateUser(data.data));
+        } catch { /* Preserve the customer's draft after a failed save. */ }
+      },
+      invalidatesTags: ['Auth', 'Customer'],
     }),
   }),
   overrideExisting: false,
@@ -118,4 +134,5 @@ export const {
   useLogoutMutation,
   useGetMeQuery,
   useLazyGetMeQuery,
+  useUpdateGstMutation,
 } = authApi;

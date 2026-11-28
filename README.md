@@ -1,5 +1,23 @@
 # SANSEI storefront
 
+## GST profiles, product imports and order documents
+
+- Customers save a GST number in **My Profile > GST Details**. A saved GST number
+  is required at checkout and is shown on the order and invoice.
+- Administrators can open **Add Product > Bulk Upload CSV / Excel** to download
+  a template, validate a CSV/XLSX file, review row errors and confirm the import.
+  Imports support up to 500 rows and 5 MB. Existing products are not overwritten.
+- **Admin > Orders > View details > Order Documents** accepts PDF/JPG/PNG files
+  up to 8 MB for each reached order stage. Customers view and download these files
+  from **My Orders > View details**.
+
+Deploy the matching backend and apply migration
+`20261128000000_customer_gst_order_documents` before deploying this frontend.
+Document storage uses the backend's Cloudinary configuration. See the backend
+README for endpoint details and rollout instructions.
+
+Run `node --test tests/commerce-features.test.mjs` for focused UI regression checks.
+
 ## Email inquiries and blog publishing
 
 The footer sends email-only inquiries to `POST /api/v1/bulk-inquiries/contact`.

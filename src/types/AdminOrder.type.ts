@@ -55,6 +55,7 @@ export interface AdminOrderAddress {
 }
 
 export interface AdminOrderSummary {
+  gstNumber: string | null;
   id: number;
   orderNumber: string;
   userId: number;

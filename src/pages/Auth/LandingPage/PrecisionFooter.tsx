@@ -130,7 +130,7 @@ export default function PrecisionFooter() {
                 {/* <a href="tel:+91 94676 13669"><Phone size={14} aria-hidden="true" /><span>+91 94676 13669</span></a> */}
                 {/* <a href="mailto:Sales@sanseisolutions.in"><Mail size={15} aria-hidden="true" /><span>Sales@sanseisolutions.in</span></a> */}
                 {/* <a href="mailto:tech@sanseisolutions.in"><Mail size={15} aria-hidden="true" /><span>tech@sanseisolutions.in</span></a> */}
-                <a href="tel:+91 98705 17217"><Phone size={14} aria-hidden="true" /><span>+91 98705 17217</span></a>
+                <a href="tel:+91 9319823999"><Phone size={14} aria-hidden="true" /><span>+91 9319823999</span></a>
               </div>
               <div className="precision-footer__contact-links">
                 {/* <a href="tel:+91 94676 13669"><Phone size={14} aria-hidden="true" /><span>+91 94676 13669</span></a> */}

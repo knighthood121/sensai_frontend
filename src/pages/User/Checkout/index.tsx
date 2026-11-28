@@ -10,6 +10,8 @@ import { useVerifyPaymentMutation, useHandlePaymentFailureMutation } from '../..
 import { useToast } from '../../../components/common/Toast';
 import { useAppSelector } from '../../../app/hooks';
 import { COLORS } from '../../../constant/style';
+import { useGetMeQuery } from '../../../service/authApi';
+import { GST_NUMBER_PATTERN } from '../../../utils/gst';
 
 export interface OrderItem {
   productId: number;
@@ -96,7 +98,11 @@ const loadRazorpayScript = () => {
 export default function Checkout() {
   const navigate = useNavigate();
   const { showToast } = useToast();
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const { data: profileResponse, isFetching: isProfileFetching, isError: isProfileError } = useGetMeQuery(undefined, {
+    skip: !isAuthenticated, refetchOnMountOrArgChange: true,
+  });
+  const user = profileResponse?.data;
 
   // Form fields
   const [name, setName] = useState('');
@@ -281,6 +287,10 @@ export default function Checkout() {
 
   const handlePlaceOrder = async (e: FormEvent) => {
     e.preventDefault();
+    if (isProfileFetching || isProfileError || !GST_NUMBER_PATTERN.test(user?.customerProfile?.gstNumber || '')) {
+      showToast('Save a valid GST number in your profile before placing an order.', 'error');
+      return;
+    }
     if (!name.trim() || !addressLine1.trim() || !city.trim() || !stateName.trim() || !postalCode.trim() || !phone.trim()) {
       showToast('Please fill in all required delivery details.', 'error');
       return;
@@ -494,7 +504,7 @@ export default function Checkout() {
     navigate('/orders');
   };
 
-  const isLoading = (isCartLoading && !isBuyNow && !orderPlaced) || isAddressesLoading;
+  const isLoading = (isCartLoading && !isBuyNow && !orderPlaced) || isAddressesLoading || isProfileFetching;
 
   return (
     <CheckoutScreen

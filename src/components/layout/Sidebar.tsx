@@ -2,6 +2,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { BookOpen } from 'lucide-react';
 import { COLORS, FONTS } from '../../constant/style';
 import logo from '../../assets/logo.png';
+import { useAppDispatch } from '../../app/hooks';
+import { logOut } from '../../Feature/Authentication/Slice';
+import { useLogoutMutation } from '../../service/authApi';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -123,6 +126,8 @@ const adminNavLinks = [
 ];
 
 export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize }: SidebarProps) {
+  const dispatch = useAppDispatch();
+  const [logout] = useLogoutMutation();
   const location = useLocation();
   const navigate = useNavigate();
   const isAdminRoute = location.pathname.startsWith('/admin');
@@ -135,7 +140,9 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('adminAuth');
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (refreshToken) void logout({ refreshToken });
+    else dispatch(logOut());
     navigate('/login');
     onClose();
   };
@@ -170,14 +177,14 @@ export default function Sidebar({ isOpen, onClose, isMinimized, onToggleMinimize
             onClick={() => handleNavigate('/')}
           >
             <div className="w-10 h-10 rounded-xl overflow-hidden bg-white flex items-center justify-center p-1 transition-transform duration-300 group-hover:scale-105 shadow-md">
-              <img src={logo} alt="sansai" className="w-full h-full object-contain" />
+              <img src={logo} alt="sansei" className="w-full h-full object-contain" />
             </div>
             {!isMinimized && (
               <span
                 className="font-black text-xl tracking-tight transition-colors duration-300 text-white"
                 style={{ fontFamily: FONTS.heading }}
               >
-                sansai
+                sansei
               </span>
             )}
           </div>

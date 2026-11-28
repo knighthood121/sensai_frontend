@@ -6,6 +6,7 @@ import Navbar from '../../../components/layout/Navbar';
 import Footer from '../../../components/layout/Footer';
 import Button from '../../../components/common/Button';
 import TaxInvoice from '../../../components/common/TaxInvoice';
+import OrderDocuments from '../../../components/common/OrderDocuments';
 import { useAppSelector } from '../../../app/hooks';
 import { useToast } from '../../../components/common/Toast';
 import {
@@ -91,7 +92,7 @@ export default function OrdersScreen() {
     isError: isDetailError,
   } = useGetOrderByIdQuery(
     selectedOrderId as number,
-    { skip: !selectedOrderId }
+    { skip: !selectedOrderId, pollingInterval: 15000, refetchOnMountOrArgChange: true }
   );
 
   useEffect(() => {
@@ -1187,6 +1188,8 @@ export default function OrdersScreen() {
                           </div>
 
                           {/* Order timelines */}
+                          <div className="rounded-xl border border-gray-200 bg-white p-4"><p className="text-xs font-bold text-gray-500">GST NUMBER</p><p className="mt-1 font-mono text-sm">{order.gstNumber || 'Not recorded on this order'}</p></div>
+                          <OrderDocuments key={order.id} orderId={order.id} />
                           {order.timelines && order.timelines.length > 0 && (
                             <div className="bg-gray-50 rounded-2xl p-5 border border-gray-150">
                               <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-4 flex items-center gap-1.5">
@@ -1311,8 +1314,8 @@ export default function OrdersScreen() {
                 postalCode: printingOrder.address?.postalCode || '122052',
                 phone: printingOrder.address?.phone || '+91-9870517217',
                 email: '',
-                gstin: (printingOrder as any).gstin || '06AAZCS7666J1ZA',
-                pan: (printingOrder as any).pan || 'AAZCS7666J',
+                gstin: printingOrder.gstNumber || '',
+                pan: printingOrder.gstNumber?.slice(2, 12) || '',
               };
 
               return (

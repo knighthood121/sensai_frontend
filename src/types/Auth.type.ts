@@ -7,6 +7,7 @@ export interface ApiResponse<T> {
 
 // Auth Sub-models
 export interface CustomerProfile {
+    gstNumber: string | null;
     id: number;
     referralCode: string | null;
     totalOrders: number;

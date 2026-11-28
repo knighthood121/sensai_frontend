@@ -1,7 +1,13 @@
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, createListenerMiddleware } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import { api } from '../service/api';
-import authReducer from '../Feature/Authentication/Slice';
+import authReducer, { logOut } from '../Feature/Authentication/Slice';
+
+const sessionListener = createListenerMiddleware();
+sessionListener.startListening({
+  actionCreator: logOut,
+  effect: (_action, listener) => { listener.dispatch(api.util.resetApiState()); },
+});
 
 export const store = configureStore({
   reducer: {
@@ -11,7 +17,7 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: false, // Turn off serializable check if necessary for file upload payloads
-    }).concat(api.middleware),
+    }).prepend(sessionListener.middleware).concat(api.middleware),
 });
 
 setupListeners(store.dispatch);

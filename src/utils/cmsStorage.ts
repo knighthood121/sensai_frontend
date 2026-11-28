@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useGetCmsPagesQuery, useSaveCmsPageMutation } from '../service/cmsApi';
 import { DEFAULT_PAYMENT_PAGE, DEFAULT_POLICY_PAGES } from './policyPages';
+import { correctBrandSpelling } from './brandName';
 
 export interface CmsSection {
   id: string;
@@ -50,14 +51,14 @@ export const DEFAULT_CMS_PAGES: Record<string, CmsPage> = {
       {
         id: 'story',
         heading: 'Our Story & Engineering Mission',
-        content: `Founded with a clear engineering objective, Sansai delivers industrial-grade precision drill bits, hand taps, hole saws, and carbide cutting tools tailored for fabrication shops, CNC machine centers, and industrial workshops across India.
+        content: `Founded with a clear engineering objective, Sansei delivers industrial-grade precision drill bits, hand taps, hole saws, and carbide cutting tools tailored for fabrication shops, CNC machine centers, and industrial workshops across India.
 
 We bridge the gap between expensive imported tooling and substandard domestic alternatives by adhering strictly to ISO metallurgical standards, precision concentricity grinds, and calibrated hardness treatments (HRC 64–68). Every tool is designed to maximize tool life, minimize spindle chatter, and deliver mirror-clean holes on challenging alloys.`,
       },
       {
         id: 'quality',
         heading: 'Uncompromising Quality Standards',
-        content: `Every Sansai cutting tool undergoes stringent multi-stage inspection:
+        content: `Every Sansei cutting tool undergoes stringent multi-stage inspection:
 
 • Premium Metallurgical Raw Materials: Micro-grain tungsten carbide and M35/M42 Cobalt High-Speed Steel.
 • 5-Axis CNC Flute Grinding: Ultra-smooth chip evacuation channels to prevent material clogging and thermal softening.
@@ -81,12 +82,12 @@ We offer commercial B2B invoicing, GST input credit compliance, customized dimen
     badge: 'DATA PROTECTION & SECURITY',
     lastUpdated: 'October 2026',
     isActive: true,
-    contactEmail: 'privacy@sansai.com',
+    contactEmail: 'privacy@sansei.com',
     sections: [
       {
         id: 'intro',
         heading: '1. Introduction & Scope',
-        content: `Sansai Commerce ("we", "our", or "us") operates the website and online ordering platform. This Privacy Policy outlines our procedures regarding the collection, handling, and disclosure of personal and commercial information when you browse our catalog, register an account, or place retail and bulk orders.
+        content: `Sansei Commerce ("we", "our", or "us") operates the website and online ordering platform. This Privacy Policy outlines our procedures regarding the collection, handling, and disclosure of personal and commercial information when you browse our catalog, register an account, or place retail and bulk orders.
 
 By accessing our services, you consent to the data practices described in this policy in accordance with applicable Indian data protection and information technology regulations.`,
       },
@@ -98,7 +99,7 @@ By accessing our services, you consent to the data practices described in this p
 • Account & Profile Information: Name, email address, mobile phone number, workshop name, and login credentials.
 • Shipping & Delivery Details: Physical shipping address, workshop or shed unit number, landmark, delivery pin code, and dispatch instructions.
 • Business & Tax Details (B2B): Registered legal entity name and 15-digit GSTIN number for tax invoicing and input credit claims.
-• Payment Data: Transactions are handled securely through PCI-DSS Level 1 certified payment gateways. Sansai never stores your full card numbers, CVVs, or banking PINs on its servers.`,
+• Payment Data: Transactions are handled securely through PCI-DSS Level 1 certified payment gateways. Sansei never stores your full card numbers, CVVs, or banking PINs on its servers.`,
       },
       {
         id: 'usage',
@@ -123,14 +124,14 @@ By accessing our services, you consent to the data practices described in this p
       {
         id: 'security',
         heading: '5. Data Security & Retention',
-        content: `Sansai implements 256-bit SSL encryption, automated tokenization, and strict database firewalls. All data is retained only for as long as necessary to fulfill commercial purchases and statutory tax filing periods.`,
+        content: `Sansei implements 256-bit SSL encryption, automated tokenization, and strict database firewalls. All data is retained only for as long as necessary to fulfill commercial purchases and statutory tax filing periods.`,
       },
       {
         id: 'rights',
         heading: '6. Your Rights & Grievance Contact',
         content: `You have the right to review, update, or request deletion of your account details at any time from your Profile Dashboard.
 
-For privacy inquiries, data requests, or grievance redressal, please reach our Data Protection Officer at privacy@sansai.com.`,
+For privacy inquiries, data requests, or grievance redressal, please reach our Data Protection Officer at privacy@sansei.com.`,
       },
     ],
   },
@@ -142,12 +143,12 @@ For privacy inquiries, data requests, or grievance redressal, please reach our D
     badge: 'TERMS OF SERVICE',
     lastUpdated: 'October 2026',
     isActive: true,
-    contactEmail: 'legal@sansai.com',
+    contactEmail: 'legal@sansei.com',
     sections: [
       {
         id: 'agreement',
         heading: '1. Agreement to Terms',
-        content: `By accessing, browsing, or purchasing precision cutting tools, drill bits, and machinery accessories from Sansai, you agree to be bound by these Terms and Conditions and all applicable Indian industrial regulations. If you do not agree, please do not use the platform.`,
+        content: `By accessing, browsing, or purchasing precision cutting tools, drill bits, and machinery accessories from Sansei, you agree to be bound by these Terms and Conditions and all applicable Indian industrial regulations. If you do not agree, please do not use the platform.`,
       },
       {
         id: 'orders',
@@ -167,7 +168,7 @@ For privacy inquiries, data requests, or grievance redressal, please reach our D
       {
         id: 'warranty',
         heading: '5. Manufacturer Guarantee & Limitations',
-        content: `All Sansai tools are warranted against metallurgical flaws, premature carbide detachment, and out-of-tolerance straightness.
+        content: `All Sansei tools are warranted against metallurgical flaws, premature carbide detachment, and out-of-tolerance straightness.
 
 Warranty does not cover normal cutting edge wear, tool overheating due to absence of coolant, improper machine RPM, or using standard bits on reinforced rebar concrete.`,
       },
@@ -246,7 +247,26 @@ export function useCmsPages({ legacyDrafts = false } = {}) {
     refetchOnMountOrArgChange: true, refetchOnFocus: true,
   });
   const [savePage, { isLoading: isSaving }] = useSaveCmsPageMutation();
-  const pages = useMemo(() => ({ ...DEFAULT_CMS_PAGES, ...legacyPages, ...data?.data }), [legacyPages, data]);
+  const pages = useMemo(() => Object.fromEntries(
+    Object.entries({ ...DEFAULT_CMS_PAGES, ...legacyPages, ...data?.data }).map(([slug, page]) => [slug, {
+      ...page,
+      title: correctBrandSpelling(page.title),
+      subtitle: correctBrandSpelling(page.subtitle),
+      badge: page.badge && correctBrandSpelling(page.badge),
+      contactEmail: page.contactEmail && correctBrandSpelling(page.contactEmail),
+      sections: page.sections.map((section) => ({
+        ...section,
+        heading: correctBrandSpelling(section.heading),
+        content: correctBrandSpelling(section.content),
+      })),
+      highlights: page.highlights?.map((highlight) => ({
+        ...highlight,
+        label: correctBrandSpelling(highlight.label),
+        value: correctBrandSpelling(highlight.value),
+        description: highlight.description && correctBrandSpelling(highlight.description),
+      })),
+    }]),
+  ), [legacyPages, data]);
 
   useEffect(() => {
     const handleStorageChange = (event: StorageEvent) => {

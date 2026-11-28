@@ -82,6 +82,7 @@ export default function CustomerDetailsScreen() {
       initials,
       email,
       phone,
+      gstNumber: passed?.gstNumber || null,
       since,
       totalOrders,
       totalSpent,
@@ -160,6 +161,8 @@ export default function CustomerDetailsScreen() {
                   <div>
                     <p className="text-xs text-gray-400 mb-0.5 font-bold uppercase tracking-wider">Phone</p>
                     <p className="text-sm font-semibold text-gray-900">{customer.phone}</p>
+                    <p className="mt-3 text-xs font-bold uppercase tracking-wider text-gray-400">GST Number</p>
+                    <p className="mt-1 font-mono text-sm text-gray-900">{customer.gstNumber || 'Not added'}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">

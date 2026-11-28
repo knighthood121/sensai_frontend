@@ -28,6 +28,7 @@ import {
   Lock,
 } from 'lucide-react';
 import type { CheckoutScreenProps } from './index';
+import { GST_NUMBER_PATTERN } from '../../../utils/gst';
 
 export default function CheckoutScreen({
   isLoading,
@@ -537,6 +538,13 @@ export default function CheckoutScreen({
             <Button onClick={onContinueShopping}>Continue Shopping</Button>
           </div>
         ) : (
+          <>
+          <div className={`mb-6 rounded-2xl border p-5 ${GST_NUMBER_PATTERN.test(user?.customerProfile?.gstNumber || '') ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-amber-50'}`}>
+            <h3 className="font-bold text-gray-950">GST Number</h3>
+            {GST_NUMBER_PATTERN.test(user?.customerProfile?.gstNumber || '')
+              ? <p className="mt-1 font-mono text-sm text-emerald-800">{user.customerProfile.gstNumber}</p>
+              : <p className="mt-1 text-sm text-amber-900">A saved GST number is required to place an order. <button type="button" onClick={() => navigate('/profile')} className="font-bold underline">Add GST number in My Profile</button></p>}
+          </div>
           <form onSubmit={handlePlaceOrder} className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-12 items-start">
 
             {/* Delivery details form */}
@@ -919,7 +927,7 @@ export default function CheckoutScreen({
                 variant="primary"
                 size="lg"
                 fullWidth
-                disabled={isProcessing}
+                disabled={isProcessing || !GST_NUMBER_PATTERN.test(user?.customerProfile?.gstNumber || '')}
                 className="rounded-2xl font-black uppercase tracking-wider text-xs bg-red-600 hover:bg-red-700 border border-red-500/50 py-4 shadow-[0_4px_12px_rgba(220,38,38,0.2)] hover:shadow-[0_8px_20px_rgba(220,38,38,0.3)] transition-all duration-300 active:scale-[0.98] cursor-pointer !bg-red-600 text-white disabled:bg-gray-200 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isProcessing ? (
@@ -938,6 +946,7 @@ export default function CheckoutScreen({
               </div>
             </div>
           </form>
+          </>
         )}
       </main>
 

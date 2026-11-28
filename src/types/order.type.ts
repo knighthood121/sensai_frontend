@@ -61,6 +61,7 @@ export interface OrderAddress {
 }
 
 export interface OrderSummary {
+  gstNumber: string | null;
   id: number;
   orderNumber: string;
   status: OrderStatus;

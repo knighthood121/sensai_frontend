@@ -210,8 +210,8 @@ function InvoiceDetailModal({
     postalCode: order.address?.postalCode || '122052',
     phone: order.address?.phone || order.customer?.phone || '+91-9870517217',
     email: order.customer?.email || '',
-    gstin: (order as any).gstin || '06AAZCS7666J1ZA',
-    pan: (order as any).pan || 'AAZCS7666J',
+    gstin: order.gstNumber || '',
+    pan: order.gstNumber?.slice(2, 12) || '',
   };
 
   return (
